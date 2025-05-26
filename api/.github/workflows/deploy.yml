@@ -1,0 +1,55 @@
+name: Deploy All Services
+on:
+  push:
+    branches: [main, preview]
+
+jobs:
+  deploy-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+      - run: cd api && npm ci && npm run build
+      - name: Deploy API to Production
+        if: github.ref == 'refs/heads/main'
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: noteprism-api
+          source: ./api
+          region: us-central1
+      - name: Deploy API to Preview
+        if: github.ref == 'refs/heads/preview'
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: preview-noteprism-api
+          source: ./api
+          region: us-central1
+
+  deploy-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+      - run: cd web && rm -rf node_modules package-lock.json
+      - run: cd web && npm install --legacy-peer-deps
+      - run: cd web && npm run build
+      - name: Deploy Web to Production
+        if: github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'web'
+          command: pages deploy build/client --project-name=noteprism-remix
+      - name: Deploy Web to Preview
+        if: github.ref == 'refs/heads/preview'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'web'
+          command: pages deploy build/client --project-name=preview-noteprism-remix
