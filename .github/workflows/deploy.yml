@@ -2,7 +2,6 @@ name: Deploy Web to Cloudflare Pages
 on:
   push:
     branches: [main, preview]
-
 jobs:
   deploy-web:
     runs-on: ubuntu-latest
@@ -17,13 +16,13 @@ jobs:
       - run: cd web && npm run build
       - name: Deploy Web to Production
         if: github.ref == 'refs/heads/main'
-        run: cd web && wrangler pages deploy build/client --project-name=noteprism-remix
+        run: cd web && wrangler pages deploy build/client --project-name=noteprism
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: Deploy Web to Preview
         if: github.ref == 'refs/heads/preview'
-        run: cd web && wrangler pages deploy build/client --project-name=preview-noteprism-remix
+        run: cd web && wrangler pages deploy build/client --project-name=preview-noteprism
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
