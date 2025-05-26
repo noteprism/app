@@ -51,10 +51,9 @@ cd api && npm run build
 ```
 
 ## 📦 Deployment
-
 ### Frontend → Cloudflare Pages
-- **Production:** Deploys from `main` branch → `noteprism-remix`
-- **Preview:** Deploys from `preview` branch → `preview-noteprism-remix`
+- **Production:** Deploys from `main` branch → `noteprism`
+- **Preview:** Deploys from `preview` branch → `preview-noteprism`
 - **Automation:** GitHub Actions (`.github/workflows/deploy.yml`)
 
 **Required GitHub Secrets:**
@@ -62,8 +61,8 @@ cd api && npm run build
 - `CLOUDFLARE_ACCOUNT_ID`
 
 ### Backend → Google Cloud Run
-- **Production:** Deploys from `main` branch → `noteprism-api`
-- **Preview:** Deploys from `preview` branch → `preview-noteprism-api`
+- **Production:** Deploys from `main` branch → `api`
+- **Preview:** Deploys from `preview` branch → `preview`
 - **Automation:** Cloud Build triggers
 
 **Features:**
@@ -73,7 +72,6 @@ cd api && npm run build
 - Dockerfile-based deployments
 
 ## 🛠 Tech Stack
-
 ### Frontend
 - **Remix** - Full-stack React framework
 - **Radix UI Themes** - Complete design system
@@ -96,13 +94,12 @@ cd api && npm run build
 - **Cloud Build** - Container builds
 
 ## 🔧 Environment Variables
-
 ### Frontend (`web/.env.local`)
 ```env
 # API endpoints
 VITE_API_URL=http://localhost:8080
-VITE_API_URL_PROD=https://your-api-url.run.app
-```
+VITE_API_URL_PROD=https://api-[hash].a.run.app
+VITE_API_URL_PREVIEW=https://preview-[hash].a.run.app
 
 ### Backend (`api/.env`)
 ```env
