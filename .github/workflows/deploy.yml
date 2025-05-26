@@ -2,6 +2,9 @@ name: Deploy Web to Cloudflare Pages
 on:
   push:
     branches: [main, preview]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy.yml'
 jobs:
   deploy-web:
     runs-on: ubuntu-latest
