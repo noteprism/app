@@ -161,5 +161,3 @@ The backend uses IAM authentication by default. The frontend communicates with t
 5. Create PR to `main` for production deployment
 
 ---
-
-**Happy building! 🚀**
