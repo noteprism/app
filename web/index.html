@@ -6,7 +6,43 @@
     <title>NotePrism</title>
   </head>
   <body>
-    <h1>NotePrism is working!</h1>
+    <div x-data="healthCheck()" x-init="init()" style="display: flex; flex-direction: column; align-items: center; margin-top: 2rem;">
+      <ion-progress-bar type="indeterminate" x-show="isLoading" style="width: 80%;"></ion-progress-bar>
+      <div x-show="!isLoading">
+        <ion-badge color="success" x-show="status === 'ok'">API Healthy</ion-badge>
+        <ion-badge color="danger" x-show="status !== 'ok'">API Down</ion-badge>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+    function healthCheck() {
+      return {
+        isLoading: true,
+        status: null,
+        async init() {
+          const host = window.location.hostname;
+          let apiUrl;
+          if (host === 'preview.noteprism.com') {
+            apiUrl = 'https://preview-768383813386.us-central1.run.app/health';
+          } else if (host === 'noteprism.com' || host === 'www.noteprism.com') {
+            apiUrl = 'https://api-768383813386.us-central1.run.app/health';
+          } else {
+            this.status = 'error';
+            this.isLoading = false;
+            return;
+          }
+          try {
+            const res = await fetch(apiUrl);
+            const data = await res.json();
+            this.status = data.status;
+          } catch {
+            this.status = 'error';
+          } finally {
+            this.isLoading = false;
+          }
+        }
+      }
+    }
+    </script>
   </body>
 </html> 
