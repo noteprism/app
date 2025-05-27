@@ -1,40 +1,22 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import helmet from 'helmet';
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
+// Security and optimization middleware
 app.use(helmet());
 app.use(cors());
 app.use(compression());
-app.use(limiter);
-app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ 
-    status: 'ok',
-    service: 'noteprism-api',
-    node: process.version,
-    timestamp: new Date().toISOString()
-  });
+// Health check endpoint
+app.get('/health', (_, res) => {
+  res.json({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
-});
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+}); 
