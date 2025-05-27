@@ -39,21 +39,10 @@ class ApiStatus extends HTMLElement {
 
   render() {
     this.shadowRoot!.innerHTML = `
-      <style>
-        :host {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-top: 2rem;
-        }
-        ion-progress-bar {
-          width: 80%;
-        }
-      </style>
-      <ion-progress-bar type="indeterminate" style="display: ${this.isLoading ? 'block' : 'none'};"></ion-progress-bar>
-      <div style="display: ${!this.isLoading ? 'block' : 'none'};">
-        <ion-badge color="success" style="display: ${this.status === 'ok' ? 'inline-block' : 'none'};">API Healthy</ion-badge>
-        <ion-badge color="danger" style="display: ${this.status !== 'ok' ? 'inline-block' : 'none'};">API Down</ion-badge>
+      <ion-progress-bar type="indeterminate" ${this.isLoading ? '' : 'hidden'}></ion-progress-bar>
+      <div ${!this.isLoading ? '' : 'hidden'}>
+        <ion-badge color="success" ${this.status === 'ok' ? '' : 'hidden'}>API Healthy</ion-badge>
+        <ion-badge color="danger" ${this.status !== 'ok' ? '' : 'hidden'}>API Down</ion-badge>
       </div>
     `;
   }
