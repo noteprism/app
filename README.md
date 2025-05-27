@@ -10,4 +10,12 @@
 
 ### Backend (/api)
 - Express
-- TypeScript 
+- TypeScript
+
+## Deployment
+
+### Cloudflare Pages Settings
+- Build command: `cd web && npm install && npm run build`
+- Build output directory: `web/dist`
+- Root directory: `/`
+- Framework preset: None 
