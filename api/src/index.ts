@@ -8,7 +8,20 @@ const port = process.env.PORT || 3000;
 
 // Security and optimization middleware
 app.use(helmet());
-app.use(cors());
+const allowedOrigins = [
+  'https://preview.noteprism.com',
+  'https://noteprism.com',
+  'https://www.noteprism.com'
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(compression());
 app.use(express.json());
 
