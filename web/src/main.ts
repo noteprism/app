@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs'
 import '@ionic/core'
 import './ui/health/status'
+import './global.css'
 
 // Initialize Alpine.js
 window.Alpine = Alpine
