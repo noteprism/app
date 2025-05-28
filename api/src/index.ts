@@ -5,17 +5,15 @@ import helmet from 'helmet';
 import { connectToMongoDB } from './db/mongodb';
 
 const app = express();
-const port = process.env.PORT || 8080; // ✅ Fixed: Use 8080 as fallback
+const port = process.env.PORT || 3000;
 
 // Security and optimization middleware
 app.use(helmet());
-
 const allowedOrigins = [
   'https://preview.noteprism.com',
   'https://noteprism.com',
   'https://www.noteprism.com'
 ];
-
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -25,7 +23,6 @@ app.use(cors({
     }
   }
 }));
-
 app.use(compression());
 app.use(express.json());
 
@@ -37,11 +34,11 @@ app.get('/health', (_, res) => {
 // Initialize MongoDB connection and start server
 connectToMongoDB()
   .then(() => {
-    app.listen(port, '0.0.0.0', () => { // ✅ Fixed: Listen on all interfaces
+    app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
   })
   .catch((error) => {
     console.error('Failed to connect to MongoDB:', error);
     process.exit(1);
-  });
+  }); 
