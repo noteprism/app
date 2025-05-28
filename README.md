@@ -39,4 +39,4 @@
    ```sh
    npm run dev
    ```
-4. Open the local server URL (usually http://localhost:5173) in your browser. 
+4. Open the local server URL (usually http://localhost:5173) in your browser.
