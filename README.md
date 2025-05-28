@@ -1,5 +1,11 @@
 # NotePrism
 
+## Documentation
+- [Web Source Documentation](web/src/README.md)
+  - [TypeScript Types](web/src/interface/types/README.md)
+  - [Health Components](web/src/ui/health/README.md)
+- [API Documentation](api/src/README.md)
+
 ## Tech Stack
 
 ### Frontend (/web)
