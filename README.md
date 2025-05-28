@@ -1,5 +1,11 @@
 # NotePrism
 
+## Documentation
+- [Web Source Documentation](web/src/README.md)
+  - [TypeScript Types](web/src/interface/types/README.md)
+  - [Health Components](web/src/ui/health/README.md)
+- [API Documentation](api/src/README.md)
+
 ## Tech Stack
 
 ### Frontend (/web)
@@ -39,4 +45,4 @@
    ```sh
    npm run dev
    ```
-4. Open the local server URL (usually http://localhost:5173) in your browser. 
+4. Open the local server URL (usually http://localhost:5173) in your browser.
