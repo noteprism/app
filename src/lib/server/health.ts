@@ -68,7 +68,7 @@ export async function checkServerHealth() {
 }
 
 export async function getHealthHistory() {
-    const checks = await prisma.healthCheck.findMany({
+    return await prisma.healthCheck.findMany({
         orderBy: { timestamp: 'desc' },
         take: 50,
         select: {
@@ -79,6 +79,4 @@ export async function getHealthHistory() {
             message: true
         }
     });
-
-    return checks;
 } 

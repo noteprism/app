@@ -13,14 +13,6 @@
 
     async function checkHealth() {
         try {
-            const [serverRes, dbRes] = await Promise.all([
-                fetch('/api/health/server'),
-                fetch('/api/health/database')
-            ]);
-            
-            const serverHealth = await serverRes.json();
-            const dbHealth = await dbRes.json();
-
             const historyRes = await fetch('/api/health/history');
             const checks = await historyRes.json();
             healthChecks = checks;
