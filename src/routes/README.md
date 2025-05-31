@@ -5,12 +5,12 @@
 This directory contains all the routes and pages for the Noteprism application.
 
 ## Files
-- `+page.svelte` - Main dashboard page with health status display
-  - Real-time system status overview
-  - Individual service status cards with uptime bars
-  - Historical uptime metrics display (24h, 7d, 30d, 90d)
-  - Automatic 30-second refresh
-  - Modern, responsive design
+- `+page.svelte` - Landing page with simple status overview
+  - Welcome message
+  - Quick status indicator (✔️/⛔)
+  - Link to detailed status page
+  - Auto-refreshes every 30 seconds
 
 ## Directories
-- [api/](api/README.md) - API endpoints 
+- [api/](api/README.md) - API endpoints for health checks and system status
+- [status/](status/README.md) - Detailed system status page with health check history 
