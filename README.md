@@ -1,48 +1,173 @@
-# NotePrism
+# Noteprism
 
-## Documentation
-- [Web Source Documentation](web/src/README.md)
-  - [TypeScript Types](web/src/interface/types/README.md)
-  - [Health Components](web/src/ui/health/README.md)
-- [API Documentation](api/src/README.md)
+A comprehensive system health monitoring dashboard built with SvelteKit and PostgreSQL, featuring real-time metrics and historical uptime tracking.
+
+## Directory Documentation
+- [/src](src/README.md) - Source code and application logic
+  - [/src/lib](src/lib/README.md) - Shared libraries and utilities
+    - [/src/lib/server](src/lib/server/README.md) - Server-side utilities
+  - [/src/routes](src/routes/README.md) - SvelteKit routes and pages
+    - [/src/routes/api](src/routes/api/README.md) - API endpoints
+      - [/src/routes/api/health](src/routes/api/health/README.md) - Health check endpoints
+- [/prisma](prisma/README.md) - Database schema and migrations
+
+## Root Files
+- `package.json` - Project configuration and dependencies
+- `svelte.config.js` - SvelteKit configuration
+- `tsconfig.json` - TypeScript configuration
+- `vite.config.ts` - Vite build tool configuration
+- `.gitignore` - Git ignore patterns
+
+## Features
+
+### Real-time Monitoring
+- Server health monitoring with memory usage tracking
+- PostgreSQL database connection status and latency
+- Automatic status updates every 30 seconds
+- Response time measurements for all services
+
+### Historical Data
+- Uptime tracking for multiple time periods (24h, 7d, 30d, 90d)
+- Persistent storage of health check results
+- Last 100 checks history for detailed analysis
+- Automatic uptime percentage calculations
+
+### Modern UI
+- Clean, responsive dashboard design
+- Real-time status indicators
+- Uptime percentage displays
+- Service status bars
+- Overall system health overview
+
+## Prerequisites
+
+- Node.js
+- PostgreSQL
+- npm
+
+## Setup
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Configure PostgreSQL:
+- Username: postgres
+- Password: 2255
+- Database: noteprism
+
+3. Initialize the database:
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+4. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at http://localhost:5173 (or the next available port).
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run check` - Type-check the codebase
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:migrate` - Run database migrations
+- `npm run prisma:studio` - Open Prisma Studio
 
 ## Tech Stack
 
-### Frontend (/web)
-- Vite
-- TypeScript
-- Alpine.js
-- Ionic Core
+- SvelteKit - Full-stack framework
+- TypeScript - Type safety
+- PostgreSQL - Data storage
+- Prisma ORM - Database management
+- Vite - Build tool
 
-### Backend (/api)
-- Express
-- TypeScript
+# Svelte + TS + Vite
 
-## Deployment
+This template should help get you started developing with Svelte and TypeScript in Vite.
 
-### Cloudflare Pages (Frontend)
-- **Root directory:** `web`
-- **Build command:** `npm install && npm run build`
-- **Build output directory:** `dist`
-- **Framework preset:** None
+## Recommended IDE Setup
 
-### Google Cloud Run (API)
-- **Preview branch:** https://preview-768383813386.us-central1.run.app
-- **Main branch:** https://api-768383813386.us-central1.run.app
-- **Dockerfile:** `/api/Dockerfile` (Node.js 22.14.0)
+[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
 
-## Running the Frontend Locally
+## Need an official Svelte framework?
 
-1. Open a terminal and navigate to the `web` directory:
-   ```sh
-   cd web
-   ```
-2. Install dependencies:
-   ```sh
-   npm install
-   ```
-3. Start the Vite development server:
-   ```sh
-   npm run dev
-   ```
-4. Open the local server URL (usually http://localhost:5173) in your browser.
+Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+
+## Technical considerations
+
+**Why use this over SvelteKit?**
+
+- It brings its own routing solution which might not be preferable for some users.
+- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+
+This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+
+Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+
+**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+
+Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+
+**Why include `.vscode/extensions.json`?**
+
+Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+
+**Why enable `allowJs` in the TS template?**
+
+While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
+
+**Why is HMR not preserving my local component state?**
+
+HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
+
+If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+
+```ts
+// store.ts
+// An extremely simple external store
+import { writable } from 'svelte/store'
+export default writable(0)
+```
+
+# Noteprism Status Page
+
+A simple status page that monitors the health of the Noteprism server and database components. The page shows a chronological history of health checks, with each check recording:
+
+- Timestamp
+- Service (server/database)
+- Status (operational/error)
+- Latency (in milliseconds)
+- Additional messages (memory usage, error details, etc.)
+
+## Features
+
+- Real-time health monitoring of server and database
+- Automatic health checks every 30 seconds
+- Stores last 50 health checks in PostgreSQL database
+- Visual indicators for operational vs error states
+- Detailed latency and status information
+
+## Development
+
+1. Set up your PostgreSQL database and update the `DATABASE_URL` in your environment variables
+2. Run database migrations:
+```bash
+npx prisma migrate dev
+```
+3. Start the development server:
+```bash
+npm run dev
+```
+
+## API Endpoints
+
+- `GET /api/health/server` - Check server health
+- `GET /api/health/database` - Check database health
+- `GET /api/health/history` - Get last 50 health checks
