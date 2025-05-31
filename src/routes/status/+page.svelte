@@ -21,13 +21,9 @@
             const serverHealth = await serverRes.json();
             const dbHealth = await dbRes.json();
 
-            // Get all health check history
             const historyRes = await fetch('/api/health/history');
             const checks = await historyRes.json();
-            // Sort checks with newest first
-            healthChecks = checks.sort((a: HealthCheck, b: HealthCheck) => 
-                new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            );
+            healthChecks = checks;
         } catch (error) {
             console.error('Health check failed:', error);
         }
@@ -35,7 +31,7 @@
 
     onMount(() => {
         checkHealth();
-        const interval = setInterval(checkHealth, 30000); // Check every 30 seconds
+        const interval = setInterval(checkHealth, 30000);
         return () => clearInterval(interval);
     });
 

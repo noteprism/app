@@ -1,9 +1,24 @@
-# Health API Directory
+# Health API Endpoints
 
-[← Back to root](../../../../README.md)
+[← Back to API](../README.md)
 
-This directory contains health check API endpoints.
+This directory contains the health check endpoints that monitor system status.
 
-## Directories
-- `database/` - Database health check endpoint (`GET /api/health/database`)
-- `server/` - Server health check endpoint (`GET /api/health/server`) 
+## Structure
+- `server/` - Server health monitoring endpoint
+- `database/` - Database connectivity monitoring endpoint
+- `history/` - Historical health check data endpoint
+
+## Response Format
+All health check endpoints return data in a consistent format:
+```json
+{
+    "service": "string",     // Name of the service
+    "status": "string",      // 'operational' or 'error'
+    "latency": number,       // Response time in milliseconds
+    "timestamp": "string",   // ISO timestamp
+    "message": "string"      // Optional status message
+}
+```
+
+The history endpoint returns an array of these objects, sorted newest first. 

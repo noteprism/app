@@ -30,43 +30,47 @@ export async function checkDatabaseHealth() {
     });
 
     return {
+        service: 'database',
         status,
-        latency: Math.round(latency),
+        latency,
         timestamp: healthCheck.timestamp,
         message
     };
 }
 
 export async function checkServerHealth() {
-    const start = performance.now();
-    const memory = process.memoryUsage();
-    const latency = performance.now() - start;
+    const { latency, error } = await measureLatency(async () => {
+        const memory = process.memoryUsage();
+        if (memory.heapUsed / memory.heapTotal > 0.9) {
+            throw new Error('High memory usage');
+        }
+    });
+
+    const status = error ? 'error' : 'operational';
+    const message = error?.message;
 
     const healthCheck = await prisma.healthCheck.create({
         data: {
             service: 'server',
-            status: 'operational',
+            status,
             latency,
-            message: `Memory usage: ${Math.round(memory.heapUsed / 1024 / 1024)}MB`
+            message
         }
     });
 
     return {
-        status: 'operational',
-        latency: Math.round(latency),
+        service: 'server',
+        status,
+        latency,
         timestamp: healthCheck.timestamp,
-        memory: {
-            heapUsed: Math.round(memory.heapUsed / 1024 / 1024),
-            heapTotal: Math.round(memory.heapTotal / 1024 / 1024),
-            rss: Math.round(memory.rss / 1024 / 1024)
-        }
+        message
     };
 }
 
 export async function getHealthHistory() {
     const checks = await prisma.healthCheck.findMany({
         orderBy: { timestamp: 'desc' },
-        take: 50,  // Show last 50 checks
+        take: 50,
         select: {
             service: true,
             status: true,
@@ -76,5 +80,5 @@ export async function getHealthHistory() {
         }
     });
 
-    return checks.reverse(); // Return in chronological order
+    return checks;
 } 
