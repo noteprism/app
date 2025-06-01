@@ -80,6 +80,25 @@ The application will be available at http://localhost:5173 (or the next availabl
 - `npm run prisma:migrate` - Run database migrations
 - `npm run prisma:studio` - Open Prisma Studio
 
+## Testing
+
+The project uses Vitest for unit testing. To run tests:
+
+```bash
+# Run all tests
+npx vitest
+
+# Run specific test file
+npx vitest src/lib/server/health.test.ts
+
+# Run tests in watch mode
+npx vitest --watch
+```
+
+Current test coverage:
+- `measureLatency`: Unit tests for timing measurement and error handling
+- More tests coming soon for database, server health, and API endpoints
+
 ## Tech Stack
 
 - SvelteKit - Full-stack framework

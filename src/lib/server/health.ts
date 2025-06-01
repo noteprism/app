@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function measureLatency(fn: () => Promise<any>): Promise<{ latency: number; error?: Error }> {
+export async function measureLatency(fn: () => Promise<any>): Promise<{ latency: number; error?: Error }> {
     const start = performance.now();
     try {
         await fn();
