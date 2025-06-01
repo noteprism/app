@@ -1,6 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { defineConfig as defineVitestConfig } from 'vitest/config';
 
 // https://vite.dev/config/
 export default defineConfig({
