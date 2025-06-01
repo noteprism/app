@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import Surface from '$lib/components/surface.svelte';
 
     interface HealthCheck {
         service: string;
@@ -38,42 +37,42 @@
 </script>
 
 <main class="container">
-    <Surface level={1} elevation="medium">
-        <header>
-            <a href="/" class="back-link">← Back to Home</a>
-            <h1>Noteprism Status</h1>
-            <div class="last-updated">
-                Last updated {new Date().toLocaleString()} | Next update in 30 sec
-            </div>
-        </header>
+    <header>
+        <a href="/" class="back-link">← Back to Home</a>
+        <h1>Noteprism Status</h1>
+        <div class="last-updated">
+            Last updated {new Date().toLocaleString()} | Next update in 30 sec
+        </div>
+    </header>
 
-        <section class="health-checks">
-            <h2>Health Check History</h2>
-            <div class="check-list">
-                {#each healthChecks as check}
-                    <Surface 
-                        level={2} 
-                        elevation="low" 
-                        class_name="check-item {check.status}"
-                    >
-                        <div class="check-time">{formatDate(check.timestamp)}</div>
-                        <div class="check-service">
-                            {check.service}
-                            <span class="service-type">({getServiceType(check.service)})</span>
-                        </div>
-                        <div class="check-status">{check.status}</div>
-                        <div class="check-latency">{check.latency.toFixed(2)}ms</div>
-                        {#if check.message}
-                            <div class="check-message">{check.message}</div>
-                        {/if}
-                    </Surface>
-                {/each}
-            </div>
-        </section>
-    </Surface>
+    <section class="health-checks">
+        <h2>Health Check History</h2>
+        <div class="check-list">
+            {#each healthChecks as check}
+                <div class="check-item {check.status}">
+                    <div class="check-time">{formatDate(check.timestamp)}</div>
+                    <div class="check-service">
+                        {check.service}
+                        <span class="service-type">({getServiceType(check.service)})</span>
+                    </div>
+                    <div class="check-status">{check.status}</div>
+                    <div class="check-latency">{check.latency.toFixed(2)}ms</div>
+                    {#if check.message}
+                        <div class="check-message">{check.message}</div>
+                    {/if}
+                </div>
+            {/each}
+        </div>
+    </section>
 </main>
 
 <style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
     header {
         display: flex;
         flex-direction: column;
@@ -82,22 +81,24 @@
     }
 
     .back-link {
-        color: var(--on-surface-variant);
+        color: #666;
         text-decoration: none;
-        transition: opacity 0.2s ease;
     }
 
     .back-link:hover {
-        opacity: 0.8;
+        text-decoration: underline;
     }
 
     .last-updated {
-        color: var(--on-surface-variant);
+        color: #666;
         font-size: 0.9rem;
     }
 
     .health-checks {
-        margin-top: 1.5rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .check-list {
@@ -105,6 +106,25 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    .check-item {
+        display: grid;
+        grid-template-columns: auto 1fr 100px 100px;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: 4px;
+        align-items: center;
+    }
+
+    .check-item.operational {
+        background: #e8f5e9;
+        border: 1px solid #4caf50;
+    }
+
+    .check-item.error {
+        background: #ffebee;
+        border: 1px solid #f44336;
     }
 
     .check-time {
@@ -118,7 +138,7 @@
     .service-type {
         font-weight: normal;
         font-size: 0.9rem;
-        color: var(--on-surface-variant);
+        color: #666;
     }
 
     .check-status {
@@ -133,7 +153,7 @@
 
     .check-message {
         grid-column: 1 / -1;
-        color: var(--on-surface-variant);
+        color: #666;
         font-size: 0.9rem;
     }
 </style> 

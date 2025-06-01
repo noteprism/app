@@ -1,4 +1,4 @@
-import { argbFromHex, themeFromSourceColor, hexFromArgb } from '@material/material-color-utilities';
+import { argbFromHex, themeFromSourceColor, applyTheme, hexFromArgb } from '@material/material-color-utilities';
 
 export const brandColors = {
   primary: '#2CD2ED',

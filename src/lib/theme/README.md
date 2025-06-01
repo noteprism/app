@@ -2,14 +2,12 @@
 
 [← Back to lib](../README.md)
 
-Material Design theme system using `@material/material-color-utilities`.
+This directory contains theme-related utilities and configurations using the Material Color Utilities package.
 
-## Files
-- `colors.ts` - Core color definitions and theme generation
-- `store.ts` - CSS variable management
-- `index.ts` - Theme exports
+## Material Color Utilities Integration
 
-## Brand Colors
+We use `@material/material-color-utilities` for dynamic color theming. Our color scheme is based on the Noteprism logo colors:
+
 ```typescript
 const brandColors = {
   primary: '#2CD2ED',
@@ -21,32 +19,79 @@ const brandColors = {
 }
 ```
 
-## CSS Variables
+### How to Use (ELI5 Style)
 
-### Light Mode
-- `--surface1` through `--surface5` - Surface colors
-- `--on-surface` - Text on surface
-- `--on-surface-variant` - Secondary text
-- `--shadow-low/medium/high` - Elevation shadows
+1. **Basic Color Usage**
+   ```typescript
+   import { theme } from '$lib/theme';
+   
+   // Use in your styles:
+   const myElement = {
+     backgroundColor: theme.surfaces.primary,
+     color: theme.text.onPrimary
+   }
+   ```
 
-### Dark Mode
-- `--dark-surface1` through `--dark-surface5`
-- `--dark-on-surface`
-- `--dark-on-surface-variant`
-- `--dark-shadow-low/medium/high`
+2. **Dynamic Surface Colors**
+   - Light surfaces: `theme.surfaces.surface1` through `theme.surfaces.surface5`
+   - Dark surfaces automatically adjust in dark mode
 
-## Usage
+3. **Text Colors**
+   - Primary text: `theme.text.primary`
+   - Secondary text: `theme.text.secondary`
+   - On-color text (for text on colored backgrounds):
+     - `theme.text.onPrimary`
+     - `theme.text.onSecondary`
+     - `theme.text.onTertiary`
 
+4. **State Colors**
+   - Hover states: `theme.states.hover`
+   - Focus states: `theme.states.focus`
+   - Pressed states: `theme.states.pressed`
+
+5. **Color Roles**
+   - Primary actions: `theme.roles.primaryAction`
+   - Secondary actions: `theme.roles.secondaryAction`
+   - Backgrounds: `theme.roles.background`
+   - Surfaces: `theme.roles.surface`
+
+## Files
+- `index.ts` - Main theme configuration and exports
+- `colors.ts` - Color scheme definitions and utilities
+- `surfaces.ts` - Surface color utilities
+- `text.ts` - Text color utilities
+- `states.ts` - State color utilities
+
+## Usage Examples
+
+### In Svelte Components
 ```svelte
+<script lang="ts">
+  import { theme } from '$lib/theme';
+</script>
+
+<div class="my-component">
+  <h1>Hello World</h1>
+</div>
+
 <style>
   .my-component {
-    /* Light mode automatically switches to dark mode */
-    background: var(--surface1);
-    color: var(--on-surface);
+    background-color: var(--surface1);
+    color: var(--text-primary);
   }
 
-  /* Status colors */
-  .error { background: var(--error); }
-  .success { background: var(--surface5); }
+  h1 {
+    color: var(--primary);
+  }
 </style>
-``` 
+```
+
+### CSS Variables
+All colors are also available as CSS variables:
+- `--primary`
+- `--on-primary`
+- `--secondary`
+- `--on-secondary`
+- `--surface1` through `--surface5`
+- `--text-primary`
+- `--text-secondary` 
