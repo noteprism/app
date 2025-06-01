@@ -1,6 +1,18 @@
 # Noteprism
 
+Starting as:
 A comprehensive system health monitoring dashboard built with SvelteKit and PostgreSQL, featuring real-time metrics and historical uptime tracking.
+
+Becoming:
+A powerful idea capture and knowledge management system that combines the best of note-taking, task management, and content creation. Transform fleeting thoughts into structured content, tasks, and social media posts.
+
+## Key Features
+- **Quick Capture** - Instantly save ideas, thoughts, and tasks as digital sticky notes
+- **Smart Organization** - Auto-categorize notes and suggest connections between related ideas
+- **Task Transformation** - Convert notes into actionable tasks with priority scoring
+- **Content Pipeline** - Transform notes into polished content for various platforms
+- **Real-time Collaboration** - Share and collaborate on notes, tasks, and content
+- **Multi-format Export** - Share to social media, docs, or task management systems
 
 ## Directory Documentation
 - [/src](src/README.md) - Source code and application logic
