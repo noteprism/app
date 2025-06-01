@@ -24,6 +24,12 @@ async function measureLatency(fn: () => Promise<any>): Promise<{ latency: number
 ### checkDatabaseHealth
 Checks PostgreSQL database connectivity and response time.
 
+#### Tests
+- ✓ Returns operational status when DB is healthy
+- ✓ Returns error status when DB query fails
+- ✓ Records correct latency measurements
+- ✓ Creates health check records in DB
+
 ### checkServerHealth
 Monitors server memory usage and overall health.
 

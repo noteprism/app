@@ -1,5 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { measureLatency } from './health';
+import { measureLatency, checkDatabaseHealth } from './health';
+import { PrismaClient } from '@prisma/client';
+
+vi.mock('@prisma/client', () => {
+  const mockCreate = vi.fn();
+  const mockQueryRaw = vi.fn();
+  return {
+    PrismaClient: vi.fn().mockImplementation(() => ({
+      $queryRaw: mockQueryRaw,
+      healthCheck: {
+        create: mockCreate
+      }
+    }))
+  };
+});
 
 describe('measureLatency', () => {
   let originalNow: () => number;
@@ -41,5 +55,83 @@ describe('measureLatency', () => {
     expect(result.latency).toBe(50);
     expect(result.error).toBeInstanceOf(Error);
     expect(result.error?.message).toBe('Test error');
+  });
+});
+
+describe('checkDatabaseHealth', () => {
+  let mockPrisma: any;
+  let originalNow: () => number;
+  let mockNow: ReturnType<typeof vi.fn>;
+  let time: number;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPrisma = new PrismaClient();
+    originalNow = performance.now;
+    mockNow = vi.fn();
+    time = 1000;
+    mockNow.mockImplementation(() => time);
+    (global.performance.now as unknown) = mockNow;
+  });
+
+  afterEach(() => {
+    (global.performance.now as unknown) = originalNow;
+  });
+
+  it('should return operational status when DB is healthy', async () => {
+    mockPrisma.$queryRaw.mockImplementation(async () => {
+      time += 100; // Simulate query taking 100ms
+      return [{ 1: 1 }];
+    });
+
+    mockPrisma.healthCheck.create.mockImplementation(async (data: any) => ({
+      timestamp: new Date(),
+      ...data.data
+    }));
+
+    const result = await checkDatabaseHealth();
+
+    expect(result.status).toBe('operational');
+    expect(result.service).toBe('database');
+    expect(result.latency).toBe(100);
+    expect(result.message).toBeUndefined();
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.healthCheck.create).toHaveBeenCalledWith({
+      data: {
+        service: 'database',
+        status: 'operational',
+        latency: 100,
+        message: undefined
+      }
+    });
+  });
+
+  it('should return error status when DB query fails', async () => {
+    const dbError = new Error('Connection failed');
+    mockPrisma.$queryRaw.mockImplementation(async () => {
+      time += 50; // Simulate query taking 50ms before failing
+      throw dbError;
+    });
+
+    mockPrisma.healthCheck.create.mockImplementation(async (data: any) => ({
+      timestamp: new Date(),
+      ...data.data
+    }));
+
+    const result = await checkDatabaseHealth();
+
+    expect(result.status).toBe('error');
+    expect(result.service).toBe('database');
+    expect(result.latency).toBe(50);
+    expect(result.message).toBe('Connection failed');
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.healthCheck.create).toHaveBeenCalledWith({
+      data: {
+        service: 'database',
+        status: 'error',
+        latency: 50,
+        message: 'Connection failed'
+      }
+    });
   });
 }); 
