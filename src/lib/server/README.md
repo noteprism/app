@@ -40,4 +40,9 @@ Monitors server memory usage and overall health.
 - ✓ Creates health check records in DB
 
 ### getHealthHistory
-Retrieves historical health check records from the database. 
+Retrieves historical health check records from the database.
+
+#### Tests
+- ✓ Returns last 50 records in correct order
+- ✓ Orders records by timestamp descending
+- ✓ Includes all required fields (service, status, latency, timestamp, message) 

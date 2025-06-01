@@ -1,15 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { measureLatency, checkDatabaseHealth, checkServerHealth } from './health';
+import { measureLatency, checkDatabaseHealth, checkServerHealth, getHealthHistory } from './health';
 import { PrismaClient } from '@prisma/client';
 
 vi.mock('@prisma/client', () => {
   const mockCreate = vi.fn();
   const mockQueryRaw = vi.fn();
+  const mockFindMany = vi.fn();
   return {
     PrismaClient: vi.fn().mockImplementation(() => ({
       $queryRaw: mockQueryRaw,
       healthCheck: {
-        create: mockCreate
+        create: mockCreate,
+        findMany: mockFindMany
       }
     }))
   };
@@ -225,5 +227,58 @@ describe('checkServerHealth', () => {
         message: 'High memory usage'
       }
     });
+  });
+});
+
+describe('getHealthHistory', () => {
+  let mockPrisma: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPrisma = new PrismaClient();
+  });
+
+  it('should return last 50 records ordered by timestamp', async () => {
+    // Create 60 mock records (to verify limit works)
+    const mockRecords = Array.from({ length: 60 }, (_, i) => ({
+      service: i % 2 === 0 ? 'server' : 'database',
+      status: 'operational',
+      latency: 100 + i,
+      timestamp: new Date(2024, 0, 1, 0, i), // Incrementing minutes
+      message: null
+    }));
+
+    // Sort by timestamp descending (newest first)
+    mockRecords.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+    mockPrisma.healthCheck.findMany.mockResolvedValue(mockRecords.slice(0, 50));
+
+    const result = await getHealthHistory();
+
+    expect(result).toHaveLength(50);
+    expect(mockPrisma.healthCheck.findMany).toHaveBeenCalledWith({
+      orderBy: { timestamp: 'desc' },
+      take: 50,
+      select: {
+        service: true,
+        status: true,
+        latency: true,
+        timestamp: true,
+        message: true
+      }
+    });
+
+    // Verify ordering
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i-1].timestamp.getTime()).toBeGreaterThan(result[i].timestamp.getTime());
+    }
+
+    // Verify record structure
+    const firstRecord = result[0];
+    expect(firstRecord).toHaveProperty('service');
+    expect(firstRecord).toHaveProperty('status');
+    expect(firstRecord).toHaveProperty('latency');
+    expect(firstRecord).toHaveProperty('timestamp');
+    expect(firstRecord).toHaveProperty('message');
   });
 }); 

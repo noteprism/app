@@ -105,7 +105,8 @@ Current test coverage:
 - `measureLatency`: Timing measurement and error handling
 - `checkDatabaseHealth`: Database connectivity and record creation
 - `checkServerHealth`: Memory monitoring and health status
-- More tests coming soon for API endpoints and history retrieval
+- `getHealthHistory`: Historical data retrieval and ordering
+- More tests coming soon for API endpoints
 
 ## Tech Stack
 
