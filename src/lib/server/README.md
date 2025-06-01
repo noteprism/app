@@ -33,5 +33,11 @@ Checks PostgreSQL database connectivity and response time.
 ### checkServerHealth
 Monitors server memory usage and overall health.
 
+#### Tests
+- ✓ Returns operational status under normal memory conditions
+- ✓ Returns error status when memory usage is high (>90%)
+- ✓ Records correct latency measurements
+- ✓ Creates health check records in DB
+
 ### getHealthHistory
 Retrieves historical health check records from the database. 

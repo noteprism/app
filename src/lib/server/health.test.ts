@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { measureLatency, checkDatabaseHealth } from './health';
+import { measureLatency, checkDatabaseHealth, checkServerHealth } from './health';
 import { PrismaClient } from '@prisma/client';
 
 vi.mock('@prisma/client', () => {
@@ -131,6 +131,98 @@ describe('checkDatabaseHealth', () => {
         status: 'error',
         latency: 50,
         message: 'Connection failed'
+      }
+    });
+  });
+});
+
+describe('checkServerHealth', () => {
+  let mockPrisma: any;
+  let originalNow: () => number;
+  let mockNow: ReturnType<typeof vi.fn>;
+  let time: number;
+  let originalMemoryUsage: typeof process.memoryUsage;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPrisma = new PrismaClient();
+    originalNow = performance.now;
+    mockNow = vi.fn();
+    time = 1000;
+    mockNow.mockImplementation(() => time);
+    (global.performance.now as unknown) = mockNow;
+    originalMemoryUsage = process.memoryUsage;
+  });
+
+  afterEach(() => {
+    (global.performance.now as unknown) = originalNow;
+    process.memoryUsage = originalMemoryUsage;
+  });
+
+  it('should return operational status under normal memory conditions', async () => {
+    // Mock memory usage to be at 50% (healthy)
+    (process.memoryUsage as unknown) = () => {
+      time += 30; // Simulate operation taking 30ms
+      return {
+        heapUsed: 500,
+        heapTotal: 1000,
+        external: 0,
+        arrayBuffers: 0,
+        rss: 2000
+      };
+    };
+
+    mockPrisma.healthCheck.create.mockImplementation(async (data: any) => ({
+      timestamp: new Date(),
+      ...data.data
+    }));
+
+    const result = await checkServerHealth();
+
+    expect(result.status).toBe('operational');
+    expect(result.service).toBe('server');
+    expect(result.latency).toBe(30);
+    expect(result.message).toBeUndefined();
+    expect(mockPrisma.healthCheck.create).toHaveBeenCalledWith({
+      data: {
+        service: 'server',
+        status: 'operational',
+        latency: 30,
+        message: undefined
+      }
+    });
+  });
+
+  it('should return error when memory usage is high', async () => {
+    // Mock memory usage to be at 95% (critical)
+    (process.memoryUsage as unknown) = () => {
+      time += 25; // Simulate operation taking 25ms
+      return {
+        heapUsed: 950,
+        heapTotal: 1000,
+        external: 0,
+        arrayBuffers: 0,
+        rss: 2000
+      };
+    };
+
+    mockPrisma.healthCheck.create.mockImplementation(async (data: any) => ({
+      timestamp: new Date(),
+      ...data.data
+    }));
+
+    const result = await checkServerHealth();
+
+    expect(result.status).toBe('error');
+    expect(result.service).toBe('server');
+    expect(result.latency).toBe(25);
+    expect(result.message).toBe('High memory usage');
+    expect(mockPrisma.healthCheck.create).toHaveBeenCalledWith({
+      data: {
+        service: 'server',
+        status: 'error',
+        latency: 25,
+        message: 'High memory usage'
       }
     });
   });
