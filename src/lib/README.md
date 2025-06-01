@@ -8,4 +8,5 @@ This directory contains shared utilities and libraries used throughout the appli
 - `variables.ts` - Configuration variables and environment settings
 
 ## Directories
-- [server/](server/README.md) - Server-side utilities and functions 
+- [server/](server/README.md) - Server-side utilities and functions
+- [theme/](theme/README.md) - Theme utilities using Material Color Utilities for dynamic color theming 
