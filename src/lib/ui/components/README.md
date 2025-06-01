@@ -4,7 +4,9 @@
 
 This directory contains all reusable UI components for Noteprism. Components are organized by their complexity and purpose.
 
-## Component Categories
+## Implementation Status
+
+⏳ Planned Components
 
 ### Layout Components
 - Header Navigation
@@ -27,31 +29,20 @@ This directory contains all reusable UI components for Noteprism. Components are
 - Platform Selector
 - Content Type Toggle
 
-### Complex Components
-- Accordion
-- Alert/Banner
-- Avatar
-- Breadcrumb
-- Card
-- Chip/Tag
-- Data Table
-- Date Picker
-- Form
-- List
-- Menu
-- Navigation Rail
-- Pagination
-- Search Bar
-- Stepper
-- Tabs
-- Time Picker
-- Tree View
+## Development Guidelines
 
-## Usage
+Each component will:
+1. Be self-contained in its own directory
+2. Use Material You theming via our utils
+3. Include comprehensive tests
+4. Follow accessibility best practices
+5. Include documentation and examples
 
-Each component follows these conventions:
-1. Self-contained in its own directory
-2. Includes its own tests
-3. Uses Material You theming
-4. Follows accessibility best practices
-5. Includes documentation and examples 
+## Testing
+
+Components should have tests for:
+- Rendering
+- User interactions
+- Theme application
+- Accessibility
+- Edge cases 

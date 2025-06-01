@@ -7,11 +7,15 @@ A comprehensive design system for Noteprism, built with Material You's dynamic c
 ## Directory Structure
 - [components/](components/README.md) - Reusable UI components
 - [elements/](elements/README.md) - Basic UI building blocks
+  - [material/](elements/material/README.md) - Material Design 3 elements
 - [utils/](utils/README.md) - UI-specific utilities
+- `material-color.ts` - Material You color system integration
+- `material-color.test.ts` - Material color system tests
 
 ## Design Tokens
 
 ### Colors (Material You)
+Generated dynamically from a source color using `elements/material/color.ts`:
 - Primary Color
 - Secondary Color
 - Tertiary Color
@@ -22,21 +26,11 @@ A comprehensive design system for Noteprism, built with Material You's dynamic c
 - Background Colors
 
 ### Typography
-- Display Large
-- Display Medium
-- Display Small
-- Headline Large
-- Headline Medium
-- Headline Small
-- Title Large
-- Title Medium
-- Title Small
-- Body Large
-- Body Medium
-- Body Small
-- Label Large
-- Label Medium
-- Label Small
+- Display (Large, Medium, Small)
+- Headline (Large, Medium, Small)
+- Title (Large, Medium, Small)
+- Body (Large, Medium, Small)
+- Label (Large, Medium, Small)
 
 ### Spacing
 - 4px (Extra Small)
@@ -152,73 +146,16 @@ A comprehensive design system for Noteprism, built with Material You's dynamic c
 - Empty State
 - Success State
 
-## Using Material Color Utilities
+## Implementation Status
 
-### Basic Usage
+✅ Material Color Utilities Integration
+- Color conversion (hex ↔ ARGB)
+- Theme generation from source color
+- Light/dark scheme support
+- Unit tests
 
-```typescript
-import { 
-  argbFromHex,
-  themeFromSourceColor,
-  applyTheme
-} from '@material/material-color-utilities';
-
-// Convert your brand color to ARGB
-const brandColor = argbFromHex('#ff0000');
-
-// Generate theme
-const theme = themeFromSourceColor(brandColor);
-
-// Apply theme to your app
-applyTheme(theme, {target: document.body});
-```
-
-### Advanced Features
-
-1. **Dynamic Color from Image**
-```typescript
-import { sourceColorFromImage } from '@material/material-color-utilities';
-
-async function setThemeFromImage(imageElement) {
-  const themeColor = await sourceColorFromImage(imageElement);
-  const theme = themeFromSourceColor(themeColor);
-  applyTheme(theme, {target: document.body});
-}
-```
-
-2. **Custom Color Schemes**
-```typescript
-import { 
-  CustomColorGroup,
-  customColor
-} from '@material/material-color-utilities';
-
-const customColors: CustomColorGroup[] = [
-  customColor(argbFromHex('#ff0000'), 'custom-red'),
-  customColor(argbFromHex('#00ff00'), 'custom-green')
-];
-
-const theme = themeFromSourceColor(brandColor, customColors);
-```
-
-3. **Contrast Checking**
-```typescript
-import { Contrast } from '@material/material-color-utilities';
-
-const isAccessible = Contrast.ratio(backgroundColor, textColor) >= 4.5;
-```
-
-4. **Color Blending**
-```typescript
-import { Blend } from '@material/material-color-utilities';
-
-const blendedColor = Blend.harmonize(sourceColor, targetColor);
-```
-
-5. **Temperature-based Colors**
-```typescript
-import { Temperature } from '@material/material-color-utilities';
-
-const warmColor = Temperature.analogous(sourceColor)[0];
-const coolColor = Temperature.analogous(sourceColor)[2];
-``` 
+⏳ Next Steps
+1. Create basic elements
+2. Implement theme provider
+3. Build core components
+4. Add component tests 

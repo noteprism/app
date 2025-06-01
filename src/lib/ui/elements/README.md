@@ -4,7 +4,18 @@
 
 This directory contains the basic building blocks of our UI system. These elements are the foundation for all higher-level components.
 
-## Basic Elements
+## Directory Structure
+- [material/](material/README.md) - Material Design 3 foundational elements
+  - `color.ts` - Material You color system
+  - `color.test.ts` - Color system tests
+
+## Implementation Status
+
+✅ Completed
+- Material You color system integration
+- Color system tests
+
+⏳ Planned Elements
 
 ### Interactive
 - Button (Primary, Secondary, Text, Icon)
@@ -27,6 +38,24 @@ This directory contains the basic building blocks of our UI system. These elemen
 - Icon
 - Link
 - Divider
+
+## Development Guidelines
+
+Each element will:
+1. Use Material You theming from `material/color.ts`
+2. Be fully accessible (WCAG AA compliant)
+3. Include comprehensive tests
+4. Support both light and dark themes
+5. Include usage documentation
+
+## Testing
+
+Elements should have tests for:
+- Theme application
+- Color contrast ratios
+- Keyboard navigation
+- Screen reader compatibility
+- State management (hover, focus, active, disabled)
 
 ## Design Tokens
 
