@@ -25,6 +25,7 @@ A powerful idea capture and knowledge management system that combines the best o
     - [/src/routes/api](src/routes/api/README.md) - API endpoints
       - [/src/routes/api/health](src/routes/api/health/README.md) - Health check endpoints
 - [/prisma](prisma/README.md) - Database schema and migrations
+- [/static](static/README.md) - Static assets (favicons, manifest, etc.)
 
 ## Root Files
 - `package.json` - Project configuration and dependencies
