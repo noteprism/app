@@ -18,7 +18,9 @@ A powerful idea capture and knowledge management system that combines the best o
 - [/src](src/README.md) - Source code and application logic
   - [/src/lib](src/lib/README.md) - Shared libraries and utilities
     - [/src/lib/server](src/lib/server/README.md) - Server-side utilities
-    - [/src/lib/UI.md](src/lib/UI.md) - UI System Documentation and Component Catalog
+    - [/src/lib/ui](src/lib/ui/README.md) - UI system and components
+      - [/src/lib/ui/components](src/lib/ui/components/README.md) - Reusable UI components
+      - [/src/lib/ui/elements](src/lib/ui/elements/README.md) - Basic UI building blocks
   - [/src/routes](src/routes/README.md) - SvelteKit routes and pages
     - [/src/routes/api](src/routes/api/README.md) - API endpoints
       - [/src/routes/api/health](src/routes/api/health/README.md) - Health check endpoints

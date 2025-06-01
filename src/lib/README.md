@@ -6,12 +6,13 @@ This directory contains shared utilities and libraries used throughout the appli
 
 ## Files
 - `variables.ts` - Configuration variables and environment settings
-- [UI.md](UI.md) - Comprehensive UI system documentation and component catalog
 
 ## Directories
 - [server/](server/README.md) - Server-side utilities and functions
-- `components/` - Reusable UI components
-- `utils/` - Shared utility functions
+- [ui/](ui/README.md) - UI system and components
+  - [components/](ui/components/README.md) - Reusable UI components
+  - [elements/](ui/elements/README.md) - Basic UI building blocks
+  - [utils/](ui/utils/README.md) - UI-specific utilities
 
 ## UI System
 
@@ -22,4 +23,4 @@ The application uses Material You's dynamic color system through the `@material/
 - Color harmonization and blending utilities
 - Temperature-based color relationships
 
-For detailed documentation on the UI system and available components, see [UI.md](UI.md). 
+For detailed documentation on the UI system and available components, see [ui/README.md](ui/README.md). 

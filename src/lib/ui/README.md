@@ -1,4 +1,13 @@
-# Noteprism UI System
+# UI System
+
+[← Back to lib](../README.md)
+
+A comprehensive design system for Noteprism, built with Material You's dynamic color system.
+
+## Directory Structure
+- [components/](components/README.md) - Reusable UI components
+- [elements/](elements/README.md) - Basic UI building blocks
+- [utils/](utils/README.md) - UI-specific utilities
 
 ## Design Tokens
 
@@ -64,17 +73,18 @@
 - Grid Layout System
 
 ### Data Display
-- Health Status Indicator
-- Uptime Percentage Display
-- Service Status Bar
-- Historical Data Chart
-- Metrics Display Card
+- Note Card
+- Task Card
+- Content Preview
+- Tag Display
+- Connection Map
 
 ### Interactive Elements
-- Refresh Button
-- Settings Toggle
-- Time Period Selector
-- Service Filter
+- Quick Capture Button
+- Tag Input
+- Priority Selector
+- Platform Selector
+- Content Type Toggle
 
 ## Needed Components
 
@@ -127,11 +137,10 @@
 - Toolbar
 
 ### Data Visualization
-- Area Chart
-- Bar Chart
-- Line Chart
-- Pie Chart
-- Sparkline
+- Connection Graph
+- Priority Matrix
+- Timeline View
+- Tag Cloud
 - Progress Circle
 - Gauge
 - Heat Map
