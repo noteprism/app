@@ -6,6 +6,7 @@ A comprehensive system health monitoring dashboard built with SvelteKit and Post
 - [/src](src/README.md) - Source code and application logic
   - [/src/lib](src/lib/README.md) - Shared libraries and utilities
     - [/src/lib/server](src/lib/server/README.md) - Server-side utilities
+    - [/src/lib/UI.md](src/lib/UI.md) - UI System Documentation and Component Catalog
   - [/src/routes](src/routes/README.md) - SvelteKit routes and pages
     - [/src/routes/api](src/routes/api/README.md) - API endpoints
       - [/src/routes/api/health](src/routes/api/health/README.md) - Health check endpoints
