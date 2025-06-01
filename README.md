@@ -29,7 +29,7 @@ A comprehensive system health monitoring dashboard built with SvelteKit and Post
 ### Historical Data
 - Uptime tracking for multiple time periods (24h, 7d, 30d, 90d)
 - Persistent storage of health check results
-- Last 100 checks history for detailed analysis
+- Last 50 health checks for detailed analysis
 - Automatic uptime percentage calculations
 
 ### Modern UI
@@ -80,6 +80,12 @@ The application will be available at http://localhost:5173 (or the next availabl
 - `npm run prisma:migrate` - Run database migrations
 - `npm run prisma:studio` - Open Prisma Studio
 
+## API Endpoints
+
+- `GET /api/health/server` - Check server health
+- `GET /api/health/database` - Check database health
+- `GET /api/health/history` - Get last 50 health checks
+
 ## Testing
 
 The project uses Vitest for unit testing. To run tests:
@@ -96,8 +102,10 @@ npx vitest --watch
 ```
 
 Current test coverage:
-- `measureLatency`: Unit tests for timing measurement and error handling
-- More tests coming soon for database, server health, and API endpoints
+- `measureLatency`: Timing measurement and error handling
+- `checkDatabaseHealth`: Database connectivity and record creation
+- `checkServerHealth`: Memory monitoring and health status
+- More tests coming soon for API endpoints and history retrieval
 
 ## Tech Stack
 
@@ -154,39 +162,3 @@ If you have state that's important to retain within a component, consider creati
 import { writable } from 'svelte/store'
 export default writable(0)
 ```
-
-# Noteprism Status Page
-
-A simple status page that monitors the health of the Noteprism server and database components. The page shows a chronological history of health checks, with each check recording:
-
-- Timestamp
-- Service (server/database)
-- Status (operational/error)
-- Latency (in milliseconds)
-- Additional messages (memory usage, error details, etc.)
-
-## Features
-
-- Real-time health monitoring of server and database
-- Automatic health checks every 30 seconds
-- Stores last 50 health checks in PostgreSQL database
-- Visual indicators for operational vs error states
-- Detailed latency and status information
-
-## Development
-
-1. Set up your PostgreSQL database and update the `DATABASE_URL` in your environment variables
-2. Run database migrations:
-```bash
-npx prisma migrate dev
-```
-3. Start the development server:
-```bash
-npm run dev
-```
-
-## API Endpoints
-
-- `GET /api/health/server` - Check server health
-- `GET /api/health/database` - Check database health
-- `GET /api/health/history` - Get last 50 health checks

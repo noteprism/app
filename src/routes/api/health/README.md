@@ -21,4 +21,19 @@ All health check endpoints return data in a consistent format:
 }
 ```
 
-The history endpoint returns an array of these objects, sorted newest first. 
+The history endpoint returns an array of these objects, sorted newest first.
+
+## Testing
+The health check functionality is thoroughly tested:
+
+### Core Functions (`/src/lib/server/health.test.ts`)
+- ✓ Latency measurement
+- ✓ Database health checks
+- ✓ Server health monitoring
+- ✓ Memory usage thresholds
+- ✓ Health check record creation
+
+### Upcoming Tests
+- API endpoint integration tests
+- Historical data retrieval
+- Error handling scenarios 
