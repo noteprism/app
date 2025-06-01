@@ -29,11 +29,12 @@
 
 <main class="container">
     <h1>Welcome to Noteprism</h1>
-    <p class="status">
-        <a href="/status">
+    <nav class="navigation">
+        <a href="/ui" class="nav-link">UI System</a>
+        <a href="/status" class="nav-link">
             Status: {hasError ? '⛔' : '✔️'}
         </a>
-    </p>
+    </nav>
 </main>
 
 <style>
@@ -43,16 +44,19 @@
         padding: 2rem;
     }
 
-    .status {
+    .navigation {
         margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
-    .status a {
+    .nav-link {
         color: inherit;
         text-decoration: none;
     }
 
-    .status a:hover {
+    .nav-link:hover {
         text-decoration: underline;
     }
 </style> 

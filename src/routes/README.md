@@ -8,9 +8,11 @@ This directory contains all the routes and pages for the Noteprism application, 
 - `+page.svelte` - Landing page with simple status overview
   - Welcome message
   - Quick status indicator (✔️/⛔) using reactive variables
+  - Link to UI system documentation
   - Link to detailed status page
   - Auto-refreshes every 30 seconds
 
 ## Directories
 - [api/](api/README.md) - API endpoints for health checks and system status
-- [status/](status/README.md) - Detailed system status page with health check history 
+- [status/](status/README.md) - Detailed system status page with health check history
+- [ui/](ui/README.md) - UI system documentation and design tokens 

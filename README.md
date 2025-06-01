@@ -24,6 +24,7 @@ A powerful idea capture and knowledge management system that combines the best o
   - [/src/routes](src/routes/README.md) - SvelteKit routes and pages
     - [/src/routes/api](src/routes/api/README.md) - API endpoints
       - [/src/routes/api/health](src/routes/api/health/README.md) - Health check endpoints
+    - [/src/routes/ui](src/routes/ui/README.md) - UI system documentation
 - [/prisma](prisma/README.md) - Database schema and migrations
 - [/static](static/README.md) - Static assets (favicons, manifest, etc.)
 
@@ -35,6 +36,13 @@ A powerful idea capture and knowledge management system that combines the best o
 - `.gitignore` - Git ignore patterns
 
 ## Features
+
+### UI System
+- Material You dynamic color system
+- Comprehensive design tokens
+- Reusable component library
+- Living style guide at `/ui`
+- Light/dark theme support
 
 ### Real-time Monitoring
 - Server health monitoring with memory usage tracking
