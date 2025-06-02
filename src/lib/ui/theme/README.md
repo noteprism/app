@@ -48,19 +48,19 @@ Interaction states with proper opacity values:
 ### Basic Theme Setup
 ```svelte
 <script>
-import { ThemeProvider } from './ThemeProvider.svelte';
+import { provider } from './provider.svelte';
 </script>
 
-<ThemeProvider>
+<provider>
   <!-- Your app content -->
-</ThemeProvider>
+</provider>
 ```
 
 ### Custom Brand Color
 ```svelte
-<ThemeProvider initialBrandColor="#2CD2ED">
+<provider initialBrandColor="#2CD2ED">
   <!-- Your app content -->
-</ThemeProvider>
+</provider>
 ```
 
 ### Manual Dark Mode
@@ -140,7 +140,7 @@ function toggleTheme() {
   - Dark mode preference store
   - Dynamic theme generation
   - CSS variable management
-- `ThemeProvider.svelte` - Theme application component
+- `provider.svelte` - Theme application component
   - System dark mode detection
   - Theme transitions
   - Dynamic theme updates
@@ -150,16 +150,16 @@ function toggleTheme() {
 1. Wrap your app with the theme provider:
 ```svelte
 <script>
-    import ThemeProvider from '$lib/ui/theme/ThemeProvider.svelte';
+    import provider from '$lib/ui/theme/provider.svelte';
     
     // Optional: Initial brand color from database/settings
     // Defaults to Sky (#2CD2ED) if not provided
     let brandColor = '#2CD2ED';
 </script>
 
-<ThemeProvider initialBrandColor={brandColor}>
+<provider initialBrandColor={brandColor}>
     <App />
-</ThemeProvider>
+</provider>
 ```
 
 2. Use theme stores in components:

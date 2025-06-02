@@ -33,9 +33,9 @@
         <ul>
             <li><a href="/ui">UI System</a></li>
             <li>
-                <a href="/status">
-                    Status: {hasError ? '⛔' : '✔️'}
-                </a>
+        <a href="/status">
+            Status: {hasError ? '⛔' : '✔️'}
+        </a>
             </li>
         </ul>
     </nav>
