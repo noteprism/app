@@ -1,8 +1,74 @@
-# Noteprism UI System
+# UI System
 
 [← Back to lib](../README.md)
 
-A comprehensive design system for Noteprism, built with Material You's dynamic color system.
+A comprehensive UI system built on Material Design 3 principles, using the HCT color space for dynamic theming.
+
+## Directories
+- [components/](components/README.md) - Reusable UI components
+- [elements/](elements/README.md) - Basic UI building blocks
+- [theme/](theme/README.md) - Theme system and color utilities
+
+## Features
+
+### Dynamic Theming
+The UI system uses Material Design 3's dynamic color system with HCT (Hue, Chroma, Tone) color space:
+- Automatic color scheme generation from source colors
+- Light/dark mode support with system preference detection
+- Accessible color combinations by design
+- Real-time theme updates
+
+### Components
+Built with Material Design 3 principles:
+- Consistent spacing and elevation
+- Dynamic color application
+- Responsive layouts
+- Accessibility-first design
+
+### Usage
+See the [theme documentation](theme/README.md) for detailed usage of the theming system.
+
+For a live demo and documentation of all components, visit the `/ui` route in the application.
+
+## Implementation
+
+### Color System
+The theme system uses the `@material/material-color-utilities` package to:
+- Generate color schemes from source colors
+- Convert between color spaces (RGB, HCT)
+- Ensure accessible contrast ratios
+- Create harmonious color relationships
+
+### CSS Variables
+All colors are exposed as CSS custom properties following the Material Design 3 token system:
+```css
+--md-sys-color-primary
+--md-sys-color-on-primary
+--md-sys-color-primary-container
+/* See theme/README.md for full list */
+```
+
+### Components
+Components are built using Svelte and follow these principles:
+- Self-contained with minimal dependencies
+- Consistent prop and event interfaces
+- Built-in accessibility features
+- Responsive by default
+
+## Development
+
+### Adding Components
+1. Create component in appropriate directory
+2. Add TypeScript types and props interface
+3. Include usage documentation
+4. Add to component showcase in `/ui` route
+
+### Modifying Theme
+See [theme/README.md](theme/README.md) for details on:
+- Updating source colors
+- Modifying color schemes
+- Adding new color tokens
+- Customizing theme behavior
 
 ## Directory Structure
 - [components/](components/README.md) - Reusable UI components

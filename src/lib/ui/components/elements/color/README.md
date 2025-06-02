@@ -1,29 +1,33 @@
 # Color Components
 
-Core color components and utilities for Material Design 3.
+[← Back to elements](../README.md)
 
-## Scale Component
+Core color components and utilities for Material Design 3, using the HCT (Hue, Chroma, Tone) color space.
 
-A simple component that displays Material Design 3 color scales. Shows the base color and its variants including:
+## Components
+
+### Scale.svelte
+
+A component that displays Material Design 3 color scales, showing the base color and its variants:
 
 - Base color (e.g. `--md-sys-color-primary`)
 - On-color (e.g. `--md-sys-color-on-primary`) 
 - Container color (e.g. `--md-sys-color-primary-container`)
 - On-container color (e.g. `--md-sys-color-on-primary-container`)
 
-### Usage
+#### Usage
 
 ```svelte
 <script>
-import { scale } from '$lib/ui/components/elements/color/scale.svelte';
+import Scale from '$lib/ui/components/elements/color/scale.svelte';
 </script>
 
-<scale name="Primary" baseVar="primary" />
-<scale name="Secondary" baseVar="secondary" />
-<scale name="Surface" baseVar="surface" showOnColors={false} />
+<Scale name="Primary" baseVar="primary" />
+<Scale name="Secondary" baseVar="secondary" />
+<Scale name="Surface" baseVar="surface" showOnColors={false} />
 ```
 
-### Props
+#### Props
 
 - `name`: Display name for the color scale
 - `baseVar`: Base variable name (e.g. "primary", "secondary", "surface")
@@ -31,4 +35,19 @@ import { scale } from '$lib/ui/components/elements/color/scale.svelte';
 
 ## Material Design Implementation
 
-See [material/README.md](./material/README.md) for details on the Material Design 3 color system implementation. 
+The color system is implemented using the Material Design 3 color utilities, which provide:
+
+- HCT color space calculations
+- Dynamic theme generation
+- Color scheme creation
+- Accessibility checks
+
+### HCT Color Space
+Colors are defined using three parameters:
+- **Hue** (0-360): Position on the color wheel
+- **Chroma** (0-150): Color intensity/saturation
+- **Tone** (0-100): Lightness value
+
+This provides better perceptual uniformity and accessibility than traditional RGB or HSL.
+
+See [material/README.md](material/README.md) for implementation details. 
