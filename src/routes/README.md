@@ -14,5 +14,5 @@ This directory contains all the routes and pages for the Noteprism application, 
 
 ## Directories
 - [api/](api/README.md) - API endpoints for health checks and system status
-- [status/](status/README.md) - Detailed system status page with health check history
+- [status/](status/README.md) - Detailed system status page with health check history 
 - [ui/](ui/README.md) - UI system documentation and design tokens 

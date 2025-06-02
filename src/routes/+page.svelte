@@ -29,11 +29,15 @@
 
 <main class="container">
     <h1>Welcome to Noteprism</h1>
-    <nav class="navigation">
-        <a href="/ui" class="nav-link">UI System</a>
-        <a href="/status" class="nav-link">
-            Status: {hasError ? '⛔' : '✔️'}
-        </a>
+    <nav>
+        <ul>
+            <li><a href="/ui">UI System</a></li>
+            <li>
+                <a href="/status">
+                    Status: {hasError ? '⛔' : '✔️'}
+                </a>
+            </li>
+        </ul>
     </nav>
 </main>
 
@@ -42,21 +46,27 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        background: var(--md-sys-color-surface);
+        color: var(--md-sys-color-on-surface);
     }
 
-    .navigation {
-        margin-top: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+    nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
     }
 
-    .nav-link {
-        color: inherit;
+    nav li {
+        margin: 0.5rem 0;
+    }
+
+    nav a {
+        color: var(--md-sys-color-primary);
         text-decoration: none;
+        font-size: 1.1rem;
     }
 
-    .nav-link:hover {
+    nav a:hover {
         text-decoration: underline;
     }
 </style> 

@@ -45,4 +45,33 @@ Components should have tests for:
 - User interactions
 - Theme application
 - Accessibility
-- Edge cases 
+- Edge cases
+
+## Components
+
+### ColorScale.svelte
+A component for displaying Material You color scales with their CSS variable names.
+
+#### Props
+- `name: string` - Display name for the color scale
+- `baseVar: string` - Base CSS variable name (e.g. "primary", "surface")
+- `showOnColors: boolean` - Whether to show "on" colors (default: true)
+
+#### Usage
+```svelte
+<script>
+    import ColorScale from '$lib/ui/components/ColorScale.svelte';
+</script>
+
+<ColorScale name="Primary" baseVar="primary" />
+<ColorScale name="Surface" baseVar="surface" />
+<ColorScale name="Outline" baseVar="outline" showOnColors={false} />
+```
+
+#### Features
+- Displays color swatches with CSS variable names
+- Shows base color and "on" color pairs
+- Shows container colors when applicable
+- Responsive layout with monospace font for variables
+- Semi-transparent variable name overlays
+- Automatic text contrast with backgrounds 

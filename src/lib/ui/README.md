@@ -1,4 +1,4 @@
-# UI System
+# Noteprism UI System
 
 [← Back to lib](../README.md)
 
@@ -8,6 +8,10 @@ A comprehensive design system for Noteprism, built with Material You's dynamic c
 - [components/](components/README.md) - Reusable UI components
 - [elements/](elements/README.md) - Basic UI building blocks
   - [material/](elements/material/README.md) - Material Design 3 elements
+- [theme/](theme/README.md) - Dynamic theme system
+  - Theme provider component
+  - Color scheme generation (default: Sky #2CD2ED)
+  - Dark mode management
 - [utils/](utils/README.md) - UI-specific utilities
 - `material-color.ts` - Material You color system integration
 - `material-color.test.ts` - Material color system tests
@@ -15,15 +19,17 @@ A comprehensive design system for Noteprism, built with Material You's dynamic c
 ## Design Tokens
 
 ### Colors (Material You)
-Generated dynamically from a source color using `elements/material/color.ts`:
-- Primary Color
-- Secondary Color
-- Tertiary Color
-- Error Color
-- Neutral Color
-- Neutral Variant Color
-- Surface Colors
-- Background Colors
+Generated dynamically from a brand color using the theme system:
+- Default Brand Color: Sky (#2CD2ED)
+- Primary Colors (`--md-sys-color-primary-*`)
+- Secondary Colors (`--md-sys-color-secondary-*`)
+- Tertiary Colors (`--md-sys-color-tertiary-*`)
+- Error Colors (`--md-sys-color-error-*`)
+- Surface Colors (`--md-sys-color-surface-*`)
+- Background Colors (`--md-sys-color-background-*`)
+- Other System Colors (outline, shadow, etc.)
+
+See [theme documentation](theme/README.md) for the complete list of color variables.
 
 ### Typography
 - Display (Large, Medium, Small)
@@ -148,14 +154,16 @@ Generated dynamically from a source color using `elements/material/color.ts`:
 
 ## Implementation Status
 
-✅ Material Color Utilities Integration
-- Color conversion (hex ↔ ARGB)
-- Theme generation from source color
-- Light/dark scheme support
-- Unit tests
+✅ Material Color System
+- Color conversion utilities
+- Theme generation from brand color
+- Dynamic color scheme provider
+- Dark mode support with system sync
+- CSS variable integration
+- Smooth theme transitions
 
 ⏳ Next Steps
-1. Create basic elements
-2. Implement theme provider
-3. Build core components
+1. Add theme persistence
+2. Create color picker component
+3. Build core components using theme
 4. Add component tests 

@@ -1,6 +1,12 @@
 <!-- UI Documentation Page -->
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import ColorScale from '$lib/ui/components/ColorScale.svelte';
+    import { brandColor, isDarkMode } from '$lib/ui/theme/store';
+
+    function toggleTheme() {
+        isDarkMode.update(dark => !dark);
+    }
 </script>
 
 <div class="container">
@@ -14,17 +20,35 @@
         <h2>Design Tokens</h2>
         
         <h3>Colors (Material You)</h3>
-        <p>Generated dynamically from a source color using our Material Design 3 integration:</p>
-        <ul>
-            <li>Primary Color</li>
-            <li>Secondary Color</li>
-            <li>Tertiary Color</li>
-            <li>Error Color</li>
-            <li>Neutral Color</li>
-            <li>Neutral Variant Color</li>
-            <li>Surface Colors</li>
-            <li>Background Colors</li>
-        </ul>
+        <p>Generated dynamically from our brand color (Sky: {$brandColor}) using Material Design 3:</p>
+        <button class="theme-toggle" on:click={toggleTheme}>
+            Toggle {$isDarkMode ? 'Light' : 'Dark'} Mode
+        </button>
+
+        <div class="color-scales">
+            <div class="scale-group">
+                <h4>Brand Colors</h4>
+                <ColorScale name="Primary" baseVar="primary" />
+                <ColorScale name="Secondary" baseVar="secondary" />
+                <ColorScale name="Tertiary" baseVar="tertiary" />
+            </div>
+
+            <div class="scale-group">
+                <h4>Surface Colors</h4>
+                <ColorScale name="Surface" baseVar="surface" />
+                <ColorScale name="Surface Variant" baseVar="surface-variant" />
+                <ColorScale name="Background" baseVar="background" />
+                <ColorScale name="Inverse Surface" baseVar="inverse-surface" />
+            </div>
+
+            <div class="scale-group">
+                <h4>Utility Colors</h4>
+                <ColorScale name="Error" baseVar="error" />
+                <ColorScale name="Outline" baseVar="outline" showOnColors={false} />
+                <ColorScale name="Shadow" baseVar="shadow" showOnColors={false} />
+                <ColorScale name="Scrim" baseVar="scrim" showOnColors={false} />
+            </div>
+        </div>
 
         <h3>Typography</h3>
         <ul>
@@ -122,13 +146,18 @@
 
 <style>
     .container {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        background: var(--md-sys-color-surface);
+        color: var(--md-sys-color-on-surface);
     }
 
     header {
         margin-bottom: 2rem;
+        padding: 2rem;
+        background: var(--md-sys-color-surface-container-highest);
+        border-radius: 16px;
     }
 
     .back-button {
@@ -137,7 +166,7 @@
         padding: 0.5rem 0;
         cursor: pointer;
         font-size: 1rem;
-        color: var(--color-primary);
+        color: var(--md-sys-color-primary);
     }
 
     .back-button:hover {
@@ -147,19 +176,21 @@
     h1 {
         margin: 1rem 0;
         font-size: 2.5rem;
+        color: var(--md-sys-color-on-surface);
     }
 
     h2 {
         margin: 2rem 0 1rem;
         font-size: 2rem;
-        border-bottom: 2px solid var(--color-border);
+        border-bottom: 2px solid var(--md-sys-color-outline-variant);
         padding-bottom: 0.5rem;
+        color: var(--md-sys-color-on-surface);
     }
 
     h3 {
         margin: 1.5rem 0 0.5rem;
         font-size: 1.5rem;
-        color: var(--color-text-secondary);
+        color: var(--md-sys-color-on-surface-variant);
     }
 
     ul {
@@ -170,14 +201,54 @@
 
     li {
         padding: 0.25rem 0;
+        color: var(--md-sys-color-on-surface);
     }
 
     section {
         margin: 2rem 0;
+        padding: 2rem;
+        background: var(--md-sys-color-surface-container);
+        border-radius: 16px;
     }
 
     p {
         margin: 0.5rem 0 1rem;
         line-height: 1.5;
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .theme-toggle {
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .theme-toggle:hover {
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+    }
+
+    .color-scales {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+
+    .scale-group {
+        background: var(--md-sys-color-surface-container-low);
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .scale-group h4 {
+        margin: 0 0 1.5rem;
+        font-size: 1.2rem;
+        color: var(--md-sys-color-on-surface);
     }
 </style> 
