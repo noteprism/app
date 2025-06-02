@@ -2,10 +2,30 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import Scale from '$lib/ui/components/elements/color/scale.svelte';
-    import { brandColor, isDarkMode } from '$lib/ui/theme/store';
+    import { themeTokens, isDarkMode } from '$lib/ui/theme/store';
+    import { hexToHct } from '$lib/ui/theme/tokens';
 
     function toggleTheme() {
         isDarkMode.update(dark => !dark);
+    }
+
+    function updateThemeColor(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const hct = hexToHct(input.value);
+        themeTokens.update(tokens => ({
+            ...tokens,
+            source: hct
+        }));
+    }
+
+    function updateHctValue(property: 'hue' | 'chroma' | 'tone', value: number) {
+        themeTokens.update(tokens => ({
+            ...tokens,
+            source: {
+                ...tokens.source,
+                [property]: value
+            }
+        }));
     }
 </script>
 
@@ -20,10 +40,60 @@
         <h2>Design Tokens</h2>
         
         <h3>Colors (Material You)</h3>
-        <p>Generated dynamically from our brand color (Sky: {$brandColor}) using Material Design 3:</p>
-        <button class="theme-toggle" on:click={toggleTheme}>
-            Toggle {$isDarkMode ? 'Light' : 'Dark'} Mode
-        </button>
+        <div class="theme-controls">
+            <div class="control-group">
+                <label>
+                    Source Color
+                    <input 
+                        type="color" 
+                        value={`#${Math.round($themeTokens.source.hue).toString(16).padStart(2, '0')}${Math.round($themeTokens.source.chroma).toString(16).padStart(2, '0')}${Math.round($themeTokens.source.tone).toString(16).padStart(2, '0')}`}
+                        on:input={updateThemeColor}
+                    />
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    Hue (0-360)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="360" 
+                        value={$themeTokens.source.hue}
+                        on:input={(e) => updateHctValue('hue', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.hue)}</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    Chroma (0-150)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="150" 
+                        value={$themeTokens.source.chroma}
+                        on:input={(e) => updateHctValue('chroma', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.chroma)}</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    Tone (0-100)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={$themeTokens.source.tone}
+                        on:input={(e) => updateHctValue('tone', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.tone)}</span>
+                </label>
+            </div>
+            <button class="theme-toggle" on:click={toggleTheme}>
+                Toggle {$isDarkMode ? 'Light' : 'Dark'} Mode
+            </button>
+        </div>
 
         <div class="color-scales">
             <div class="scale-group">
@@ -250,5 +320,48 @@
         margin: 0 0 1.5rem;
         font-size: 1.2rem;
         color: var(--md-sys-color-on-surface);
+    }
+
+    .theme-controls {
+        background: var(--md-sys-color-surface-container);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .control-group label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .control-group input[type="range"] {
+        flex: 1;
+    }
+
+    .control-group input[type="color"] {
+        width: 60px;
+        height: 30px;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .value {
+        min-width: 3em;
+        text-align: right;
+        color: var(--md-sys-color-on-surface-variant);
     }
 </style> 
