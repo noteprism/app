@@ -1,7 +1,7 @@
 <!-- UI Documentation Page -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import ColorScale from '$lib/ui/components/ColorScale.svelte';
+    import scale from '$lib/ui/components/elements/color/scale.svelte';
     import { brandColor, isDarkMode } from '$lib/ui/theme/store';
 
     function toggleTheme() {
@@ -28,25 +28,25 @@
         <div class="color-scales">
             <div class="scale-group">
                 <h4>Brand Colors</h4>
-                <ColorScale name="Primary" baseVar="primary" />
-                <ColorScale name="Secondary" baseVar="secondary" />
-                <ColorScale name="Tertiary" baseVar="tertiary" />
+                <scale name="Primary" baseVar="primary" />
+                <scale name="Secondary" baseVar="secondary" />
+                <scale name="Tertiary" baseVar="tertiary" />
             </div>
 
             <div class="scale-group">
                 <h4>Surface Colors</h4>
-                <ColorScale name="Surface" baseVar="surface" />
-                <ColorScale name="Surface Variant" baseVar="surface-variant" />
-                <ColorScale name="Background" baseVar="background" />
-                <ColorScale name="Inverse Surface" baseVar="inverse-surface" />
+                <scale name="Surface" baseVar="surface" showOnColors={false} />
+                <scale name="Surface Variant" baseVar="surface-variant" />
+                <scale name="Background" baseVar="background" />
+                <scale name="Inverse Surface" baseVar="inverse-surface" />
             </div>
 
             <div class="scale-group">
                 <h4>Utility Colors</h4>
-                <ColorScale name="Error" baseVar="error" />
-                <ColorScale name="Outline" baseVar="outline" showOnColors={false} />
-                <ColorScale name="Shadow" baseVar="shadow" showOnColors={false} />
-                <ColorScale name="Scrim" baseVar="scrim" showOnColors={false} />
+                <scale name="Error" baseVar="error" />
+                <scale name="Outline" baseVar="outline" showOnColors={false} />
+                <scale name="Shadow" baseVar="shadow" showOnColors={false} />
+                <scale name="Scrim" baseVar="scrim" showOnColors={false} />
             </div>
         </div>
 

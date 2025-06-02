@@ -1,19 +1,10 @@
 # Material Design 3 Elements
 
-[← Back to elements](../README.md)
-
-Core Material Design 3 elements and utilities for Noteprism.
+Core Material Design 3 elements and utilities.
 
 ## Color System
 
-### HCT Color Space
-We use Material Design 3's HCT (Hue, Chroma, Tone) color space for all color operations:
-- Hue: Color's position on the color wheel (0-360)
-- Chroma: Color's colorfulness/saturation
-- Tone: Color's lightness (0-100)
-
-### Surface System
-Surface colors are generated with specific tonal values:
+### Surface Colors
 
 #### Light Theme
 - Surface: 98 tone
@@ -39,12 +30,6 @@ Interactive state layers with standard opacities:
 - Focus: 12% opacity
 - Pressed: 12% opacity
 - Dragged: 16% opacity
-
-### Color Blending
-Support for multiple blend modes:
-- Multiply: Darkens colors
-- Screen: Lightens colors
-- Overlay: Increases contrast
 
 ## Usage Examples
 

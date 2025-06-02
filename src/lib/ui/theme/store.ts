@@ -1,9 +1,9 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import { argbFromHex, hexFromArgb, themeFromSourceColor, type Theme } from '../elements/material/color';
+import { argbFromHex, hexFromArgb, themeFromSourceColor, type Theme } from '$lib/ui/components/elements/color/material/color';
 
 // Default brand color (Sky)
-const DEFAULT_BRAND_COLOR = '#2CD2ED';
+const DEFAULT_BRAND_COLOR = '#2cd2ed';
 
 // Theme preference store
 export const isDarkMode = writable(false);
@@ -22,7 +22,7 @@ export const theme = derived(
     [brandColor, isDarkMode],
     ([$brandColor, $isDarkMode]) => {
         const argb = argbFromHex($brandColor);
-        const materialTheme = themeFromSourceColor(argb);
+        const materialTheme = themeFromSourceColor($brandColor);
         return materialTheme;
     }
 );
