@@ -2,7 +2,6 @@ import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import { argbFromHex, hexFromArgb, themeFromSourceColor, type Theme } from '$lib/ui/components/elements/color/material/color';
 import { DEFAULT_THEME, type ThemeTokens, hctToHex, MD3_COLOR_TOKENS } from './tokens';
-import { updateUserTheme } from '$lib/server/auth';
 
 // Theme preference store
 export const isDarkMode = writable(false);
@@ -59,51 +58,4 @@ if (browser) {
 
     // Subscribe to the combined store
     themeWithMode.subscribe(() => {});
-}
-
-// Initialize theme from user preferences if available
-export async function initializeUserTheme(userId: string | null) {
-    if (!userId) return;
-
-    try {
-        const response = await fetch(`/api/theme/${userId}`);
-        if (response.ok) {
-            const userTheme = await response.json();
-            if (userTheme) {
-                themeTokens.set({
-                    source: {
-                        hue: userTheme.hue,
-                        chroma: userTheme.chroma,
-                        tone: userTheme.tone
-                    }
-                });
-                isDarkMode.set(userTheme.darkMode);
-            }
-        }
-    } catch (error) {
-        console.error('Failed to load user theme:', error);
-    }
-}
-
-// Save theme preferences for logged-in user
-export async function saveUserTheme(userId: string | null) {
-    if (!userId) return;
-
-    let currentTheme: ThemeTokens = DEFAULT_THEME;
-    let currentDarkMode = false;
-
-    // Get current values from stores
-    themeTokens.subscribe(value => currentTheme = value)();
-    isDarkMode.subscribe(value => currentDarkMode = value)();
-
-    try {
-        await updateUserTheme(userId, {
-            hue: currentTheme.source.hue,
-            chroma: currentTheme.source.chroma,
-            tone: currentTheme.source.tone,
-            darkMode: currentDarkMode
-        });
-    } catch (error) {
-        console.error('Failed to save user theme:', error);
-    }
 } 

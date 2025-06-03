@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { page } from '$app/stores';
 
     let hasError = false;
 
@@ -29,30 +28,14 @@
 </script>
 
 <main class="container">
-    <header>
-        <h1>Welcome to Noteprism</h1>
-        {#if $page.data.user}
-            <div class="user-status">
-                Logged in as {$page.data.user.email}
-                <form action="/auth/logout" method="POST">
-                    <button type="submit" class="logout-btn">Logout</button>
-                </form>
-            </div>
-        {:else}
-            <div class="auth-links">
-                <a href="/auth/login" class="auth-btn login">Login</a>
-                <a href="/auth/register" class="auth-btn register">Register</a>
-            </div>
-        {/if}
-    </header>
-
+    <h1>Welcome to Noteprism</h1>
     <nav>
         <ul>
             <li><a href="/ui">UI System</a></li>
             <li>
-                <a href="/status">
-                    Status: {hasError ? '⛔' : '✔️'}
-                </a>
+        <a href="/status">
+            Status: {hasError ? '⛔' : '✔️'}
+        </a>
             </li>
         </ul>
     </nav>
@@ -65,61 +48,6 @@
         padding: 2rem;
         background: var(--md-sys-color-surface);
         color: var(--md-sys-color-on-surface);
-    }
-
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .user-status {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: var(--md-sys-color-on-surface-variant);
-    }
-
-    .auth-links {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .auth-btn {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-
-    .auth-btn.login {
-        background: var(--md-sys-color-primary);
-        color: var(--md-sys-color-on-primary);
-    }
-
-    .auth-btn.register {
-        background: var(--md-sys-color-secondary);
-        color: var(--md-sys-color-on-secondary);
-    }
-
-    .auth-btn:hover {
-        opacity: 0.9;
-    }
-
-    .logout-btn {
-        background: var(--md-sys-color-error);
-        color: var(--md-sys-color-on-error);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-    }
-
-    .logout-btn:hover {
-        opacity: 0.9;
     }
 
     nav ul {

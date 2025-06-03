@@ -1,18 +1,12 @@
 <!-- UI System -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import Scale from '$lib/ui/components/Scale.svelte';
-    import { themeTokens, isDarkMode, saveTheme, isThemeLoading } from '$lib/stores/theme';
+    import Scale from '$lib/ui/components/elements/color/scale.svelte';
+    import { themeTokens, isDarkMode } from '$lib/ui/theme/store';
     import { hexToHct, hctToHex } from '$lib/ui/theme/tokens';
-    import { page } from '$app/stores';
 
     // Derived hex color for the color input
     $: sourceHex = hctToHex($themeTokens.source.hue, $themeTokens.source.chroma, $themeTokens.source.tone);
-
-    // Save theme when it changes if user is logged in
-    $: if ($page.data.user?.id) {
-        saveTheme($page.data.user.id);
-    }
 
     function toggleTheme() {
         isDarkMode.update(dark => !dark);
@@ -44,76 +38,72 @@
         <h1>UI System</h1>
     </header>
 
-    {#if $isThemeLoading}
-        <div class="loading">Loading theme...</div>
-    {:else}
-        <section class="surface">
-            <h2>Theme Controls</h2>
-            <div class="theme-controls">
-                <div class="control-group">
-                    <label>
-                        Source Color
-                        <input 
-                            type="color" 
-                            value={sourceHex}
-                            on:input={updateThemeColor}
-                        />
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label>
-                        Hue (0-360)
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="360" 
-                            value={$themeTokens.source.hue}
-                            on:input={(e) => updateHctValue('hue', parseFloat(e.currentTarget.value))}
-                        />
-                        <span class="value">{Math.round($themeTokens.source.hue)}</span>
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label>
-                        Chroma (0-150)
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="150" 
-                            value={$themeTokens.source.chroma}
-                            on:input={(e) => updateHctValue('chroma', parseFloat(e.currentTarget.value))}
-                        />
-                        <span class="value">{Math.round($themeTokens.source.chroma)}</span>
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label>
-                        Tone (0-100)
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={$themeTokens.source.tone}
-                            on:input={(e) => updateHctValue('tone', parseFloat(e.currentTarget.value))}
-                        />
-                        <span class="value">{Math.round($themeTokens.source.tone)}</span>
-                    </label>
-                </div>
-                <button class="theme-toggle" on:click={toggleTheme}>
-                    Toggle {$isDarkMode ? 'Light' : 'Dark'} Mode
-                </button>
+    <section class="surface">
+        <h2>Theme Controls</h2>
+        <div class="theme-controls">
+            <div class="control-group">
+                <label>
+                    Source Color
+                    <input 
+                        type="color" 
+                        value={sourceHex}
+                        on:input={updateThemeColor}
+                    />
+                </label>
             </div>
+            <div class="control-group">
+                <label>
+                    Hue (0-360)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="360" 
+                        value={$themeTokens.source.hue}
+                        on:input={(e) => updateHctValue('hue', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.hue)}</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    Chroma (0-150)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="150" 
+                        value={$themeTokens.source.chroma}
+                        on:input={(e) => updateHctValue('chroma', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.chroma)}</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    Tone (0-100)
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={$themeTokens.source.tone}
+                        on:input={(e) => updateHctValue('tone', parseFloat(e.currentTarget.value))}
+                    />
+                    <span class="value">{Math.round($themeTokens.source.tone)}</span>
+                </label>
+            </div>
+            <button class="theme-toggle" on:click={toggleTheme}>
+                Toggle {$isDarkMode ? 'Light' : 'Dark'} Mode
+            </button>
+        </div>
 
-            <div class="color-scales">
-                <div class="scale-group">
-                    <h3>Brand Colors</h3>
-                    <Scale name="Primary" baseVar="primary" />
-                    <Scale name="Secondary" baseVar="secondary" />
-                    <Scale name="Tertiary" baseVar="tertiary" />
-                </div>
+        <div class="color-scales">
+            <div class="scale-group">
+                <h3>Brand Colors</h3>
+                <Scale name="Primary" baseVar="primary" />
+                <Scale name="Secondary" baseVar="secondary" />
+                <Scale name="Tertiary" baseVar="tertiary" />
             </div>
-        </section>
-    {/if}
+        </div>
+    </section>
 </div>
 
 <style>
@@ -122,12 +112,6 @@
         color: var(--md-sys-color-on-background);
         margin: 0;
         min-height: 100vh;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
-
-    :global(body.loading) {
-        opacity: 0;
     }
 
     .container {
@@ -150,21 +134,12 @@
         margin: 0 0 1rem;
     }
 
-    .loading {
-        text-align: center;
-        padding: 2rem;
-        font-size: 1.2rem;
-        color: var(--md-sys-color-on-surface);
-    }
-
     .surface {
         background: var(--md-sys-color-surface);
         color: var(--md-sys-color-on-surface);
         padding: 2rem;
         border-radius: 16px;
         box-shadow: 0 2px 8px var(--md-sys-color-shadow);
-        opacity: 1;
-        transition: opacity 0.3s ease;
     }
 
     .back-button {

@@ -13,26 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String      @id @default(cuid())
-  email         String      @unique
-  passwordHash  String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  theme         UserTheme?
-}
-
-model UserTheme {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hue       Float
-  chroma    Float
-  tone      Float
-  darkMode  Boolean  @default(false)
-  updatedAt DateTime @updatedAt
-}
-
 model HealthCheck {
   id          String    @id @default(cuid())
   service     String    // "server" or "database"

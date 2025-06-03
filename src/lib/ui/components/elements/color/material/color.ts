@@ -1,19 +1,17 @@
-import { argbFromHex as _argbFromHex, hexFromArgb as _hexFromArgb, themeFromSourceColor as _themeFromSourceColor } from '@material/material-color-utilities';
-import type { Theme as _Theme, CustomColor } from '@material/material-color-utilities';
+import { argbFromHex, hexFromArgb, themeFromSourceColor as mdThemeFromSourceColor, type Theme } from '@material/material-color-utilities';
 
-// Re-export the types and functions from material-color-utilities
-export type Theme = _Theme;
-export type { CustomColor };
+export { argbFromHex, hexFromArgb, type Theme };
 
-export function argbFromHex(hex: string): number {
-    return _argbFromHex(hex);
+export function themeFromSourceColor(color: string): Theme {
+    return mdThemeFromSourceColor(argbFromHex(color));
 }
 
-export function hexFromArgb(argb: number): string {
-    return _hexFromArgb(argb);
-}
-
-export function themeFromSourceColor(sourceColorHex: string, customColors: CustomColor[] = []): Theme {
-    const sourceColor = argbFromHex(sourceColorHex);
-    return _themeFromSourceColor(sourceColor, customColors);
+export function getStateLayer(baseColor: string, state: 'hover' | 'focus' | 'pressed' | 'dragged'): string {
+    const opacities = {
+        hover: 0.08,
+        focus: 0.12,
+        pressed: 0.12,
+        dragged: 0.16
+    };
+    return `${baseColor}${Math.round(opacities[state] * 255).toString(16).padStart(2, '0')}`;
 } 

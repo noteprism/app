@@ -1,45 +1,13 @@
 # UI System
 
-This directory contains the Material Design 3 theme system and UI components.
+[← Back to lib](../README.md)
 
-## Directory Structure
+A comprehensive UI system built on Material Design 3 principles, using the HCT color space for dynamic theming.
 
-- `/components` - Reusable UI components
-  - `/elements` - Basic UI building blocks
-    - `/color` - Color system components
-      - `/material` - Material Design 3 color utilities
-- `/theme` - Theme system and tokens
-
-## Components
-
-### Color Scale
-The `scale.svelte` component displays a color scale based on the Material Design 3 color system. It's used in the UI System page to show the theme's color palette.
-
-### Theme
-The theme system uses Material Design 3's dynamic color generation to create a cohesive color scheme from a source color. Theme preferences are stored per user and can be customized through the UI System page.
-
-## Usage
-
-```svelte
-<script>
-import Scale from '$lib/ui/components/elements/color/scale.svelte';
-import { themeTokens } from '$lib/stores/theme';
-</script>
-
-<Scale name="Primary" baseVar="primary" />
-```
-
-## Theme Tokens
-
-Theme tokens are defined in `theme/tokens.ts` and follow the Material Design 3 token system:
-
-- Primary colors
-- Secondary colors
-- Tertiary colors
-- Neutral colors
-- Error colors
-
-Each color has variants for different surfaces and states.
+## Directories
+- [components/](components/README.md) - Reusable UI components
+- [elements/](elements/README.md) - Basic UI building blocks
+- [theme/](theme/README.md) - Theme system and color utilities
 
 ## Features
 
