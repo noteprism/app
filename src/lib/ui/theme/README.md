@@ -4,26 +4,53 @@
 
 A Material Design 3 theme system that uses HCT (Hue, Chroma, Tone) color space for precise and accessible color generation.
 
+## Implementation Status
+
+✅ Completed:
+- HCT color space implementation
+- Dynamic theme generation from source color
+- Light/dark mode with system preference sync
+- CSS variables for Material Design 3 color roles
+- Surface system implementation
+- Color scale components
+
+⏳ Next Steps:
+- Typography system
+- Elevation system
+- Component theming guidelines
+- Theme transition animations
+
 ## Files
 - `store.ts` - Theme state management and color scheme generation
 - `store.test.ts` - Theme store unit tests
 - `tokens.ts` - Theme tokens and color space utilities
-- `provider.svelte` - Theme application component
 
-## Test Coverage
+## Surface System
 
-### Theme Store Tests (`store.test.ts`)
-- Dark mode initialization from system preference
-- Manual dark mode updates
-- System preference change handling
+Our implementation follows Material Design 3's surface system for consistent elevation and hierarchy:
 
-### Color Utilities Tests (`material/color.test.ts`)
-- Hex to ARGB conversion
-- ARGB to hex conversion
-- Theme generation from source color
+### Base Surfaces
+- `--md-sys-color-surface` - Primary surface color
+- `--md-sys-color-on-surface` - Text and icons on primary surface
+- `--md-sys-color-surface-variant` - Alternative surface for distinct areas
+- `--md-sys-color-on-surface-variant` - Text and icons on surface variant
+
+### Surface Containers (Elevation)
+Used to create hierarchy through subtle elevation differences:
+1. `--md-sys-color-surface-container-lowest` - Base level containers
+2. `--md-sys-color-surface-container-low` - Slightly elevated containers
+3. `--md-sys-color-surface-container` - Standard containers
+4. `--md-sys-color-surface-container-high` - Higher emphasis containers
+5. `--md-sys-color-surface-container-highest` - Highest emphasis containers
+
+### Special Surfaces
+- `--md-sys-color-surface-dim` - Dimmed surface for reduced emphasis
+- `--md-sys-color-surface-bright` - Bright surface for increased emphasis
+- `--md-sys-color-inverse-surface` - Inverse surface for contrast
 
 ## Usage
 
+### Theme Colors
 ```svelte
 <script>
 import { themeTokens } from '$lib/ui/theme/store';
@@ -36,15 +63,46 @@ themeTokens.update(tokens => ({
         tone: 65     // 0-100
     }
 }));
-
-// Or use hex colors that will be converted to HCT
-import { hexToHct } from '$lib/ui/theme/tokens';
-const hct = hexToHct('#2CD2ED');
-themeTokens.update(tokens => ({
-    source: hct
-}));
 </script>
 ```
+
+### Surface Usage
+```svelte
+<div class="card">
+  <h2>Card Title</h2>
+  <p>Card content</p>
+</div>
+
+<style>
+  .card {
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--md-sys-color-shadow);
+  }
+</style>
+```
+
+## Proposed Tests
+
+### Surface System Tests
+- Verify correct surface color generation for light/dark modes
+- Test surface container color relationships (lowest to highest)
+- Validate contrast ratios between surfaces and on-surface colors
+- Test surface color updates when theme source color changes
+
+### Theme Store Tests
+- Test theme updates with HCT value changes
+- Verify correct color space conversions
+- Test system preference change handling
+- Validate theme persistence across page reloads
+
+### Component Tests
+- Test color scale component rendering
+- Verify theme control inputs
+- Test surface container hierarchy
+- Validate color contrast accessibility
 
 ## Features
 - HCT color space for precise color control

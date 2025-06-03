@@ -48,9 +48,14 @@ export function applyTheme(materialTheme: Theme, isDark: boolean) {
 
 // Subscribe to theme changes and apply them
 if (browser) {
-    theme.subscribe((materialTheme) => {
-        isDarkMode.subscribe((dark) => {
-            applyTheme(materialTheme, dark);
-        });
-    });
+    // Create a derived store that combines theme and dark mode
+    const themeWithMode = derived(
+        [theme, isDarkMode],
+        ([$theme, $isDark]) => {
+            applyTheme($theme, $isDark);
+        }
+    );
+
+    // Subscribe to the combined store
+    themeWithMode.subscribe(() => {});
 } 
