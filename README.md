@@ -44,17 +44,17 @@ A powerful idea capture and knowledge management system that combines the best o
 - Living style guide at `/ui`
 - Light/dark theme support
 
-### Real-time Monitoring
+### System Monitoring
 - Server health monitoring with memory usage tracking
 - PostgreSQL database connection status and latency
-- Automatic status updates every 30 seconds
+- Manual status updates on page load and click
 - Response time measurements for all services
 
 ### Historical Data
 - Uptime tracking for multiple time periods (24h, 7d, 30d, 90d)
 - Persistent storage of health check results
 - Last 50 health checks for detailed analysis
-- Automatic uptime percentage calculations
+- Uptime percentage calculations
 
 ### Modern UI
 - Clean, responsive dashboard design

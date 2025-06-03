@@ -22,8 +22,6 @@
 
     onMount(() => {
         checkHealth();
-        const interval = setInterval(checkHealth, 30000);
-        return () => clearInterval(interval);
     });
 </script>
 
@@ -33,9 +31,9 @@
         <ul>
             <li><a href="/ui">UI System</a></li>
             <li>
-        <a href="/status">
-            Status: {hasError ? '⛔' : '✔️'}
-        </a>
+                <a href="/status" on:click={() => checkHealth()}>
+                    Status: {hasError ? '⛔' : '✔️'}
+                </a>
             </li>
         </ul>
     </nav>

@@ -1,18 +1,22 @@
 # Routes Directory
 
-[← Back to root](../../README.md)
+This directory contains all the SvelteKit routes and pages for the application.
 
-This directory contains all the routes and pages for the Noteprism application, built with Svelte 5.
+## Pages
 
-## Files
-- `+page.svelte` - Landing page with simple status overview
-  - Welcome message
-  - Quick status indicator (✔️/⛔) using reactive variables
-  - Link to UI system documentation
-  - Link to detailed status page
-  - Auto-refreshes every 30 seconds
+### Home Page (`+page.svelte`)
+- Main landing page
+- System status indicator
+- Navigation to key features
+
+### Status Page (`/status`)
+- Detailed system health information
+- Complete health check history
+- Uptime statistics and graphs
+
+## API Routes
+- [api/](api/README.md) - API endpoints for health checks and system status
+- [status/](status/README.md) - Detailed system status page with health check history
 
 ## Directories
-- [api/](api/README.md) - API endpoints for health checks and system status
-- [status/](status/README.md) - Detailed system status page with health check history 
 - [ui/](ui/README.md) - UI system documentation and design tokens 
