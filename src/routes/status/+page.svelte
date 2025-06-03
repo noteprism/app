@@ -71,6 +71,7 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        color: var(--md-sys-color-on-background);
     }
 
     header {
@@ -80,25 +81,36 @@
         margin-bottom: 2rem;
     }
 
+    h1 {
+        color: var(--md-sys-color-on-surface);
+        margin: 0;
+    }
+
+    h2 {
+        color: var(--md-sys-color-on-surface);
+        margin: 0 0 1rem;
+    }
+
     .back-link {
-        color: #666;
+        color: var(--md-sys-color-primary);
         text-decoration: none;
     }
 
     .back-link:hover {
         text-decoration: underline;
+        opacity: 0.9;
     }
 
     .last-updated {
-        color: #666;
+        color: var(--md-sys-color-on-surface-variant);
         font-size: 0.9rem;
     }
 
     .health-checks {
-        background: white;
+        background: var(--md-sys-color-surface);
         padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 16px;
+        box-shadow: 0 2px 8px var(--md-sys-color-shadow);
     }
 
     .check-list {
@@ -113,18 +125,20 @@
         grid-template-columns: auto 1fr 100px 100px;
         gap: 1rem;
         padding: 0.75rem;
-        border-radius: 4px;
+        border-radius: 8px;
         align-items: center;
     }
 
     .check-item.operational {
-        background: #e8f5e9;
-        border: 1px solid #4caf50;
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+        border: 1px solid var(--md-sys-color-primary);
     }
 
     .check-item.error {
-        background: #ffebee;
-        border: 1px solid #f44336;
+        background: var(--md-sys-color-error-container);
+        color: var(--md-sys-color-on-error-container);
+        border: 1px solid var(--md-sys-color-error);
     }
 
     .check-time {
@@ -138,7 +152,7 @@
     .service-type {
         font-weight: normal;
         font-size: 0.9rem;
-        color: #666;
+        color: var(--md-sys-color-on-surface-variant);
     }
 
     .check-status {
@@ -153,7 +167,7 @@
 
     .check-message {
         grid-column: 1 / -1;
-        color: #666;
+        color: var(--md-sys-color-on-surface-variant);
         font-size: 0.9rem;
     }
 </style> 

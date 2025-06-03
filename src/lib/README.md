@@ -1,8 +1,29 @@
 # Library Directory
 
-[← Back to root](../../README.md)
+This directory contains shared libraries, components, and utilities used throughout the application.
 
-This directory contains shared utilities and libraries used throughout the application.
+## Directory Structure
+
+- `/server` - Server-side utilities and database interactions
+- `/stores` - Svelte stores for state management
+- `/ui` - UI components and theme system
+  - `/components` - Reusable UI components
+  - `/theme` - Material Design 3 theme system
+
+## Key Files
+
+- `stores/theme.ts` - Theme management and persistence
+- `server/auth.ts` - Authentication utilities
+- `server/db.ts` - Database utilities
+
+## Usage
+
+Import components and utilities using the `$lib` alias:
+
+```typescript
+import { themeTokens } from '$lib/stores/theme';
+import { auth } from '$lib/server/auth';
+```
 
 ## Files
 - `variables.ts` - Configuration variables and environment settings
