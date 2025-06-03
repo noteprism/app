@@ -1,6 +1,26 @@
 # Theme System
 
+[← Back to UI](../README.md)
+
 A Material Design 3 theme system that uses HCT (Hue, Chroma, Tone) color space for precise and accessible color generation.
+
+## Files
+- `store.ts` - Theme state management and color scheme generation
+- `store.test.ts` - Theme store unit tests
+- `tokens.ts` - Theme tokens and color space utilities
+- `provider.svelte` - Theme application component
+
+## Test Coverage
+
+### Theme Store Tests (`store.test.ts`)
+- Dark mode initialization from system preference
+- Manual dark mode updates
+- System preference change handling
+
+### Color Utilities Tests (`material/color.test.ts`)
+- Hex to ARGB conversion
+- ARGB to hex conversion
+- Theme generation from source color
 
 ## Usage
 
@@ -85,11 +105,6 @@ Each color (except special surfaces) has a corresponding `on-` token for content
 - `--md-sys-color-on-error`
 - `--md-sys-color-error-container`
 - `--md-sys-color-on-error-container`
-
-## Files
-- `tokens.ts` - Theme tokens, color space utilities, and token definitions
-- `store.ts` - Theme state management and color scheme generation
-- `provider.svelte` - Theme application component
 
 ## References
 - [Material Design 3 Color System](https://m3.material.io/styles/color/overview)
