@@ -95,13 +95,13 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
     >
       {isEditing ? (
         <CardContent className="p-3">
-          <Textarea
+            <Textarea
             ref={textareaRef}
-            value={content}
+              value={content}
             onChange={e => setContent(e.target.value)}
             onBlur={handleBlur}
-            className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
-            placeholder="Note content"
+              className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
+              placeholder="Note content"
             autoFocus
           />
         </CardContent>

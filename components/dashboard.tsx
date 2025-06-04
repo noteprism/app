@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 import { PlusCircle, Search, Settings, User, Plus } from "lucide-react"
 import { nanoid } from "nanoid"
@@ -26,54 +26,22 @@ import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import Image from "next/image"
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState<NoteGroupType[]>([
-    {
-      id: "group-1",
-      title: "Quick Notes",
-      notes: [
-        {
-          id: "note-1",
-          content: "Welcome to Noteprism\nThis is your new workspace for organizing notes and tasks.",
-          color: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100",
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: "note-2",
-          content: "Getting Started\nCreate new notes with the + button and organize them into groups.",
-          color: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100",
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    },
-    {
-      id: "group-2",
-      title: "Work Tasks",
-      notes: [
-        {
-          id: "note-3",
-          content: "Project Deadline\nComplete the dashboard design by Friday.",
-          color: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100",
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    },
-    {
-      id: "group-3",
-      title: "Personal",
-      notes: [
-        {
-          id: "note-4",
-          content: "Shopping List\n- Milk\n- Eggs\n- Bread\n- Coffee",
-          color: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100",
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    },
-  ])
+  const [groups, setGroups] = useState<NoteGroupType[]>([])
 
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    fetch("/api/groups")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setGroups(data)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
@@ -111,57 +79,61 @@ export default function Dashboard() {
     setGroups(newGroups)
   }
 
-  const handleCreateNote = (note: Omit<Note, "id" | "createdAt">, groupId: string) => {
-    const newNote: Note = {
-      ...note,
-      id: `note-${nanoid(6)}`,
-      createdAt: new Date().toISOString(),
-    }
-    setGroups((prevGroups) =>
-      prevGroups.map((group) => (group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group)),
-    )
+  const handleCreateNote = async (note: Omit<Note, "id" | "createdAt">, groupId: string) => {
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...note, groupId }),
+    })
+    const newNote = await res.json()
+    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group))
     setIsCreateNoteOpen(false)
   }
 
-  const handleCreateGroup = () => {
-    const newGroup: NoteGroupType = {
-      id: `group-${nanoid(6)}`,
-      title: "New Group",
-      notes: [],
-    }
-
-    setGroups([...groups, newGroup])
+  const handleCreateGroup = async () => {
+    const res = await fetch("/api/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "New Group" }),
+    })
+    const newGroup = await res.json()
+    setGroups(prev => [...prev, { ...newGroup, notes: [] }])
   }
 
-  const handleDeleteNote = (noteId: string, groupId: string) => {
-    setGroups((prevGroups) =>
-      prevGroups.map((group) =>
-        group.id === groupId ? { ...group, notes: group.notes.filter((note) => note.id !== noteId) } : group,
-      ),
-    )
+  const handleDeleteNote = async (noteId: string, groupId: string) => {
+    await fetch("/api/notes", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: noteId }),
+    })
+    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: group.notes.filter(note => note.id !== noteId) } : group))
   }
 
-  const handleUpdateGroup = (groupId: string, title: string) => {
-    setGroups((prevGroups) => prevGroups.map((group) => (group.id === groupId ? { ...group, title } : group)))
+  const handleUpdateGroup = async (groupId: string, title: string) => {
+    await fetch("/api/groups", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: groupId, title }),
+    })
+    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, title } : group))
   }
 
-  const handleDeleteGroup = (groupId: string) => {
-    setGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId))
+  const handleDeleteGroup = async (groupId: string) => {
+    await fetch("/api/groups", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: groupId }),
+    })
+    setGroups(prevGroups => prevGroups.filter(group => group.id !== groupId))
   }
 
-  const handleUpdateNote = (noteId: string, groupId: string, updated: { title: string; content: string }) => {
-    setGroups((prevGroups) =>
-      prevGroups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              notes: group.notes.map((note) =>
-                note.id === noteId ? { ...note, ...updated } : note
-              ),
-            }
-          : group
-      )
-    )
+  const handleUpdateNote = async (noteId: string, groupId: string, updated: { content: string }) => {
+    await fetch("/api/notes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: noteId, ...updated }),
+    })
+    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: group.notes.map(note => note.id === noteId ? { ...note, ...updated } : note) } : group))
   }
 
   const filteredGroups = searchQuery
