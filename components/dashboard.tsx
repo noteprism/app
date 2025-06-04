@@ -150,7 +150,7 @@ export default function Dashboard() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-white">
         <Sidebar>
           <SidebarHeader className="border-b">
             <div className="flex items-center px-2 py-3">

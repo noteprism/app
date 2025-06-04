@@ -34,7 +34,7 @@ const colorOptions = [
 export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateNote }: CreateNoteDialogProps) {
   const [content, setContent] = useState("")
   const [groupId, setGroupId] = useState(groups[0]?.id || "")
-  const [color, setColor] = useState("bg-yellow-100")
+  const [color, setColor] = useState("bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
