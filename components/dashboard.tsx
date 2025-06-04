@@ -207,7 +207,7 @@ export default function Dashboard() {
             </div>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex-1 overflow-auto">
+        <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
             <SidebarTrigger />
             <div className="flex-1">
