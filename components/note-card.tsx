@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { MoreHorizontal, Trash2, Edit } from "lucide-react"
+import React from "react"
 
 import type { Note } from "@/types/notes"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -20,6 +21,7 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(note.title)
   const [content, setContent] = useState(note.content)
+  const [checked, setChecked] = useState<{ [key: number]: boolean }>({})
 
   const handleSave = () => {
     // In a real app, we would update the note in the database
@@ -30,6 +32,27 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
     month: "short",
     day: "numeric",
   })
+
+  const parseContent = (content: string) => {
+    return content.split("\n").map((line, idx) => {
+      const match = line.match(/^\s*- (.+)$/)
+      if (match) {
+        return (
+          <div key={idx} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={!!checked[idx]}
+              onChange={() => setChecked((prev) => ({ ...prev, [idx]: !prev[idx] }))}
+              className="accent-green-500"
+            />
+            <span className={checked[idx] ? "line-through text-muted-foreground" : undefined}>{match[1]}</span>
+          </div>
+        )
+      } else {
+        return <div key={idx}>{line}</div>
+      }
+    })
+  }
 
   return (
     <Card className={cn("shadow-sm transition-all", note.color, isEditing ? "ring-2 ring-primary" : "hover:shadow")}>
@@ -82,7 +105,9 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="mt-2 whitespace-pre-line text-sm">{note.content}</div>
+            <div className="mt-2 whitespace-pre-line text-sm">
+              {parseContent(note.content)}
+            </div>
           </CardContent>
           <CardFooter className="px-3 py-1.5 text-xs text-muted-foreground border-t">{formattedDate}</CardFooter>
         </>
