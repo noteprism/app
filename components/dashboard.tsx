@@ -33,15 +33,13 @@ export default function Dashboard() {
       notes: [
         {
           id: "note-1",
-          title: "Welcome to Noteprism",
-          content: "This is your new workspace for organizing notes and tasks.",
+          content: "Welcome to Noteprism\nThis is your new workspace for organizing notes and tasks.",
           color: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100",
           createdAt: new Date().toISOString(),
         },
         {
           id: "note-2",
-          title: "Getting Started",
-          content: "Create new notes with the + button and organize them into groups.",
+          content: "Getting Started\nCreate new notes with the + button and organize them into groups.",
           color: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100",
           createdAt: new Date().toISOString(),
         },
@@ -53,8 +51,7 @@ export default function Dashboard() {
       notes: [
         {
           id: "note-3",
-          title: "Project Deadline",
-          content: "Complete the dashboard design by Friday.",
+          content: "Project Deadline\nComplete the dashboard design by Friday.",
           color: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100",
           createdAt: new Date().toISOString(),
         },
@@ -66,8 +63,7 @@ export default function Dashboard() {
       notes: [
         {
           id: "note-4",
-          title: "Shopping List",
-          content: "- Milk\n- Eggs\n- Bread\n- Coffee",
+          content: "Shopping List\n- Milk\n- Eggs\n- Bread\n- Coffee",
           color: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100",
           createdAt: new Date().toISOString(),
         },
@@ -121,11 +117,9 @@ export default function Dashboard() {
       id: `note-${nanoid(6)}`,
       createdAt: new Date().toISOString(),
     }
-
     setGroups((prevGroups) =>
       prevGroups.map((group) => (group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group)),
     )
-
     setIsCreateNoteOpen(false)
   }
 
@@ -176,7 +170,6 @@ export default function Dashboard() {
           ...group,
           notes: group.notes.filter(
             (note) =>
-              note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
               note.content.toLowerCase().includes(searchQuery.toLowerCase()),
           ),
         }))

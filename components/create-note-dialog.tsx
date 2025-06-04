@@ -32,29 +32,22 @@ const colorOptions = [
 ]
 
 export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateNote }: CreateNoteDialogProps) {
-  const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [groupId, setGroupId] = useState(groups[0]?.id || "")
   const [color, setColor] = useState("bg-yellow-100")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!title.trim() || !groupId) return
-
+    if (!content.trim() || !groupId) return
     onCreateNote(
       {
-        title,
         content,
         color,
       },
       groupId,
     )
-
-    // Reset form
-    setTitle("")
     setContent("")
-    setColor("bg-yellow-100")
+    setColor("bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100")
   }
 
   return (
@@ -66,16 +59,6 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Note title"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
               <Label htmlFor="content">Content</Label>
               <Textarea
                 id="content"
@@ -83,6 +66,7 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Note content"
                 className="min-h-[100px]"
+                required
               />
             </div>
             <div className="grid gap-2">
