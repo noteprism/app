@@ -24,11 +24,11 @@ interface CreateNoteDialogProps {
 }
 
 const colorOptions = [
-  { value: "bg-yellow-100", label: "Yellow" },
-  { value: "bg-blue-100", label: "Blue" },
-  { value: "bg-green-100", label: "Green" },
-  { value: "bg-red-100", label: "Red" },
-  { value: "bg-purple-100", label: "Purple" },
+  { value: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100", label: "Yellow", swatch: "bg-yellow-400" },
+  { value: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100", label: "Blue", swatch: "bg-blue-400" },
+  { value: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100", label: "Green", swatch: "bg-green-400" },
+  { value: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100", label: "Red", swatch: "bg-red-400" },
+  { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400" },
 ]
 
 export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateNote }: CreateNoteDialogProps) {
@@ -109,8 +109,8 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
                     <Label
                       htmlFor={option.value}
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full border-2 border-transparent peer-focus-visible:ring-2 peer-focus-visible:ring-ring",
-                        option.value,
+                        "flex h-8 w-8 items-center justify-center rounded-full border-2 border-transparent peer-focus-visible:ring-2 peer-focus-visible:ring-ring cursor-pointer transition-shadow hover:shadow-md",
+                        option.swatch,
                         color === option.value && "border-primary",
                       )}
                     >
