@@ -43,7 +43,7 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
               type="checkbox"
               checked={!!checked[idx]}
               onChange={() => setChecked((prev) => ({ ...prev, [idx]: !prev[idx] }))}
-              className="accent-green-500"
+              className={getAccentColor()}
             />
             <span className={checked[idx] ? "line-through text-muted-foreground" : undefined}>{match[1]}</span>
           </div>
@@ -52,6 +52,16 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
         return <div key={idx}>{line}</div>
       }
     })
+  }
+
+  // Map gradient to accent color for checkboxes
+  const getAccentColor = () => {
+    if (note.color.includes('yellow')) return 'accent-yellow-400';
+    if (note.color.includes('blue')) return 'accent-blue-400';
+    if (note.color.includes('green')) return 'accent-green-400';
+    if (note.color.includes('red')) return 'accent-red-400';
+    if (note.color.includes('purple')) return 'accent-purple-400';
+    return 'accent-primary';
   }
 
   return (
