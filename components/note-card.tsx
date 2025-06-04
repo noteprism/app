@@ -15,16 +15,17 @@ import { cn } from "@/lib/utils"
 interface NoteCardProps {
   note: Note
   onDelete: () => void
+  onUpdate: (updated: { title: string; content: string }) => void
 }
 
-export default function NoteCard({ note, onDelete }: NoteCardProps) {
+export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(note.title)
   const [content, setContent] = useState(note.content)
   const [checked, setChecked] = useState<{ [key: number]: boolean }>({})
 
   const handleSave = () => {
-    // In a real app, we would update the note in the database
+    onUpdate({ title, content })
     setIsEditing(false)
   }
 

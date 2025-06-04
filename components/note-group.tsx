@@ -16,9 +16,10 @@ interface NoteGroupProps {
   onDeleteNote: (noteId: string, groupId: string) => void
   onUpdateGroup: (groupId: string, title: string) => void
   onDeleteGroup: (groupId: string) => void
+  onUpdateNote: (noteId: string, groupId: string, updated: { title: string; content: string }) => void
 }
 
-export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup }: NoteGroupProps) {
+export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup, onUpdateNote }: NoteGroupProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(group.title)
 
@@ -72,7 +73,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                 <Draggable key={note.id} draggableId={note.id} index={index}>
                   {(provided) => (
                     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                      <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} />
+                      <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} onUpdate={(updated) => onUpdateNote(note.id, group.id, updated)} />
                     </div>
                   )}
                 </Draggable>

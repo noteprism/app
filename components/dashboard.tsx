@@ -155,6 +155,21 @@ export default function Dashboard() {
     setGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId))
   }
 
+  const handleUpdateNote = (noteId: string, groupId: string, updated: { title: string; content: string }) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((group) =>
+        group.id === groupId
+          ? {
+              ...group,
+              notes: group.notes.map((note) =>
+                note.id === noteId ? { ...note, ...updated } : note
+              ),
+            }
+          : group
+      )
+    )
+  }
+
   const filteredGroups = searchQuery
     ? groups
         .map((group) => ({
@@ -248,6 +263,7 @@ export default function Dashboard() {
                     onDeleteNote={handleDeleteNote}
                     onUpdateGroup={handleUpdateGroup}
                     onDeleteGroup={handleDeleteGroup}
+                    onUpdateNote={handleUpdateNote}
                   />
                 ))}
               </div>
