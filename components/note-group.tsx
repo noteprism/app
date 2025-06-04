@@ -1,0 +1,92 @@
+"use client"
+
+import { useState } from "react"
+import { Droppable, Draggable } from "@hello-pangea/dnd"
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+
+import type { NoteGroup as NoteGroupType } from "@/types/notes"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import NoteCard from "@/components/note-card"
+
+interface NoteGroupProps {
+  group: NoteGroupType
+  onDeleteNote: (noteId: string, groupId: string) => void
+  onUpdateGroup: (groupId: string, title: string) => void
+  onDeleteGroup: (groupId: string) => void
+}
+
+export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup }: NoteGroupProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [title, setTitle] = useState(group.title)
+
+  const handleSaveTitle = () => {
+    onUpdateGroup(group.id, title)
+    setIsEditing(false)
+  }
+
+  return (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          {isEditing ? (
+            <div className="flex gap-2 w-full">
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-8" autoFocus />
+              <Button size="sm" onClick={handleSaveTitle}>
+                Save
+              </Button>
+            </div>
+          ) : (
+            <CardTitle className="text-lg">{group.title}</CardTitle>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDeleteGroup(group.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Group
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Droppable droppableId={group.id}>
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3 min-h-[100px]">
+              {group.notes.map((note, index) => (
+                <Draggable key={note.id} draggableId={note.id} index={index}>
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                      <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              {group.notes.length === 0 && (
+                <div className="flex items-center justify-center h-24 border border-dashed rounded-lg">
+                  <p className="text-sm text-muted-foreground">Drag notes here or create a new one</p>
+                </div>
+              )}
+            </div>
+          )}
+        </Droppable>
+      </CardContent>
+    </Card>
+  )
+}
