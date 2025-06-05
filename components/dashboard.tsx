@@ -45,7 +45,12 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
-          setGroups(data)
+          setGroups(
+            data.map((group: NoteGroupType) => ({
+              ...group,
+              notes: group.notes.sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
+            }))
+          )
         }
       })
       .catch(() => {})
@@ -55,7 +60,9 @@ export default function Dashboard() {
     fetch("/api/notes")
       .then(res => res.json())
       .then(data => {
-        setStandaloneNotes(data.filter((n: any) => !n.groupId))
+        setStandaloneNotes(
+          data.filter((n: Note) => !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
+        )
       })
   }, [])
 
