@@ -21,7 +21,7 @@ interface NoteCardProps {
 export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [content, setContent] = useState(note.content)
-  const [checked, setChecked] = useState<{ [key: number]: boolean }>({})
+  const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   // Auto-save on blur
@@ -43,6 +43,18 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
     setTimeout(() => textareaRef.current?.focus(), 0)
   }
 
+  // Handle checkbox toggle and persist to backend
+  const handleCheckboxChange = async (idx: number) => {
+    const newCheckedStates = [...checkedStates]
+    newCheckedStates[idx] = !newCheckedStates[idx]
+    setCheckedStates(newCheckedStates)
+    await fetch("/api/notes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([{ id: note.id, checkedStates: newCheckedStates }]),
+    })
+  }
+
   // Render content: first line as heading, checklist lines as checkboxes, others as text
   const renderContent = (content: string) => {
     const lines = content.split('\n')
@@ -57,11 +69,11 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
                 <div key={idx} className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={!!checked[idx]}
-                    onChange={() => setChecked((prev) => ({ ...prev, [idx]: !prev[idx] }))}
+                    checked={!!checkedStates[idx]}
+                    onChange={() => handleCheckboxChange(idx)}
                     className={getAccentColor()}
                   />
-                  <span className={checked[idx] ? "line-through text-muted-foreground" : undefined}>{match[1]}</span>
+                  <span className={checkedStates[idx] ? "line-through text-muted-foreground" : undefined}>{match[1]}</span>
                 </div>
               )
             } else {

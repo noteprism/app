@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Check, X } from "lucide-react"
 
 import type { Note, NoteGroup } from "@/types/notes"
@@ -33,12 +33,18 @@ const colorOptions = [
 
 export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateNote }: CreateNoteDialogProps) {
   const [content, setContent] = useState("")
-  const [groupId, setGroupId] = useState(groups[0]?.id || "")
-  const [color, setColor] = useState("bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100")
+  const [groupId, setGroupId] = useState("no-group")
+  const [color, setColor] = useState(colorOptions[Math.floor(Math.random() * colorOptions.length)].value)
+
+  useEffect(() => {
+    if (open) {
+      setColor(colorOptions[Math.floor(Math.random() * colorOptions.length)].value)
+    }
+  }, [open])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!content.trim() || !groupId) return
+    if (!content.trim()) return
     onCreateNote(
       {
         content,
@@ -47,7 +53,7 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
       groupId,
     )
     setContent("")
-    setColor("bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100")
+    setColor(colorOptions[Math.floor(Math.random() * colorOptions.length)].value)
   }
 
   return (
@@ -76,6 +82,7 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
                   <SelectValue placeholder="Select a group" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem key="no-group" value="no-group">No Group</SelectItem>
                   {groups.map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       {group.title}

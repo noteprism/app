@@ -27,4 +27,6 @@ model Note {
   createdAt DateTime @default(now())
   group     NoteGroup? @relation(fields: [groupId], references: [id])
   groupId   String?
+  position  Int      @default(0)
+  checkedStates Json?
 }

@@ -3,6 +3,9 @@ export interface Note {
   content: string
   color: string
   createdAt: string
+  groupId?: string | null
+  position?: number
+  checkedStates?: boolean[]
 }
 
 export interface NoteGroup {

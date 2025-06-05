@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { PlusCircle, Search, Settings, User, Plus } from "lucide-react"
 import { nanoid } from "nanoid"
 import { Button } from "@/components/ui/button"
@@ -24,13 +24,17 @@ import NoteGroup from "@/components/note-group"
 import CreateNoteDialog from "@/components/create-note-dialog"
 import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import Image from "next/image"
+import NoteCard from "@/components/note-card"
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
+  const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
 
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
   useEffect(() => {
     fetch("/api/groups")
@@ -43,50 +47,119 @@ export default function Dashboard() {
       .catch(() => {})
   }, [])
 
-  const handleDragEnd = (result: DropResult) => {
+  useEffect(() => {
+    fetch("/api/notes")
+      .then(res => res.json())
+      .then(data => {
+        setStandaloneNotes(data.filter((n: any) => !n.groupId))
+      })
+  }, [])
+
+  const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result
-
     if (!destination) return
-
     if (destination.droppableId === source.droppableId && destination.index === source.index) {
       return
     }
-
-    // Find the note that was dragged
-    let draggedNote: Note | null = null
-    let sourceGroupIndex = -1
-
-    for (let i = 0; i < groups.length; i++) {
-      const noteIndex = groups[i].notes.findIndex((note) => note.id === draggableId)
-      if (noteIndex !== -1) {
-        draggedNote = groups[i].notes[noteIndex]
-        sourceGroupIndex = i
-        break
-      }
+    // Standalone → Standalone (reorder)
+    if (source.droppableId === STANDALONE_DROPPABLE_ID && destination.droppableId === STANDALONE_DROPPABLE_ID) {
+      const newNotes = Array.from(standaloneNotes)
+      const [moved] = newNotes.splice(source.index, 1)
+      newNotes.splice(destination.index, 0, moved)
+      const updates = newNotes.map((note, idx) => ({ id: note.id, position: idx, groupId: null }))
+      await fetch("/api/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+      setStandaloneNotes(newNotes)
+      return
     }
-
-    if (!draggedNote) return
-
-    const newGroups = [...groups]
-
-    // Remove from source
-    newGroups[sourceGroupIndex].notes.splice(source.index, 1)
-
-    // Add to destination
-    const destGroupIndex = newGroups.findIndex((group) => group.id === destination.droppableId)
-    newGroups[destGroupIndex].notes.splice(destination.index, 0, draggedNote)
-
-    setGroups(newGroups)
+    // Group → Group (reorder within group)
+    if (source.droppableId !== STANDALONE_DROPPABLE_ID && destination.droppableId !== STANDALONE_DROPPABLE_ID) {
+      const newGroups = [...groups]
+      const sourceGroupIndex = newGroups.findIndex((group) => group.id === source.droppableId)
+      const destGroupIndex = newGroups.findIndex((group) => group.id === destination.droppableId)
+      if (sourceGroupIndex === -1 || destGroupIndex === -1) return
+      const [moved] = newGroups[sourceGroupIndex].notes.splice(source.index, 1)
+      newGroups[destGroupIndex].notes.splice(destination.index, 0, moved)
+      // If moved between different groups, update groupId
+      if (sourceGroupIndex !== destGroupIndex) {
+        moved.groupId = newGroups[destGroupIndex].id
+      }
+      const updates = [
+        ...newGroups[sourceGroupIndex].notes.map((note, idx) => ({ id: note.id, position: idx, groupId: newGroups[sourceGroupIndex].id })),
+        ...newGroups[destGroupIndex].notes.map((note, idx) => ({ id: note.id, position: idx, groupId: newGroups[destGroupIndex].id }))
+      ]
+      await fetch("/api/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+      setGroups(newGroups)
+      return
+    }
+    // Group → Standalone (move from group to standalone)
+    if (source.droppableId !== STANDALONE_DROPPABLE_ID && destination.droppableId === STANDALONE_DROPPABLE_ID) {
+      const newGroups = [...groups]
+      const sourceGroupIndex = newGroups.findIndex((group) => group.id === source.droppableId)
+      if (sourceGroupIndex === -1) return
+      const [moved] = newGroups[sourceGroupIndex].notes.splice(source.index, 1)
+      moved.groupId = null
+      const newNotes = Array.from(standaloneNotes)
+      newNotes.splice(destination.index, 0, moved)
+      const updates = [
+        ...newGroups[sourceGroupIndex].notes.map((note, idx) => ({ id: note.id, position: idx, groupId: newGroups[sourceGroupIndex].id })),
+        ...newNotes.map((note, idx) => ({ id: note.id, position: idx, groupId: null }))
+      ]
+      await fetch("/api/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+      setGroups(newGroups)
+      setStandaloneNotes(newNotes)
+      return
+    }
+    // Standalone → Group (move from standalone to group)
+    if (source.droppableId === STANDALONE_DROPPABLE_ID && destination.droppableId !== STANDALONE_DROPPABLE_ID) {
+      const newGroups = [...groups]
+      const destGroupIndex = newGroups.findIndex((group) => group.id === destination.droppableId)
+      if (destGroupIndex === -1) return
+      const newNotes = Array.from(standaloneNotes)
+      const [moved] = newNotes.splice(source.index, 1)
+      moved.groupId = newGroups[destGroupIndex].id
+      newGroups[destGroupIndex].notes.splice(destination.index, 0, moved)
+      const updates = [
+        ...newGroups[destGroupIndex].notes.map((note, idx) => ({ id: note.id, position: idx, groupId: newGroups[destGroupIndex].id })),
+        ...newNotes.map((note, idx) => ({ id: note.id, position: idx, groupId: null }))
+      ]
+      await fetch("/api/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+      setGroups(newGroups)
+      setStandaloneNotes(newNotes)
+      return
+    }
   }
 
   const handleCreateNote = async (note: Omit<Note, "id" | "createdAt">, groupId: string) => {
+    const body = groupId === 'no-group'
+      ? { ...note }
+      : { ...note, groupId }
     const res = await fetch("/api/notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...note, groupId }),
+      body: JSON.stringify(body),
     })
     const newNote = await res.json()
-    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group))
+    if (groupId === 'no-group') {
+      setStandaloneNotes(prev => [...prev, newNote])
+    } else {
+      setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group))
+    }
     setIsCreateNoteOpen(false)
   }
 
@@ -134,6 +207,15 @@ export default function Dashboard() {
       body: JSON.stringify({ id: noteId, ...updated }),
     })
     setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: group.notes.map(note => note.id === noteId ? { ...note, ...updated } : note) } : group))
+  }
+
+  const handleDeleteStandaloneNote = async (noteId: string) => {
+    await fetch("/api/notes", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: noteId }),
+    })
+    setStandaloneNotes(prev => prev.filter(note => note.id !== noteId))
   }
 
   const filteredGroups = searchQuery
@@ -220,17 +302,43 @@ export default function Dashboard() {
           </header>
           <main className="p-4 md:p-6">
             <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
-                {filteredGroups.map((group) => (
-                  <NoteGroup
-                    key={group.id}
-                    group={group}
-                    onDeleteNote={handleDeleteNote}
-                    onUpdateGroup={handleUpdateGroup}
-                    onDeleteGroup={handleDeleteGroup}
-                    onUpdateNote={handleUpdateNote}
-                  />
-                ))}
+              <div className="flex gap-6 items-start">
+                {standaloneNotes.length > 0 && (
+                  <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="flex flex-col gap-4 w-full max-w-[400px] min-w-[260px]"
+                      >
+                        {standaloneNotes.map((note, idx) => (
+                          <Draggable key={note.id} draggableId={note.id} index={idx}>
+                            {(provided) => (
+                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                <NoteCard note={note} onDelete={() => handleDeleteStandaloneNote(note.id)} onUpdate={() => {}} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                )}
+                <div className="flex-1">
+                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+                    {filteredGroups.map((group) => (
+                      <NoteGroup
+                        key={group.id}
+                        group={group}
+                        onDeleteNote={handleDeleteNote}
+                        onUpdateGroup={handleUpdateGroup}
+                        onDeleteGroup={handleDeleteGroup}
+                        onUpdateNote={handleUpdateNote}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </DragDropContext>
           </main>
