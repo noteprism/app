@@ -25,6 +25,8 @@ import CreateNoteDialog from "@/components/create-note-dialog"
 import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import Image from "next/image"
 import NoteCard from "@/components/note-card"
+import NoteGroupless from "@/components/note-groupless"
+import PanelLeft from "@/components/panel-left"
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
@@ -233,62 +235,14 @@ export default function Dashboard() {
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-white">
-        <Sidebar>
-          <SidebarHeader className="border-b">
-            <div className="flex items-center px-2 py-3">
-              <div className="flex items-center gap-2 font-semibold text-xl">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg">
-                  <Image src="/mark.png" alt="Noteprism Logo" width={32} height={32} className="rounded-lg" />
-                </div>
-                <span>Noteprism</span>
-              </div>
-            </div>
-            <div className="px-2 pb-2">
-              <Input
-                placeholder="Search notes..."
-                className="h-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                prefix={<Search className="h-4 w-4 text-muted-foreground" />}
-              />
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel className="flex justify-between items-center">
-                <span>Note Groups</span>
-                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleCreateGroup}>
-                  <Plus className="h-4 w-4" />
-                  <span className="sr-only">Add Group</span>
-                </Button>
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {groups.map((group) => (
-                    <SidebarMenuItem key={group.id}>
-                      <SidebarMenuButton isActive={activeGroup === group.id} onClick={() => setActiveGroup(group.id)}>
-                        <span>{group.title}</span>
-                        <span className="ml-auto text-xs text-muted-foreground">{group.notes.length}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter className="border-t">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                <span className="text-sm font-medium">User</span>
-              </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings className="h-4 w-4" />
-                <span className="sr-only">Settings</span>
-              </Button>
-            </div>
-          </SidebarFooter>
-        </Sidebar>
+        <PanelLeft
+          groups={groups}
+          activeGroup={activeGroup}
+          setActiveGroup={setActiveGroup}
+          handleCreateGroup={handleCreateGroup}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
         <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
             <SidebarTrigger />
@@ -304,26 +258,11 @@ export default function Dashboard() {
             <DragDropContext onDragEnd={handleDragEnd}>
               <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
                 {standaloneNotes.length > 0 && (
-                  <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className="flex flex-col gap-4 h-full"
-                      >
-                        {standaloneNotes.map((note, idx) => (
-                          <Draggable key={note.id} draggableId={note.id} index={idx}>
-                            {(provided) => (
-                              <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                <NoteCard note={note} onDelete={() => handleDeleteStandaloneNote(note.id)} onUpdate={() => {}} />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+                  <NoteGroupless
+                    standaloneNotes={standaloneNotes}
+                    onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                    STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                  />
                 )}
                 {filteredGroups.map((group) => (
                   <NoteGroup
