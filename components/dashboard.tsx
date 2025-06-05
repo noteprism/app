@@ -302,14 +302,14 @@ export default function Dashboard() {
           </header>
           <main className="p-4 md:p-6">
             <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="flex gap-6 items-start">
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
                 {standaloneNotes.length > 0 && (
                   <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="flex flex-col gap-4 w-full max-w-[400px] min-w-[260px]"
+                        className="flex flex-col gap-4 h-full"
                       >
                         {standaloneNotes.map((note, idx) => (
                           <Draggable key={note.id} draggableId={note.id} index={idx}>
@@ -325,20 +325,16 @@ export default function Dashboard() {
                     )}
                   </Droppable>
                 )}
-                <div className="flex-1">
-                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
-                    {filteredGroups.map((group) => (
-                      <NoteGroup
-                        key={group.id}
-                        group={group}
-                        onDeleteNote={handleDeleteNote}
-                        onUpdateGroup={handleUpdateGroup}
-                        onDeleteGroup={handleDeleteGroup}
-                        onUpdateNote={handleUpdateNote}
-                      />
-                    ))}
-                  </div>
-                </div>
+                {filteredGroups.map((group) => (
+                  <NoteGroup
+                    key={group.id}
+                    group={group}
+                    onDeleteNote={handleDeleteNote}
+                    onUpdateGroup={handleUpdateGroup}
+                    onDeleteGroup={handleDeleteGroup}
+                    onUpdateNote={handleUpdateNote}
+                  />
+                ))}
               </div>
             </DragDropContext>
           </main>
