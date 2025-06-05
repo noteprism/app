@@ -28,19 +28,31 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
     setIsEditing(false)
   }
 
+  const handleTitleBlur = () => {
+    handleSaveTitle()
+  }
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSaveTitle()
+    }
+  }
+
   return (
     <Card className="border-sidebar-border border shadow-none">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           {isEditing ? (
-            <div className="flex gap-2 w-full">
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-8" autoFocus />
-              <Button size="sm" onClick={handleSaveTitle}>
-                Save
-              </Button>
-            </div>
+            <Input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="h-8"
+              autoFocus
+              onBlur={handleTitleBlur}
+              onKeyDown={handleTitleKeyDown}
+            />
           ) : (
-            <CardTitle className="text-lg">{group.title}</CardTitle>
+            <CardTitle className="text-lg" onClick={() => setIsEditing(true)} style={{ cursor: 'pointer' }}>{group.title}</CardTitle>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
