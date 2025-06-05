@@ -95,6 +95,46 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
     return 'accent-primary';
   }
 
+  // Utility to get high-contrast text color for note
+  const getTextColor = () => {
+    if (note.color.includes('yellow')) return 'text-yellow-900';
+    if (note.color.includes('blue')) return 'text-blue-900';
+    if (note.color.includes('green')) return 'text-green-900';
+    if (note.color.includes('red')) return 'text-red-900';
+    if (note.color.includes('purple')) return 'text-purple-900';
+    return 'text-primary-foreground';
+  }
+
+  // Utility to get less-contrast (muted) text color for note
+  const getMutedTextColor = () => {
+    if (note.color.includes('yellow')) return 'text-yellow-700';
+    if (note.color.includes('blue')) return 'text-blue-700';
+    if (note.color.includes('green')) return 'text-green-700';
+    if (note.color.includes('red')) return 'text-red-700';
+    if (note.color.includes('purple')) return 'text-purple-700';
+    return 'text-muted-foreground';
+  }
+
+  // Utility to get border color for note
+  const getBorderColor = () => {
+    if (note.color.includes('yellow')) return 'border-yellow-500';
+    if (note.color.includes('blue')) return 'border-blue-500';
+    if (note.color.includes('green')) return 'border-green-500';
+    if (note.color.includes('red')) return 'border-red-500';
+    if (note.color.includes('purple')) return 'border-purple-500';
+    return 'border-border';
+  }
+
+  // Utility to get divider color for note
+  const getDividerColor = () => {
+    if (note.color.includes('yellow')) return 'border-yellow-300';
+    if (note.color.includes('blue')) return 'border-blue-300';
+    if (note.color.includes('green')) return 'border-green-300';
+    if (note.color.includes('red')) return 'border-red-300';
+    if (note.color.includes('purple')) return 'border-purple-300';
+    return 'border-muted';
+  }
+
   const formattedDate = new Date(note.createdAt).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -102,18 +142,23 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
 
   return (
     <Card
-      className={cn("shadow-sm transition-all", note.color, isEditing ? "ring-2 ring-primary" : "hover:shadow")}
+      className={cn(
+        'shadow-sm transition-all',
+        note.color,
+        getBorderColor(),
+        isEditing ? 'ring-2 ring-primary' : 'hover:shadow'
+      )}
       onClick={handleCardClick}
     >
       {isEditing ? (
         <CardContent className="p-3">
-            <Textarea
+          <Textarea
             ref={textareaRef}
-              value={content}
+            value={content}
             onChange={e => setContent(e.target.value)}
             onBlur={handleBlur}
-              className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
-              placeholder="Note content"
+            className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
+            placeholder="Note content"
             autoFocus
           />
         </CardContent>
@@ -122,7 +167,35 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
           <CardContent className="p-3">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                {renderContent(note.content)}
+                {/* Render content with color classes */}
+                {(() => {
+                  const lines = note.content.split('\n')
+                  return (
+                    <>
+                      <h3 className={cn('font-medium', getTextColor())}>{lines[0]}</h3>
+                      <div className="mt-2 text-sm space-y-1">
+                        {lines.slice(1).map((line, idx) => {
+                          const match = line.match(/^\s*- (.+)$/)
+                          if (match) {
+                            return (
+                              <div key={idx} className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={!!checkedStates[idx]}
+                                  onChange={() => handleCheckboxChange(idx)}
+                                  className={getAccentColor()}
+                                />
+                                <span className={cn(checkedStates[idx] ? 'line-through' : undefined, getMutedTextColor())}>{match[1]}</span>
+                              </div>
+                            )
+                          } else {
+                            return <div key={idx} className={getMutedTextColor()}>{line}</div>
+                          }
+                        })}
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild data-menu>
@@ -144,7 +217,7 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
               </DropdownMenu>
             </div>
           </CardContent>
-          <CardFooter className="px-3 py-1.5 text-xs text-muted-foreground border-t">{formattedDate}</CardFooter>
+          <CardFooter className={cn('px-3 py-1.5 text-xs border-t', getDividerColor(), getMutedTextColor())}>{formattedDate}</CardFooter>
         </>
       )}
     </Card>
