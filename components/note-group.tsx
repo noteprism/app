@@ -29,7 +29,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="border-sidebar-border border shadow-none">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           {isEditing ? (
@@ -73,7 +73,10 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                 <Draggable key={note.id} draggableId={note.id} index={index}>
                   {(provided) => (
                     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                      <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} onUpdate={(updated) => onUpdateNote(note.id, group.id, updated)} />
+                      <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} onUpdate={(updated) => {
+                        const title = updated.content.split('\n')[0] || '';
+                        onUpdateNote(note.id, group.id, { title, ...updated });
+                      }} />
                     </div>
                   )}
                 </Draggable>

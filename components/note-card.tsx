@@ -87,51 +87,51 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
 
   // Map gradient to accent color for checkboxes
   const getAccentColor = () => {
-    if (note.color.includes('yellow')) return 'accent-yellow-400';
-    if (note.color.includes('blue')) return 'accent-blue-400';
-    if (note.color.includes('green')) return 'accent-green-400';
-    if (note.color.includes('red')) return 'accent-red-400';
-    if (note.color.includes('purple')) return 'accent-purple-400';
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'accent-yellow-400';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'accent-blue-400';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'accent-green-400';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'accent-red-400';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'accent-purple-400';
     return 'accent-primary';
   }
 
   // Utility to get high-contrast text color for note
   const getTextColor = () => {
-    if (note.color.includes('yellow')) return 'text-yellow-900';
-    if (note.color.includes('blue')) return 'text-blue-900';
-    if (note.color.includes('green')) return 'text-green-900';
-    if (note.color.includes('red')) return 'text-red-900';
-    if (note.color.includes('purple')) return 'text-purple-900';
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'text-yellow-900';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'text-blue-900';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'text-green-900';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'text-red-900';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'text-purple-900';
     return 'text-primary-foreground';
   }
 
   // Utility to get less-contrast (muted) text color for note
   const getMutedTextColor = () => {
-    if (note.color.includes('yellow')) return 'text-yellow-700';
-    if (note.color.includes('blue')) return 'text-blue-700';
-    if (note.color.includes('green')) return 'text-green-700';
-    if (note.color.includes('red')) return 'text-red-700';
-    if (note.color.includes('purple')) return 'text-purple-700';
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'text-yellow-700';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'text-blue-700';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'text-green-700';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'text-red-700';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'text-purple-700';
     return 'text-muted-foreground';
   }
 
   // Utility to get border color for note
   const getBorderColor = () => {
-    if (note.color.includes('yellow')) return 'border-yellow-500';
-    if (note.color.includes('blue')) return 'border-blue-500';
-    if (note.color.includes('green')) return 'border-green-500';
-    if (note.color.includes('red')) return 'border-red-500';
-    if (note.color.includes('purple')) return 'border-purple-500';
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-500';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-500';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-500';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-500';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-500';
     return 'border-border';
   }
 
   // Utility to get divider color for note
   const getDividerColor = () => {
-    if (note.color.includes('yellow')) return 'border-yellow-300';
-    if (note.color.includes('blue')) return 'border-blue-300';
-    if (note.color.includes('green')) return 'border-green-300';
-    if (note.color.includes('red')) return 'border-red-300';
-    if (note.color.includes('purple')) return 'border-purple-300';
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-300';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-300';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-300';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-300';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-300';
     return 'border-muted';
   }
 
