@@ -101,6 +101,11 @@ export default function Dashboard() {
         .filter((group) => group.notes.length > 0)
     : groups
 
+  // Filter standalone notes by search query as well
+  const filteredStandaloneNotes = searchQuery
+    ? standaloneNotes.filter(note => note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+    : standaloneNotes
+
   // Handle drag end for groups and notes
   const handleAnyDragEnd = async (result: DropResult) => {
     // If dragging a group (top-level), handle group reorder
@@ -152,9 +157,9 @@ export default function Dashboard() {
                     {...provided.droppableProps}
                     className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
                   >
-                    {standaloneNotes.length > 0 && (
+                    {filteredStandaloneNotes.length > 0 && (
                       <NoteGroupless
-                        standaloneNotes={standaloneNotes}
+                        standaloneNotes={filteredStandaloneNotes}
                         onDeleteStandaloneNote={handleDeleteStandaloneNote}
                         STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
                       />
