@@ -101,6 +101,29 @@ export default function Dashboard() {
         .filter((group) => group.notes.length > 0)
     : groups
 
+  // Handle drag end for groups and notes
+  const handleAnyDragEnd = async (result: DropResult) => {
+    // If dragging a group (top-level), handle group reorder
+    if (result.type === 'group') {
+      if (!result.destination) return
+      const reordered = Array.from(groups)
+      const [removed] = reordered.splice(result.source.index, 1)
+      reordered.splice(result.destination.index, 0, removed)
+      // Update positions in state
+      const updated = reordered.map((g, i) => ({ ...g, position: i }))
+      setGroups(updated)
+      // Persist to backend
+      await fetch("/api/groups", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ positions: updated.map(g => ({ id: g.id, position: g.position })) })
+      })
+      return
+    }
+    // Otherwise, handle note drag-and-drop
+    handleDragEnd(result)
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-white">
@@ -124,26 +147,40 @@ export default function Dashboard() {
             </Button>
           </header>
           <main className="p-4 md:p-6">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
-                {standaloneNotes.length > 0 && (
-                  <NoteGroupless
-                    standaloneNotes={standaloneNotes}
-                    onDeleteStandaloneNote={handleDeleteStandaloneNote}
-                    STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
-                  />
+            <DragDropContext onDragEnd={handleAnyDragEnd}>
+              <Droppable droppableId="groups-droppable" direction="vertical" type="group">
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
+                  >
+                    {standaloneNotes.length > 0 && (
+                      <NoteGroupless
+                        standaloneNotes={standaloneNotes}
+                        onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                        STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                      />
+                    )}
+                    {filteredGroups.map((group, idx) => (
+                      <Draggable key={group.id} draggableId={group.id} index={idx}>
+                        {(provided) => (
+                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                            <NoteGroup
+                              group={group}
+                              onDeleteNote={handleDeleteNote}
+                              onUpdateGroup={handleUpdateGroup}
+                              onDeleteGroup={handleDeleteGroup}
+                              onUpdateNote={handleUpdateNote}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
                 )}
-                {filteredGroups.map((group) => (
-                  <NoteGroup
-                    key={group.id}
-                    group={group}
-                    onDeleteNote={handleDeleteNote}
-                    onUpdateGroup={handleUpdateGroup}
-                    onDeleteGroup={handleDeleteGroup}
-                    onUpdateNote={handleUpdateNote}
-                  />
-                ))}
-              </div>
+              </Droppable>
             </DragDropContext>
           </main>
         </div>
