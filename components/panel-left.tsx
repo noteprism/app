@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Settings, User } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React from "react"
@@ -57,8 +57,11 @@ export default function PanelLeft({
           />
         </div>
         <div className="px-2 pb-2">
-          <Button className="w-full" onClick={onNewNote}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button
+            className="w-full prismatic-gradient-btn"
+            onClick={onNewNote}
+          >
+            <PlusCircle className="mr-2 h-5 w-5" />
             New Note
           </Button>
         </div>
