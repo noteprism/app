@@ -134,6 +134,7 @@ export default function Dashboard() {
           handleCreateGroup={handleCreateGroup}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onNewNote={() => setIsCreateNoteOpen(true)}
         />
         <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -141,10 +142,6 @@ export default function Dashboard() {
             <div className="flex-1">
               <h1 className="text-lg font-semibold">Dashboard</h1>
             </div>
-            <Button onClick={() => setIsCreateNoteOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Note
-            </Button>
           </header>
           <main className="p-4 md:p-6">
             <DragDropContext onDragEnd={handleAnyDragEnd}>

@@ -24,6 +24,7 @@ interface PanelLeftProps {
   handleCreateGroup: () => void
   searchQuery: string
   setSearchQuery: (q: string) => void
+  onNewNote: () => void
 }
 
 export default function PanelLeft({
@@ -33,6 +34,7 @@ export default function PanelLeft({
   handleCreateGroup,
   searchQuery,
   setSearchQuery,
+  onNewNote,
 }: PanelLeftProps) {
   return (
     <Sidebar>
@@ -53,6 +55,12 @@ export default function PanelLeft({
             onChange={(e) => setSearchQuery(e.target.value)}
             prefix={<Search className="h-4 w-4 text-muted-foreground" />}
           />
+        </div>
+        <div className="px-2 pb-2">
+          <Button className="w-full" onClick={onNewNote}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Note
+          </Button>
         </div>
       </SidebarHeader>
       <SidebarContent>
