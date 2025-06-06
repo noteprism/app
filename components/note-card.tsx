@@ -189,6 +189,12 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
             value={content}
             onChange={e => setContent(e.target.value)}
             onBlur={handleBlur}
+            onKeyDown={e => {
+              if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleBlur();
+              }
+            }}
             className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
             placeholder="Note content"
             autoFocus
