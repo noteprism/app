@@ -18,6 +18,7 @@ interface NoteCardProps {
   onDelete: () => void
   onUpdate: (updated: { content: string; color?: string }) => void
   isEditing?: boolean
+  cardStyle?: "outline" | "filled"
 }
 
 const colorOptions = [
@@ -28,7 +29,7 @@ const colorOptions = [
   { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400" },
 ]
 
-export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp }: NoteCardProps) {
+export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp, cardStyle = "outline" }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(!!isEditingProp)
   const [content, setContent] = useState(note.content)
   const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
@@ -215,7 +216,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
     <Card
       className={cn(
         'shadow-sm transition-all',
-        isEditing ? note.color : 'bg-white',
+        (isEditing || cardStyle !== 'filled') ? 'bg-white' : note.color,
         getBorderColor(),
         isEditing ? 'ring-2 ring-primary' : 'hover:shadow',
         'relative'

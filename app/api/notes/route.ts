@@ -16,9 +16,18 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   const data = await req.json()
+  const { id, content, color, checkedStates, position, groupId } = data
+  // Only update fields that are present and valid
+  const updateData: any = {}
+  if (content !== undefined) updateData.content = content
+  if (color !== undefined) updateData.color = color
+  if (checkedStates !== undefined) updateData.checkedStates = checkedStates
+  if (position !== undefined) updateData.position = position
+  if (groupId !== undefined) updateData.groupId = groupId
+
   const note = await prisma.note.update({
-    where: { id: data.id },
-    data,
+    where: { id },
+    data: updateData,
   })
   return NextResponse.json(note)
 }

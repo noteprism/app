@@ -9,9 +9,10 @@ interface NoteGrouplessProps {
   STANDALONE_DROPPABLE_ID: string
   editingNoteId?: string | null
   setEditingNoteId?: (id: string | null) => void
+  cardStyle: "outline" | "filled"
 }
 
-export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote, onUpdateStandaloneNote, STANDALONE_DROPPABLE_ID, editingNoteId, setEditingNoteId }: NoteGrouplessProps) {
+export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote, onUpdateStandaloneNote, STANDALONE_DROPPABLE_ID, editingNoteId, setEditingNoteId, cardStyle }: NoteGrouplessProps) {
   if (standaloneNotes.length === 0) return null
   return (
     <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
@@ -33,6 +34,7 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
                       if (setEditingNoteId) setEditingNoteId(null)
                     }}
                     isEditing={note.id === editingNoteId}
+                    cardStyle={cardStyle}
                   />
                 </div>
               )}

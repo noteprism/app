@@ -17,9 +17,10 @@ interface NoteGroupProps {
   onUpdateGroup: (groupId: string, title: string) => void
   onDeleteGroup: (groupId: string) => void
   onUpdateNote: (noteId: string, groupId: string, updated: { title: string; content: string; color?: string }) => void
+  cardStyle: "outline" | "filled"
 }
 
-export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup, onUpdateNote }: NoteGroupProps) {
+export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup, onUpdateNote, cardStyle }: NoteGroupProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(group.title)
 
@@ -57,20 +58,20 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" strokeWidth={1} />
+                <MoreHorizontal className="h-4 w-4" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                <Pencil className="mr-2 h-4 w-4" strokeWidth={1} />
+                <Pencil className="mr-2 h-4 w-4" />
                 Rename
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
                 onClick={() => onDeleteGroup(group.id)}
               >
-                <Trash2 className="mr-2 h-4 w-4" strokeWidth={1} />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete Group
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -88,7 +89,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                       <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} onUpdate={(updated) => {
                         const title = updated.content.split('\n')[0] || '';
                         onUpdateNote(note.id, group.id, { title, ...updated });
-                      }} />
+                      }} cardStyle={cardStyle} />
                     </div>
                   )}
                 </Draggable>

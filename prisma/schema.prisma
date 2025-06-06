@@ -31,3 +31,9 @@ model Note {
   position  Int      @default(0)
   checkedStates Json?
 }
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  noteStyle String   @default("outline") // 'outline' or 'filled'
+}

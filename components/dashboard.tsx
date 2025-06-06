@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const [cardStyle, setCardStyleState] = useState<"outline" | "filled">("outline")
 
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
@@ -67,6 +68,28 @@ export default function Dashboard() {
         )
       })
   }, [])
+
+  // Load note style from API on mount
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data && (data.noteStyle === "outline" || data.noteStyle === "filled")) {
+          setCardStyleState(data.noteStyle)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  // Save note style to API when changed
+  const setCardStyle = (style: "outline" | "filled") => {
+    setCardStyleState(style)
+    fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ noteStyle: style })
+    })
+  }
 
   const { handleDragEnd } = useNoteDragAndDrop({
     groups,
@@ -163,6 +186,8 @@ export default function Dashboard() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onNewNote={handleNewNote}
+          cardStyle={cardStyle}
+          setCardStyle={setCardStyle}
         />
         <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -188,6 +213,7 @@ export default function Dashboard() {
                         STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
                         editingNoteId={editingNoteId}
                         setEditingNoteId={setEditingNoteId}
+                        cardStyle={cardStyle}
                       />
                     )}
                     {filteredGroups.map((group, idx) => (
@@ -200,6 +226,7 @@ export default function Dashboard() {
                               onUpdateGroup={handleUpdateGroup}
                               onDeleteGroup={handleDeleteGroup}
                               onUpdateNote={handleUpdateNote}
+                              cardStyle={cardStyle}
                             />
                           </div>
                         )}
