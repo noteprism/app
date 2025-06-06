@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import NoteGroup from "@/components/note-group"
 import CreateNoteDialog from "@/components/create-note-dialog"
+import { colorOptions } from "@/components/create-note-dialog"
 import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import Image from "next/image"
 import NoteCard from "@/components/note-card"
@@ -37,6 +38,7 @@ export default function Dashboard() {
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
 
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
@@ -138,6 +140,18 @@ export default function Dashboard() {
     handleDragEnd(result)
   }
 
+  const handleNewNote = async () => {
+    const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: "", color }),
+    })
+    const newNote = await res.json()
+    setStandaloneNotes(prev => [newNote, ...prev])
+    setEditingNoteId(newNote.id)
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-white">
@@ -148,7 +162,7 @@ export default function Dashboard() {
           handleCreateGroup={handleCreateGroup}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          onNewNote={() => setIsCreateNoteOpen(true)}
+          onNewNote={handleNewNote}
         />
         <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -172,6 +186,8 @@ export default function Dashboard() {
                         onDeleteStandaloneNote={handleDeleteStandaloneNote}
                         onUpdateStandaloneNote={handleUpdateStandaloneNote}
                         STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                        editingNoteId={editingNoteId}
+                        setEditingNoteId={setEditingNoteId}
                       />
                     )}
                     {filteredGroups.map((group, idx) => (

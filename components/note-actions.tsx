@@ -19,7 +19,7 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
     })
     const newNote = await res.json()
     if (groupId === 'no-group') {
-      setStandaloneNotes(prev => [...prev, newNote])
+      setStandaloneNotes(prev => [newNote, ...prev])
     } else {
       setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: [...group.notes, newNote] } : group))
     }

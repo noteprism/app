@@ -17,6 +17,7 @@ interface NoteCardProps {
   note: Note
   onDelete: () => void
   onUpdate: (updated: { content: string; color?: string }) => void
+  isEditing?: boolean
 }
 
 const colorOptions = [
@@ -27,8 +28,8 @@ const colorOptions = [
   { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400" },
 ]
 
-export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
-  const [isEditing, setIsEditing] = useState(false)
+export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp }: NoteCardProps) {
+  const [isEditing, setIsEditing] = useState(!!isEditingProp)
   const [content, setContent] = useState(note.content)
   const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -163,10 +164,18 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
     return 'border-border';
   }
 
+  // Focus textarea on mount if isEditing is true from prop
+  React.useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [isEditing])
+
   return (
     <Card
       className={cn(
-        'shadow-sm transition-all bg-white',
+        'shadow-sm transition-all',
+        isEditing ? note.color : 'bg-white',
         getBorderColor(),
         isEditing ? 'ring-2 ring-primary' : 'hover:shadow',
         'relative'

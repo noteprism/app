@@ -23,7 +23,7 @@ interface CreateNoteDialogProps {
   onCreateNote: (note: Omit<Note, "id" | "createdAt">, groupId: string) => void
 }
 
-const colorOptions = [
+export const colorOptions = [
   { value: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100", label: "Yellow", swatch: "bg-yellow-400" },
   { value: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100", label: "Blue", swatch: "bg-blue-400" },
   { value: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100", label: "Green", swatch: "bg-green-400" },
