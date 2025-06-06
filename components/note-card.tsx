@@ -50,8 +50,48 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
     ) {
       return
     }
+
+    // Get the clicked element and its text content
+    const clickedElement = e.target as HTMLElement
+    const clickedText = clickedElement.textContent || ''
+    
+    // Get click position relative to the element
+    const rect = clickedElement.getBoundingClientRect()
+    const relativeX = e.clientX - rect.left
+    
+    // Estimate the character position based on average character width
+    // Using a monospace-like approximation
+    const avgCharWidth = 8 // Approximate width in pixels per character
+    const estimatedPosition = Math.round(relativeX / avgCharWidth)
+    
+    // Find the actual position in the full content
+    let targetPosition = 0
+    const lines = content.split('\n')
+    let foundLine = false
+    
+    for (const line of lines) {
+      if (line.includes(clickedText.trim())) {
+        foundLine = true
+        targetPosition += Math.min(estimatedPosition, line.length)
+        break
+      }
+      targetPosition += line.length + 1 // +1 for newline
+    }
+    
+    // If we couldn't find the exact position, don't modify it
+    if (!foundLine) {
+      targetPosition = 0
+    }
+
     setIsEditing(true)
-    setTimeout(() => textareaRef.current?.focus(), 0)
+    
+    // Set cursor position after the textarea is focused
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+        textareaRef.current.setSelectionRange(targetPosition, targetPosition)
+      }
+    }, 0)
   }
 
   // Handle checkbox toggle and persist to backend
