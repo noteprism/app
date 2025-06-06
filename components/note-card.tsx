@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Edit } from "lucide-react"
+import { MoreHorizontal, Trash2, Edit, Check } from "lucide-react"
 import React from "react"
 
 import type { Note } from "@/types/notes"
@@ -11,18 +11,28 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface NoteCardProps {
   note: Note
   onDelete: () => void
-  onUpdate: (updated: { content: string }) => void
+  onUpdate: (updated: { content: string; color?: string }) => void
 }
+
+const colorOptions = [
+  { value: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100", label: "Yellow", swatch: "bg-yellow-400" },
+  { value: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100", label: "Blue", swatch: "bg-blue-400" },
+  { value: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100", label: "Green", swatch: "bg-green-400" },
+  { value: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100", label: "Red", swatch: "bg-red-400" },
+  { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400" },
+]
 
 export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [content, setContent] = useState(note.content)
   const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const [colorPickerOpen, setColorPickerOpen] = useState(false)
 
   // Auto-save on blur
   const handleBlur = () => {
@@ -135,18 +145,31 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
     return 'border-muted';
   }
 
+  // Utility to get gradient bg for color circle
+  const getGradientBg = () => note.color
+
   const formattedDate = new Date(note.createdAt).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
   })
 
+  // Utility to get border color for a given color value
+  function getBorderColorFor(color: string) {
+    if (color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-500';
+    if (color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-500';
+    if (color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-500';
+    if (color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-500';
+    if (color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-500';
+    return 'border-border';
+  }
+
   return (
     <Card
       className={cn(
-        'shadow-sm transition-all',
-        note.color,
+        'shadow-sm transition-all bg-white',
         getBorderColor(),
-        isEditing ? 'ring-2 ring-primary' : 'hover:shadow'
+        isEditing ? 'ring-2 ring-primary' : 'hover:shadow',
+        'relative'
       )}
       onClick={handleCardClick}
     >
@@ -217,7 +240,48 @@ export default function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
               </DropdownMenu>
             </div>
           </CardContent>
-          <CardFooter className={cn('px-3 py-1.5 text-xs border-t', getDividerColor(), getMutedTextColor())}>{formattedDate}</CardFooter>
+          <CardFooter className={cn('px-3 py-1.5 text-xs border-t', getDividerColor(), getMutedTextColor(), 'flex items-center justify-between')}> 
+            <span>{formattedDate}</span>
+            <Popover open={colorPickerOpen} onOpenChange={setColorPickerOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    'w-4 h-4 rounded-full border flex items-center justify-center transition-shadow',
+                    getBorderColor(),
+                    getGradientBg()
+                  )}
+                  onClick={e => { e.stopPropagation(); setColorPickerOpen(true) }}
+                  tabIndex={0}
+                  aria-label="Change card color"
+                />
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-auto p-2 flex gap-2 bg-white shadow-lg rounded-xl border">
+                {colorOptions.map(option => (
+                  <button
+                    key={option.value}
+                    className={cn(
+                      'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-shadow',
+                      option.value,
+                      getBorderColorFor(option.value),
+                      note.color === option.value && 'ring-2 ring-black'
+                    )}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setColorPickerOpen(false);
+                      if (note.color !== option.value) {
+                        onUpdate({ content, color: option.value })
+                      }
+                    }}
+                    aria-label={`Set color ${option.label}`}
+                    type="button"
+                  >
+                    {note.color === option.value && <Check className="h-4 w-4 text-black" />}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          </CardFooter>
         </>
       )}
     </Card>

@@ -16,7 +16,7 @@ interface NoteGroupProps {
   onDeleteNote: (noteId: string, groupId: string) => void
   onUpdateGroup: (groupId: string, title: string) => void
   onDeleteGroup: (groupId: string) => void
-  onUpdateNote: (noteId: string, groupId: string, updated: { title: string; content: string }) => void
+  onUpdateNote: (noteId: string, groupId: string, updated: { title: string; content: string; color?: string }) => void
 }
 
 export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup, onUpdateNote }: NoteGroupProps) {

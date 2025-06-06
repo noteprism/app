@@ -89,6 +89,15 @@ export default function Dashboard() {
     handleDeleteStandaloneNote,
   } = noteActions
 
+  const handleUpdateStandaloneNote = async (noteId: string, updated: { content: string, color?: string }) => {
+    await fetch("/api/notes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: noteId, ...updated }),
+    })
+    setStandaloneNotes(prev => prev.map(note => note.id === noteId ? { ...note, ...updated } : note))
+  }
+
   const filteredGroups = searchQuery
     ? groups
         .map((group) => ({
@@ -161,6 +170,7 @@ export default function Dashboard() {
                       <NoteGroupless
                         standaloneNotes={filteredStandaloneNotes}
                         onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                        onUpdateStandaloneNote={handleUpdateStandaloneNote}
                         STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
                       />
                     )}

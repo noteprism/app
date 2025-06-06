@@ -5,10 +5,11 @@ import type { Note } from "@/types/notes"
 interface NoteGrouplessProps {
   standaloneNotes: Note[]
   onDeleteStandaloneNote: (noteId: string) => void
+  onUpdateStandaloneNote: (noteId: string, updated: { content: string, color?: string }) => void
   STANDALONE_DROPPABLE_ID: string
 }
 
-export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote, STANDALONE_DROPPABLE_ID }: NoteGrouplessProps) {
+export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote, onUpdateStandaloneNote, STANDALONE_DROPPABLE_ID }: NoteGrouplessProps) {
   if (standaloneNotes.length === 0) return null
   return (
     <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
@@ -22,7 +23,7 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
             <Draggable key={note.id} draggableId={note.id} index={idx}>
               {(provided) => (
                 <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                  <NoteCard note={note} onDelete={() => onDeleteStandaloneNote(note.id)} onUpdate={() => {}} />
+                  <NoteCard note={note} onDelete={() => onDeleteStandaloneNote(note.id)} onUpdate={(updated) => onUpdateStandaloneNote(note.id, updated)} />
                 </div>
               )}
             </Draggable>

@@ -63,7 +63,7 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
     setGroups(prevGroups => prevGroups.filter(group => group.id !== groupId))
   }, [setGroups])
 
-  const handleUpdateNote = useCallback(async (noteId: string, groupId: string, updated: { content: string }) => {
+  const handleUpdateNote = useCallback(async (noteId: string, groupId: string, updated: { content: string, color?: string }) => {
     await fetch("/api/notes", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
