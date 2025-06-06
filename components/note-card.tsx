@@ -278,17 +278,17 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
               <DropdownMenu>
                 <DropdownMenuTrigger asChild data-menu>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground">
-                    <MoreHorizontal className="h-3 w-3" />
+                    <MoreHorizontal className="h-3 w-3" strokeWidth={1} />
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-2 h-4 w-4" strokeWidth={1} />
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={onDelete}>
-                    <Trash2 className="mr-2 h-4 w-4" />
+                    <Trash2 className="mr-2 h-4 w-4" strokeWidth={1} />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -331,7 +331,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                     aria-label={`Set color ${option.label}`}
                     type="button"
                   >
-                    {note.color === option.value && <Check className="h-4 w-4 text-black" />}
+                    {note.color === option.value && <Check className="h-4 w-4 text-black" strokeWidth={1} />}
                   </button>
                 ))}
               </PopoverContent>

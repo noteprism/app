@@ -105,7 +105,7 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
                         color === option.value && "border-primary",
                       )}
                     >
-                      {color === option.value && <Check className="h-4 w-4" />}
+                      {color === option.value && <Check className="h-4 w-4" strokeWidth={1} />}
                     </Label>
                   </div>
                 ))}
@@ -114,11 +114,11 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              <X className="mr-2 h-4 w-4" />
+              <X className="h-4 w-4" strokeWidth={1} />
               Cancel
             </Button>
             <Button type="submit">
-              <Check className="mr-2 h-4 w-4" />
+              <Check className="mr-2 h-4 w-4" strokeWidth={1} />
               Create Note
             </Button>
           </DialogFooter>

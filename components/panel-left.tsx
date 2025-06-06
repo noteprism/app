@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React from "react"
@@ -39,6 +39,21 @@ export default function PanelLeft({
   return (
     <Sidebar>
       <SidebarHeader className="border-b">
+        <svg width="0" height="0" className="prismatic-gradient-icon-defs">
+          <defs>
+            <linearGradient id="prismatic-gradient-stroke" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4f46e5">
+                <animate attributeName="stop-color" values="#4f46e5;#06b6d4;#ec4899;#4f46e5" dur="8s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="50%" stop-color="#06b6d4">
+                <animate attributeName="stop-color" values="#06b6d4;#ec4899;#4f46e5;#06b6d4" dur="8s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stop-color="#ec4899">
+                <animate attributeName="stop-color" values="#ec4899;#4f46e5;#06b6d4;#ec4899" dur="8s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
         <div className="flex items-center px-2 py-3">
           <div className="flex items-center gap-2 font-semibold text-xl">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg">
@@ -53,7 +68,7 @@ export default function PanelLeft({
             className="h-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            prefix={<Search className="h-4 w-4 text-muted-foreground" />}
+            prefix={<Search className="h-4 w-4 text-muted-foreground" strokeWidth={1} />}
           />
         </div>
         <div className="px-2 pb-2">
@@ -62,18 +77,22 @@ export default function PanelLeft({
             onClick={onNewNote}
             aria-label="New Note"
           >
-            <StickyNote className="h-5 w-5" />
+            <StickyNote className="h-5 w-5" strokeWidth={1} />
           </Button>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="flex justify-between items-center">
-            <span>Note Groups</span>
-            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={handleCreateGroup}>
-              <Plus className="h-4 w-4" />
-              <span className="sr-only">Add Group</span>
-            </Button>
+          <SidebarGroupLabel className="flex justify-between items-center mb-3">
+            <button
+              onClick={handleCreateGroup}
+              className="w-full prismatic-gradient-outline-btn flex items-center justify-center h-9 rounded-full bg-white border border-transparent relative overflow-hidden transition-shadow transition-transform duration-200 hover:shadow-lg hover:-translate-y-0.5 focus:shadow-lg focus:-translate-y-0.5"
+              style={{ minHeight: '36px', minWidth: '36px' }}
+              aria-label="Add Group"
+            >
+              <span className="absolute inset-0 rounded-full pointer-events-none prismatic-outline" />
+              <Folder className="h-5 w-5 stroke-1 relative z-10 prismatic-gradient-icon" strokeWidth={1} />
+            </button>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -92,11 +111,11 @@ export default function PanelLeft({
       <SidebarFooter className="border-t">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+            <User className="h-5 w-5" strokeWidth={1} />
             <span className="text-sm font-medium">User</span>
           </div>
           <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4" strokeWidth={1} />
             <span className="sr-only">Settings</span>
           </Button>
         </div>

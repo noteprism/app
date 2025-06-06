@@ -57,20 +57,20 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal className="h-4 w-4" strokeWidth={1} />
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                <Pencil className="mr-2 h-4 w-4" />
+                <Pencil className="mr-2 h-4 w-4" strokeWidth={1} />
                 Rename
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
                 onClick={() => onDeleteGroup(group.id)}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-2 h-4 w-4" strokeWidth={1} />
                 Delete Group
               </DropdownMenuItem>
             </DropdownMenuContent>

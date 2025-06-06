@@ -117,3 +117,36 @@ body {
   box-shadow: 0 6px 32px 0 rgba(76,110,245,0.28), 0 2px 12px 0 rgba(236,72,153,0.18);
   transform: translateY(-2px) scale(1.03);
 }
+
+.prismatic-gradient-outline-btn {
+  position: relative;
+  background: white;
+  border: none;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.prismatic-outline {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4, #ec4899);
+  background-size: 200% 200%;
+  animation: prismGlow 8s ease-in-out infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.prismatic-gradient-icon {
+  stroke: url(#prismatic-gradient-stroke);
+}
+
+/* SVG gradient definition for icon stroke */
+svg .prismatic-gradient-icon-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
