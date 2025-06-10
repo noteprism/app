@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
@@ -14,28 +14,32 @@ import NoteCard from "@/components/note-card"
 interface NoteGroupProps {
   group: NoteGroupType
   onDeleteNote: (noteId: string, groupId: string) => void
-  onUpdateGroup: (groupId: string, title: string) => void
+  onUpdateGroup: (groupId: string, name: string) => void
   onDeleteGroup: (groupId: string) => void
-  onUpdateNote: (noteId: string, groupId: string, updated: { title: string; content: string; color?: string }) => void
+  onUpdateNote: (noteId: string, groupId: string, updated: { content: string; color?: string }) => void
   cardStyle: "outline" | "filled"
 }
 
 export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDeleteGroup, onUpdateNote, cardStyle }: NoteGroupProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [title, setTitle] = useState(group.title)
+  const [name, setName] = useState(group.name || "")
 
-  const handleSaveTitle = () => {
-    onUpdateGroup(group.id, title)
+  useEffect(() => {
+    setName(group.name || "")
+  }, [group.name])
+
+  const handleSaveName = () => {
+    onUpdateGroup(group.id, name)
     setIsEditing(false)
   }
 
-  const handleTitleBlur = () => {
-    handleSaveTitle()
+  const handleNameBlur = () => {
+    handleSaveName()
   }
 
-  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleSaveTitle()
+      handleSaveName()
     }
   }
 
@@ -45,15 +49,15 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
         <div className="flex items-center justify-between">
           {isEditing ? (
             <Input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
+              value={name}
+              onChange={e => setName(e.target.value)}
               className="h-8"
               autoFocus
-              onBlur={handleTitleBlur}
-              onKeyDown={handleTitleKeyDown}
+              onBlur={handleNameBlur}
+              onKeyDown={handleNameKeyDown}
             />
           ) : (
-            <CardTitle className="text-lg" onClick={() => setIsEditing(true)} style={{ cursor: 'pointer' }}>{group.title}</CardTitle>
+            <CardTitle className="text-lg" onClick={() => setIsEditing(true)} style={{ cursor: 'pointer' }}>{group.name}</CardTitle>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -79,7 +83,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
         </div>
       </CardHeader>
       <CardContent>
-        <Droppable droppableId={group.id}>
+        <Droppable droppableId={group.id} type="note">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3 min-h-[100px]">
               {group.notes.map((note, index) => (
@@ -87,8 +91,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                   {(provided) => (
                     <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                       <NoteCard note={note} onDelete={() => onDeleteNote(note.id, group.id)} onUpdate={(updated) => {
-                        const title = updated.content.split('\n')[0] || '';
-                        onUpdateNote(note.id, group.id, { title, ...updated });
+                        onUpdateNote(note.id, group.id, updated);
                       }} cardStyle={cardStyle} />
                     </div>
                   )}

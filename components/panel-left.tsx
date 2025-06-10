@@ -106,7 +106,7 @@ export default function PanelLeft({
               {groups.map((group) => (
                 <SidebarMenuItem key={group.id}>
                   <SidebarMenuButton isActive={activeGroup === group.id} onClick={() => setActiveGroup(group.id)}>
-                    <span>{group.title}</span>
+                    <span>{group.name}</span>
                     <span className="ml-auto text-xs text-muted-foreground">{group.notes.length}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

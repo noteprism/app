@@ -85,7 +85,7 @@ export default function CreateNoteDialog({ open, onOpenChange, groups, onCreateN
                   <SelectItem key="no-group" value="no-group">No Group</SelectItem>
                   {groups.map((group) => (
                     <SelectItem key={group.id} value={group.id}>
-                      {group.title}
+                      {group.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

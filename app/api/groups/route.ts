@@ -43,6 +43,7 @@ export async function GET() {
     include: { notes: true },
     orderBy: { position: 'asc' },
   })
+  
   return NextResponse.json(groups)
 }
 
@@ -53,15 +54,18 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await req.json()
+  console.log("Creating group with data:", data); // Debug log
+  
   const group = await prisma.noteGroup.create({
     data: {
-      name: data.title,
+      name: data.name || "Untitled Group", // Make sure we have a fallback
       position: data.position || 0,
       user: {
         connect: { id: user.id }
       }
     }
   })
+  
   return NextResponse.json(group)
 }
 
@@ -78,10 +82,11 @@ export async function PUT(req: NextRequest) {
       userId: user.id // Only allow updating own groups
     },
     data: {
-      name: data.title,
+      name: data.name,
       position: data.position !== undefined ? data.position : undefined
     },
   })
+  
   return NextResponse.json(group)
 }
 

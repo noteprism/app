@@ -10,6 +10,6 @@ export interface Note {
 
 export interface NoteGroup {
   id: string
-  title: string
+  name: string
   notes: Note[]
 }

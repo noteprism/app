@@ -15,7 +15,7 @@ interface NoteGrouplessProps {
 export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote, onUpdateStandaloneNote, STANDALONE_DROPPABLE_ID, editingNoteId, setEditingNoteId, cardStyle }: NoteGrouplessProps) {
   if (standaloneNotes.length === 0) return null
   return (
-    <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical">
+    <Droppable droppableId={STANDALONE_DROPPABLE_ID} direction="vertical" type="note">
       {(provided) => (
         <div
           ref={provided.innerRef}

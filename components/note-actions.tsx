@@ -1,5 +1,6 @@
 import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import { useCallback } from "react"
+import { generateGroupName } from "@/lib/group/names"
 
 interface UseNoteActionsProps {
   setGroups: React.Dispatch<React.SetStateAction<NoteGroupType[]>>
@@ -27,12 +28,16 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
   }, [setGroups, setStandaloneNotes, setIsCreateNoteOpen])
 
   const handleCreateGroup = useCallback(async () => {
+    const generatedName = generateGroupName();
+    console.log("Generated group name:", generatedName); // Debug log
+    
     const res = await fetch("/api/groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "New Group" }),
+      body: JSON.stringify({ name: generatedName }),
     })
     const newGroup = await res.json()
+    console.log("New group created:", newGroup); // Debug log
     setGroups(prev => [...prev, { ...newGroup, notes: [] }])
   }, [setGroups])
 
@@ -45,13 +50,13 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
     setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, notes: group.notes.filter(note => note.id !== noteId) } : group))
   }, [setGroups])
 
-  const handleUpdateGroup = useCallback(async (groupId: string, title: string) => {
+  const handleUpdateGroup = useCallback(async (groupId: string, name: string) => {
     await fetch("/api/groups", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: groupId, title }),
+      body: JSON.stringify({ id: groupId, name }),
     })
-    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, title } : group))
+    setGroups(prevGroups => prevGroups.map(group => group.id === groupId ? { ...group, name } : group))
   }, [setGroups])
 
   const handleDeleteGroup = useCallback(async (groupId: string) => {
