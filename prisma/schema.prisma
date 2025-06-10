@@ -16,7 +16,8 @@ datasource db {
 
 model User {
   id             String     @id @default(uuid())
-  linkedinId     String     @unique
+  linkedinId     String?    @unique
+  googleId       String?    @unique
   email          String     @unique
   name           String?
   profilePicture String?
