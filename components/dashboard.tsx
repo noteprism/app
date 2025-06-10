@@ -63,7 +63,7 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(data => {
         setStandaloneNotes(
-          data.filter((n: Note) => !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
+          data.filter((n: Note) => !n.noteGroupId && !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
         )
       })
   }, [])
@@ -155,7 +155,19 @@ export default function Dashboard() {
       }
       
       const newNote = await res.json()
-      setStandaloneNotes(prev => [newNote, ...prev])
+      
+      // Update positions in frontend to match what we just did in the backend
+      setStandaloneNotes(prev => {
+        // New note is at position 0, and all others shift down
+        const updated = prev.map(note => ({
+          ...note,
+          position: (note.position ?? 0) + 1
+        }))
+        
+        // Insert new note at the beginning
+        return [newNote, ...updated]
+      })
+      
       setEditingNoteId(newNote.id)
     } catch (error) {
       console.error("Failed to create note:", error)

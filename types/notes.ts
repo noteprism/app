@@ -4,6 +4,7 @@ export interface Note {
   color: string
   createdAt: string
   groupId?: string | null
+  noteGroupId?: string | null
   position?: number
   checkedStates?: boolean[]
 }
