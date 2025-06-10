@@ -14,11 +14,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model NoteGroup {
-  id    String  @id @default(uuid())
-  title String
-  notes Note[]
-  position Int @default(0)
+model User {
+  id             String   @id @default(uuid())
+  linkedinId     String   @unique
+  email          String   @unique
+  name           String?
+  profilePicture String?
+  noteStyle      String   @default("outline")
+  notes          Note[]
+  sessions       Session[]
 }
 
 model Note {
@@ -26,14 +30,17 @@ model Note {
   content   String
   color     String
   createdAt DateTime @default(now())
-  group     NoteGroup? @relation(fields: [groupId], references: [id])
-  groupId   String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
   position  Int      @default(0)
   checkedStates Json?
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  noteStyle String   @default("outline") // 'outline' or 'filled'
+model Session {
+  id           String   @id
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  lastActiveAt DateTime
 }
