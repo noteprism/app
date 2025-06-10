@@ -44,7 +44,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
   }
 
   return (
-    <Card className="border-sidebar-border border shadow-none">
+    <Card className="border-border bg-card text-card-foreground shadow-sm">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           {isEditing ? (
@@ -99,8 +99,8 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
               ))}
               {provided.placeholder}
               {group.notes.length === 0 && (
-                <div className="flex items-center justify-center h-24 border border-dashed rounded-lg">
-                  <p className="text-sm text-muted-foreground">Drag notes here or create a new one</p>
+                <div className="flex items-center justify-center h-24 border border-dashed rounded-lg border-muted text-muted-foreground">
+                  <p className="text-sm">Drag notes here or create a new one</p>
                 </div>
               )}
             </div>

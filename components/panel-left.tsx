@@ -16,8 +16,6 @@ import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder } from "lu
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React from "react"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
 
 interface PanelLeftProps {
   groups: NoteGroupType[]
@@ -27,8 +25,6 @@ interface PanelLeftProps {
   searchQuery: string
   setSearchQuery: (q: string) => void
   onNewNote: () => void
-  cardStyle: "outline" | "filled"
-  setCardStyle: (style: "outline" | "filled") => void
 }
 
 export default function PanelLeft({
@@ -39,28 +35,10 @@ export default function PanelLeft({
   searchQuery,
   setSearchQuery,
   onNewNote,
-  cardStyle,
-  setCardStyle,
 }: PanelLeftProps) {
-  const [settingsOpen, setSettingsOpen] = React.useState(false)
   return (
     <Sidebar>
       <SidebarHeader className="border-b">
-        <svg width="0" height="0" className="prismatic-gradient-icon-defs">
-          <defs>
-            <linearGradient id="prismatic-gradient-stroke" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f46e5">
-                <animate attributeName="stop-color" values="#4f46e5;#06b6d4;#ec4899;#4f46e5" dur="8s" repeatCount="indefinite" />
-              </stop>
-              <stop offset="50%" stopColor="#06b6d4">
-                <animate attributeName="stop-color" values="#06b6d4;#ec4899;#4f46e5;#06b6d4" dur="8s" repeatCount="indefinite" />
-              </stop>
-              <stop offset="100%" stopColor="#ec4899">
-                <animate attributeName="stop-color" values="#ec4899;#4f46e5;#06b6d4;#ec4899" dur="8s" repeatCount="indefinite" />
-              </stop>
-            </linearGradient>
-          </defs>
-        </svg>
         <div className="flex items-center px-2 py-3">
           <div className="flex items-center gap-2 font-semibold text-xl">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg">
@@ -80,26 +58,29 @@ export default function PanelLeft({
         </div>
         <div className="px-2 pb-2">
           <Button
-            className="w-full prismatic-gradient-btn flex items-center justify-center"
+            className="w-full"
             onClick={onNewNote}
             aria-label="New Note"
+            size="sm"
           >
-            <StickyNote className="h-5 w-5" strokeWidth={1} />
+            <StickyNote className="h-4 w-4 mr-2" strokeWidth={1.5} />
+            New Note
           </Button>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="flex justify-between items-center mb-3">
-            <button
-              onClick={handleCreateGroup}
-              className="w-full prismatic-gradient-outline-btn flex items-center justify-center h-9 rounded-full bg-white border border-transparent relative overflow-hidden transition-shadow transition-transform duration-200 hover:shadow-lg hover:-translate-y-0.5 focus:shadow-lg focus:-translate-y-0.5"
-              style={{ minHeight: '36px', minWidth: '36px' }}
-              aria-label="Add Group"
+          <SidebarGroupLabel className="flex justify-between items-center mb-3 px-4">
+            <span className="text-xs uppercase font-medium text-muted-foreground">Note Groups</span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleCreateGroup} 
+              className="h-5 w-5"
             >
-              <span className="absolute inset-0 rounded-full pointer-events-none prismatic-outline" />
-              <Folder className="h-5 w-5 stroke-1 relative z-10 prismatic-gradient-icon" strokeWidth={1} />
-            </button>
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">Add Group</span>
+            </Button>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -121,23 +102,6 @@ export default function PanelLeft({
             <User className="h-5 w-5" strokeWidth={1} />
             <span className="text-sm font-medium">User</span>
           </div>
-          <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings className="h-4 w-4" strokeWidth={1} />
-                <span className="sr-only">Settings</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Settings</DialogTitle>
-              </DialogHeader>
-              <div className="flex items-center justify-between py-2">
-                <span>Filled note style</span>
-                <Switch checked={cardStyle === "filled"} onCheckedChange={v => setCardStyle(v ? "filled" : "outline")} />
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </SidebarFooter>
     </Sidebar>

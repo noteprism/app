@@ -21,12 +21,12 @@ interface NoteCardProps {
   cardStyle?: "outline" | "filled"
 }
 
-const colorOptions = [
-  { value: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100", label: "Yellow", swatch: "bg-yellow-400" },
-  { value: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100", label: "Blue", swatch: "bg-blue-400" },
-  { value: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100", label: "Green", swatch: "bg-green-400" },
-  { value: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100", label: "Red", swatch: "bg-red-400" },
-  { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400" },
+export const colorOptions = [
+  { value: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100", label: "Yellow", swatch: "bg-yellow-400", glass: "glass-yellow" },
+  { value: "bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100", label: "Blue", swatch: "bg-blue-400", glass: "glass-blue" },
+  { value: "bg-gradient-to-br from-green-200 via-green-100 to-teal-100", label: "Green", swatch: "bg-green-400", glass: "glass-green" },
+  { value: "bg-gradient-to-br from-red-200 via-red-100 to-yellow-100", label: "Red", swatch: "bg-red-400", glass: "glass-red" },
+  { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400", glass: "glass-purple" },
 ]
 
 export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp, cardStyle = "outline" }: NoteCardProps) {
@@ -107,34 +107,40 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
     })
   }
 
-  // Render content: first line as heading, checklist lines as checkboxes, others as text
-  const renderContent = (content: string) => {
-    const lines = content.split('\n')
-    return (
-      <>
-        <h3 className="font-medium">{lines[0]}</h3>
-        <div className="mt-2 text-sm space-y-1">
-          {lines.slice(1).map((line, idx) => {
-            const match = line.match(/^\s*- (.+)$/)
-            if (match) {
-              return (
-                <div key={idx} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={!!checkedStates[idx]}
-                    onChange={() => handleCheckboxChange(idx)}
-                    className={getAccentColor()}
-                  />
-                  <span className={checkedStates[idx] ? "line-through text-muted-foreground" : undefined}>{match[1]}</span>
-                </div>
-              )
-            } else {
-              return <div key={idx}>{line}</div>
-            }
-          })}
-        </div>
-      </>
-    )
+  // Get the glass effect class for this note's color
+  const getGlassEffect = () => {
+    const colorOption = colorOptions.find(option => option.value === note.color)
+    return colorOption?.glass || ""
+  }
+
+  // Utility to get text color for note
+  const getTextColor = () => {
+    return "text-white"
+  }
+
+  // Utility to get muted text color for note
+  const getMutedTextColor = () => {
+    return "text-gray-300"
+  }
+
+  // Utility to get border color for note
+  const getBorderColor = () => {
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-400';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-400';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-400';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-400';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-400';
+    return 'border-border';
+  }
+
+  // Utility to get divider color for note
+  const getDividerColor = () => {
+    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-700/30';
+    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-700/30';
+    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-700/30';
+    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-700/30';
+    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-700/30';
+    return 'border-muted';
   }
 
   // Map gradient to accent color for checkboxes
@@ -147,62 +153,15 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
     return 'accent-primary';
   }
 
-  // Utility to get high-contrast text color for note
-  const getTextColor = () => {
-    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'text-yellow-900';
-    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'text-blue-900';
-    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'text-green-900';
-    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'text-red-900';
-    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'text-purple-900';
-    return 'text-primary-foreground';
-  }
-
-  // Utility to get less-contrast (muted) text color for note
-  const getMutedTextColor = () => {
-    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'text-yellow-700';
-    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'text-blue-700';
-    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'text-green-700';
-    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'text-red-700';
-    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'text-purple-700';
-    return 'text-muted-foreground';
-  }
-
-  // Utility to get border color for note
-  const getBorderColor = () => {
-    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-500';
-    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-500';
-    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-500';
-    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-500';
-    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-500';
-    return 'border-border';
-  }
-
-  // Utility to get divider color for note
-  const getDividerColor = () => {
-    if (note.color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-300';
-    if (note.color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-300';
-    if (note.color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-300';
-    if (note.color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-300';
-    if (note.color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-300';
-    return 'border-muted';
-  }
-
-  // Utility to get gradient bg for color circle
-  const getGradientBg = () => note.color
-
   const formattedDate = new Date(note.createdAt).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
   })
 
-  // Utility to get border color for a given color value
-  function getBorderColorFor(color: string) {
-    if (color === 'bg-gradient-to-br from-yellow-200 via-yellow-100 to-pink-100') return 'border-yellow-500';
-    if (color === 'bg-gradient-to-br from-blue-200 via-blue-100 to-purple-100') return 'border-blue-500';
-    if (color === 'bg-gradient-to-br from-green-200 via-green-100 to-teal-100') return 'border-green-500';
-    if (color === 'bg-gradient-to-br from-red-200 via-red-100 to-yellow-100') return 'border-red-500';
-    if (color === 'bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100') return 'border-purple-500';
-    return 'border-border';
+  // Utility to get glass class for a given color value
+  function getGlassClassFor(colorValue: string) {
+    const colorOption = colorOptions.find(option => option.value === colorValue)
+    return colorOption?.glass || ""
   }
 
   // Focus textarea on mount if isEditing is true from prop
@@ -215,10 +174,9 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
   return (
     <Card
       className={cn(
-        'shadow-sm transition-all',
-        (isEditing || cardStyle !== 'filled') ? 'bg-white' : note.color,
-        getBorderColor(),
-        isEditing ? 'ring-2 ring-primary' : 'hover:shadow',
+        'shadow-sm transition-all glass-card',
+        isEditing ? 'bg-background' : getGlassEffect(),
+        isEditing ? 'ring-2 ring-primary' : 'hover:shadow-lg',
         'relative'
       )}
       onClick={!isEditing ? handleCardClick : undefined}
@@ -236,7 +194,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                 handleBlur();
               }
             }}
-            className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
+            className="min-h-[100px] bg-background border-0 px-1 resize-none"
             placeholder="Note content"
             autoFocus
             onClick={e => e.stopPropagation()}
@@ -265,7 +223,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                                   onChange={() => handleCheckboxChange(idx)}
                                   className={getAccentColor()}
                                 />
-                                <span className={cn(checkedStates[idx] ? 'line-through' : undefined, getMutedTextColor())}>{match[1]}</span>
+                                <span className={cn(checkedStates[idx] ? 'line-through opacity-70' : undefined, getMutedTextColor())}>{match[1]}</span>
                               </div>
                             )
                           } else {
@@ -279,18 +237,18 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild data-menu>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground">
-                    <MoreHorizontal className="h-3 w-3" strokeWidth={1} />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-300 hover:text-white">
+                    <MoreHorizontal className="h-3 w-3" strokeWidth={1.5} />
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    <Edit className="mr-2 h-4 w-4" strokeWidth={1} />
+                    <Edit className="mr-2 h-4 w-4" strokeWidth={1.5} />
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={onDelete}>
-                    <Trash2 className="mr-2 h-4 w-4" strokeWidth={1} />
+                    <Trash2 className="mr-2 h-4 w-4" strokeWidth={1.5} />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -304,24 +262,22 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                 <button
                   type="button"
                   className={cn(
-                    'w-4 h-4 rounded-full border flex items-center justify-center transition-shadow',
-                    getBorderColor(),
-                    getGradientBg()
+                    'w-5 h-5 rounded-full border border-white/30 flex items-center justify-center transition-shadow',
+                    colorOptions.find(o => o.value === note.color)?.swatch || ""
                   )}
                   onClick={e => { e.stopPropagation(); setColorPickerOpen(true) }}
                   tabIndex={0}
                   aria-label="Change card color"
                 />
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-auto p-2 flex gap-2 bg-white shadow-lg rounded-xl border">
+              <PopoverContent align="end" className="w-auto p-2 flex gap-2 bg-background shadow-lg rounded-xl border">
                 {colorOptions.map(option => (
                   <button
                     key={option.value}
                     className={cn(
-                      'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-shadow',
-                      option.value,
-                      getBorderColorFor(option.value),
-                      note.color === option.value && 'ring-2 ring-black'
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-shadow',
+                      option.swatch,
+                      note.color === option.value && 'ring-2 ring-white'
                     )}
                     onClick={e => {
                       e.stopPropagation();
@@ -333,7 +289,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                     aria-label={`Set color ${option.label}`}
                     type="button"
                   >
-                    {note.color === option.value && <Check className="h-4 w-4 text-black" strokeWidth={1} />}
+                    {note.color === option.value && <Check className="h-4 w-4 text-white" strokeWidth={1.5} />}
                   </button>
                 ))}
               </PopoverContent>
