@@ -221,7 +221,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
         isEditing ? 'ring-2 ring-primary' : 'hover:shadow',
         'relative'
       )}
-      onClick={handleCardClick}
+      onClick={!isEditing ? handleCardClick : undefined}
     >
       {isEditing ? (
         <CardContent className="p-3">
@@ -239,6 +239,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
             className="min-h-[100px] bg-white/50 border-0 px-1 resize-none"
             placeholder="Note content"
             autoFocus
+            onClick={e => e.stopPropagation()}
           />
         </CardContent>
       ) : (
