@@ -20,22 +20,40 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="flex flex-col gap-4 h-full"
+          className="flex flex-col gap-4"
         >
           {standaloneNotes.map((note, idx) => (
             <Draggable key={note.id} draggableId={note.id} index={idx}>
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                  <NoteCard
-                    note={note}
-                    onDelete={() => onDeleteStandaloneNote(note.id)}
-                    onUpdate={(updated) => {
-                      onUpdateStandaloneNote(note.id, updated)
-                      if (setEditingNoteId) setEditingNoteId(null)
+              {(provided, snapshot) => (
+                <div 
+                  ref={provided.innerRef} 
+                  {...provided.draggableProps} 
+                  className="mb-4"
+                  style={{
+                    ...provided.draggableProps.style,
+                    height: 'auto', // Ensure height doesn't extend
+                    width: 'auto', // Width will be determined by content
+                    maxWidth: '100%'
+                  }}
+                >
+                  <div 
+                    {...provided.dragHandleProps}
+                    className="cursor-grab active:cursor-grabbing h-auto"
+                    style={{
+                      touchAction: 'none' // Fix for mobile dragging
                     }}
-                    isEditing={note.id === editingNoteId}
-                    cardStyle={cardStyle}
-                  />
+                  >
+                    <NoteCard
+                      note={note}
+                      onDelete={() => onDeleteStandaloneNote(note.id)}
+                      onUpdate={(updated) => {
+                        onUpdateStandaloneNote(note.id, updated)
+                        if (setEditingNoteId) setEditingNoteId(null)
+                      }}
+                      isEditing={note.id === editingNoteId}
+                      cardStyle={cardStyle}
+                    />
+                  </div>
                 </div>
               )}
             </Draggable>

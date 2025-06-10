@@ -30,6 +30,7 @@ import NoteGroupless from "@/components/note-groupless"
 import PanelLeft from "@/components/panel-left"
 import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
+import Masonry from 'react-masonry-css'
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
@@ -174,6 +175,15 @@ export default function Dashboard() {
     }
   }
 
+  // Define breakpoints for the masonry layout
+  const breakpointColumnsObj = {
+    default: 4,
+    1600: 4,
+    1200: 3,
+    900: 2,
+    600: 1
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-background">
@@ -200,35 +210,47 @@ export default function Dashboard() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
                   >
-                    {filteredStandaloneNotes.length > 0 && (
-                      <NoteGroupless
-                        standaloneNotes={filteredStandaloneNotes}
-                        onDeleteStandaloneNote={handleDeleteStandaloneNote}
-                        onUpdateStandaloneNote={handleUpdateStandaloneNote}
-                        STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
-                        editingNoteId={editingNoteId}
-                        setEditingNoteId={setEditingNoteId}
-                        cardStyle="outline"
-                      />
-                    )}
-                    {filteredGroups.map((group, idx) => (
-                      <Draggable key={group.id} draggableId={group.id} index={idx}>
-                        {(provided) => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <NoteGroup
-                              group={group}
-                              onDeleteNote={handleDeleteNote}
-                              onUpdateGroup={handleUpdateGroup}
-                              onDeleteGroup={handleDeleteGroup}
-                              onUpdateNote={handleUpdateNote}
-                              cardStyle="outline"
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                    <Masonry
+                      breakpointCols={breakpointColumnsObj}
+                      className="my-masonry-grid"
+                      columnClassName="my-masonry-grid_column"
+                    >
+                      {filteredStandaloneNotes.length > 0 && (
+                        <div className="mb-6">
+                          <NoteGroupless
+                            standaloneNotes={filteredStandaloneNotes}
+                            onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                            onUpdateStandaloneNote={handleUpdateStandaloneNote}
+                            STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                            editingNoteId={editingNoteId}
+                            setEditingNoteId={setEditingNoteId}
+                            cardStyle="outline"
+                          />
+                        </div>
+                      )}
+                      {filteredGroups.map((group, idx) => (
+                        <Draggable key={group.id} draggableId={group.id} index={idx}>
+                          {(provided) => (
+                            <div 
+                              ref={provided.innerRef} 
+                              {...provided.draggableProps} 
+                              {...provided.dragHandleProps}
+                              className="mb-6"
+                            >
+                              <NoteGroup
+                                group={group}
+                                onDeleteNote={handleDeleteNote}
+                                onUpdateGroup={handleUpdateGroup}
+                                onDeleteGroup={handleDeleteGroup}
+                                onUpdateNote={handleUpdateNote}
+                                cardStyle="outline"
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    </Masonry>
                     {provided.placeholder}
                   </div>
                 )}

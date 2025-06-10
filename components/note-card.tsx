@@ -35,11 +35,52 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
   const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
+  const isColorPickerInteractionRef = React.useRef(false)
 
   // Auto-save on blur
-  const handleBlur = () => {
-    onUpdate({ content })
-    setIsEditing(false)
+  const handleBlur = (e: React.FocusEvent) => {
+    // If we're interacting with the color picker, don't close edit mode
+    if (isColorPickerInteractionRef.current) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Add a small delay to handle cases where focus moves to color picker elements
+    setTimeout(() => {
+      if (!isColorPickerInteractionRef.current) {
+        onUpdate({ content });
+        setIsEditing(false);
+      }
+    }, 100);
+  }
+
+  // Handle color picker opening/closing
+  const handleColorPickerChange = (open: boolean) => {
+    setColorPickerOpen(open);
+    isColorPickerInteractionRef.current = open;
+    
+    // If closing the picker, refocus the textarea
+    if (!open && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 10);
+    }
+  }
+
+  // Handle color selection
+  const handleColorSelect = (colorValue: string) => {
+    if (note.color !== colorValue) {
+      onUpdate({ content, color: colorValue });
+    }
+    setColorPickerOpen(false);
+    isColorPickerInteractionRef.current = false;
+    
+    // Refocus the textarea
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, 10);
   }
 
   // Click to edit (ignore checkboxes, drag handle, three dots)
@@ -182,7 +223,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
       onClick={!isEditing ? handleCardClick : undefined}
     >
       {isEditing ? (
-        <CardContent className="p-3">
+        <CardContent className="p-3 relative">
           <Textarea
             ref={textareaRef}
             value={content}
@@ -191,14 +232,66 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
             onKeyDown={e => {
               if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                 e.preventDefault();
-                handleBlur();
+                handleBlur(e as any);
               }
             }}
-            className="min-h-[100px] bg-background border-0 px-1 resize-none"
+            className="min-h-[100px] bg-background border-0 px-1 resize-none mb-2"
             placeholder="Note content"
             autoFocus
             onClick={e => e.stopPropagation()}
           />
+          
+          <div className="absolute bottom-3 right-3 z-10">
+            <Popover open={colorPickerOpen} onOpenChange={handleColorPickerChange}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    'w-7 h-7 rounded-full border border-white/50 flex items-center justify-center transition-shadow shadow-md hover:shadow-lg',
+                    colorOptions.find(o => o.value === note.color)?.swatch || "",
+                    "z-20"
+                  )}
+                  onClick={e => { 
+                    e.stopPropagation(); 
+                    e.preventDefault();
+                    isColorPickerInteractionRef.current = true;
+                    setColorPickerOpen(true); 
+                  }}
+                  onMouseDown={e => {
+                    e.preventDefault(); // Prevent textarea blur
+                    isColorPickerInteractionRef.current = true;
+                  }}
+                  tabIndex={0}
+                  aria-label="Change card color"
+                >
+                  <span className="sr-only">Change color</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" side="top" className="w-auto p-2 flex gap-2 bg-background shadow-lg rounded-xl border z-30">
+                {colorOptions.map(option => (
+                  <button
+                    key={option.value}
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-shadow hover:shadow-md',
+                      option.swatch,
+                      note.color === option.value && 'ring-2 ring-white'
+                    )}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleColorSelect(option.value);
+                    }}
+                    onMouseDown={e => {
+                      e.preventDefault(); // Prevent textarea blur
+                    }}
+                    aria-label={`Set color ${option.label}`}
+                    type="button"
+                  >
+                    {note.color === option.value && <Check className="h-4 w-4 text-white" strokeWidth={1.5} />}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          </div>
         </CardContent>
       ) : (
         <>
@@ -257,43 +350,6 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
           </CardContent>
           <CardFooter className={cn('px-3 py-1.5 text-xs border-t', getDividerColor(), getMutedTextColor(), 'flex items-center justify-between')}> 
             <span>{formattedDate}</span>
-            <Popover open={colorPickerOpen} onOpenChange={setColorPickerOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    'w-5 h-5 rounded-full border border-white/30 flex items-center justify-center transition-shadow',
-                    colorOptions.find(o => o.value === note.color)?.swatch || ""
-                  )}
-                  onClick={e => { e.stopPropagation(); setColorPickerOpen(true) }}
-                  tabIndex={0}
-                  aria-label="Change card color"
-                />
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-auto p-2 flex gap-2 bg-background shadow-lg rounded-xl border">
-                {colorOptions.map(option => (
-                  <button
-                    key={option.value}
-                    className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center transition-shadow',
-                      option.swatch,
-                      note.color === option.value && 'ring-2 ring-white'
-                    )}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setColorPickerOpen(false);
-                      if (note.color !== option.value) {
-                        onUpdate({ content, color: option.value })
-                      }
-                    }}
-                    aria-label={`Set color ${option.label}`}
-                    type="button"
-                  >
-                    {note.color === option.value && <Check className="h-4 w-4 text-white" strokeWidth={1.5} />}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
           </CardFooter>
         </>
       )}

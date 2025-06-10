@@ -99,10 +99,10 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  background: rgba(20, 20, 30, 0.7);
+  background: rgba(12, 12, 20, 0.8);
   backdrop-filter: blur(4px);
   box-shadow: 
-    0 4px 30px rgba(0, 0, 0, 0.3),
+    0 4px 30px rgba(0, 0, 0, 0.4),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   z-index: 1;
@@ -116,7 +116,7 @@ body {
   padding: 1px;
   background: linear-gradient(
     to bottom right,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.25),
     rgba(255, 255, 255, 0.05),
     rgba(255, 255, 255, 0.02)
   );
@@ -137,7 +137,7 @@ body {
     linear-gradient(
       120deg,
       transparent 20%,
-      rgba(255, 255, 255, 0.1) 30%,
+      rgba(255, 255, 255, 0.15) 30%,
       transparent 40%
     );
   transform: translateX(-100%);
@@ -151,77 +151,164 @@ body {
 
 /* Yellow glass */
 .glass-yellow {
-  background-color: rgba(20, 20, 30, 0.6);
+  background-color: rgba(15, 15, 25, 0.8);
   background-image: 
     radial-gradient(
       circle at 20% 30%, 
-      rgba(255, 230, 100, 0.4) 0%, 
-      rgba(255, 200, 100, 0.2) 30%, 
+      rgba(230, 190, 40, 0.5) 0%, 
+      rgba(210, 160, 30, 0.25) 30%, 
       transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 70%, 
+      rgba(220, 120, 10, 0.45) 0%,
+      rgba(190, 90, 5, 0.25) 40%, 
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 50% 50%, 
+      rgba(150, 210, 30, 0.3) 0%,
+      transparent 70%
     );
   box-shadow: 
-    0 4px 30px rgba(255, 204, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 204, 0, 0.2);
+    0 4px 30px rgba(200, 150, 0, 0.3),
+    inset 0 0 0 1px rgba(220, 180, 0, 0.25);
 }
 
 /* Blue glass */
 .glass-blue {
-  background-color: rgba(20, 20, 30, 0.6);
+  background-color: rgba(15, 15, 25, 0.8);
   background-image: 
     radial-gradient(
       circle at 20% 30%, 
-      rgba(100, 200, 255, 0.4) 0%, 
-      rgba(80, 160, 255, 0.2) 30%, 
+      rgba(40, 130, 240, 0.5) 0%, 
+      rgba(20, 110, 220, 0.25) 30%, 
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 70%, 
+      rgba(90, 40, 200, 0.45) 0%,
+      rgba(70, 20, 180, 0.25) 40%, 
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 40% 90%, 
+      rgba(0, 190, 230, 0.3) 0%,
       transparent 60%
     );
   box-shadow: 
-    0 4px 30px rgba(0, 120, 255, 0.2),
-    inset 0 0 0 1px rgba(0, 120, 255, 0.2);
+    0 4px 30px rgba(0, 80, 200, 0.3),
+    inset 0 0 0 1px rgba(0, 100, 220, 0.25);
 }
 
 /* Green glass */
 .glass-green {
-  background-color: rgba(20, 20, 30, 0.6);
+  background-color: rgba(15, 15, 25, 0.8);
   background-image: 
     radial-gradient(
       circle at 20% 30%, 
-      rgba(100, 255, 150, 0.4) 0%, 
-      rgba(50, 220, 120, 0.2) 30%, 
+      rgba(30, 180, 100, 0.5) 0%, 
+      rgba(20, 160, 80, 0.25) 30%, 
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 70% 65%, 
+      rgba(0, 150, 170, 0.45) 0%,
+      rgba(0, 130, 150, 0.25) 40%, 
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 30% 85%, 
+      rgba(140, 190, 20, 0.3) 0%,
       transparent 60%
     );
   box-shadow: 
-    0 4px 30px rgba(0, 204, 102, 0.2),
-    inset 0 0 0 1px rgba(0, 204, 102, 0.2);
+    0 4px 30px rgba(0, 150, 80, 0.3),
+    inset 0 0 0 1px rgba(0, 170, 90, 0.25);
 }
 
 /* Red glass */
 .glass-red {
-  background-color: rgba(20, 20, 30, 0.6);
+  background-color: rgba(15, 15, 25, 0.8);
   background-image: 
     radial-gradient(
       circle at 20% 30%, 
-      rgba(255, 120, 100, 0.4) 0%, 
-      rgba(255, 80, 80, 0.2) 30%, 
+      rgba(220, 60, 50, 0.5) 0%, 
+      rgba(200, 40, 30, 0.25) 30%, 
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 75% 75%, 
+      rgba(200, 20, 90, 0.45) 0%,
+      rgba(180, 10, 70, 0.25) 40%, 
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 40% 80%, 
+      rgba(220, 120, 20, 0.3) 0%,
       transparent 60%
     );
   box-shadow: 
-    0 4px 30px rgba(255, 51, 51, 0.2),
-    inset 0 0 0 1px rgba(255, 51, 51, 0.2);
+    0 4px 30px rgba(180, 30, 30, 0.3),
+    inset 0 0 0 1px rgba(200, 40, 40, 0.25);
 }
 
 /* Purple glass */
 .glass-purple {
-  background-color: rgba(20, 20, 30, 0.6);
+  background-color: rgba(15, 15, 25, 0.8);
   background-image: 
     radial-gradient(
       circle at 20% 30%, 
-      rgba(200, 100, 255, 0.4) 0%, 
-      rgba(170, 80, 255, 0.2) 30%, 
+      rgba(150, 60, 220, 0.5) 0%, 
+      rgba(130, 40, 200, 0.25) 30%, 
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 60%, 
+      rgba(190, 30, 120, 0.45) 0%,
+      rgba(170, 20, 100, 0.25) 40%, 
+      transparent 70%
+    ),
+    radial-gradient(
+      circle at 35% 85%, 
+      rgba(60, 40, 190, 0.3) 0%,
       transparent 60%
     );
   box-shadow: 
-    0 4px 30px rgba(153, 51, 255, 0.2),
-    inset 0 0 0 1px rgba(153, 51, 255, 0.2);
+    0 4px 30px rgba(120, 30, 200, 0.3),
+    inset 0 0 0 1px rgba(140, 50, 220, 0.25);
+}
+
+/* Masonry layout styles */
+.my-masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -16px; /* Adjust based on your gap needs */
+}
+
+.my-masonry-grid_column {
+  padding-left: 16px; /* Adjust based on your gap needs */
+  background-clip: padding-box;
+}
+
+/* Ensure drag handle areas are contained to the visible cards */
+.draggable-card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: visible;
+  will-change: transform;
+  height: auto !important;
+}
+
+.draggable-handle {
+  cursor: grab;
+  height: auto !important;
+  overflow: visible;
+}
+
+.draggable-handle:active {
+  cursor: grabbing;
 }
 
 
