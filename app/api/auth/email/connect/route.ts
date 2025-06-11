@@ -7,8 +7,8 @@ import * as z from 'zod';
 const prisma = new PrismaClient();
 
 const SESSION_COOKIE_NAME = 'noteprism_session';
-const SESSION_EXPIRY_MINUTES = 30;
-const SESSION_MAX_AGE_HOURS = 24;
+const SESSION_EXPIRY_DAYS = 30; // 30 day session expiration
+const SESSION_MAX_AGE_DAYS = 30; // 30 day cookie
 const BASE_URL = 'http://localhost:3000';
 
 // Input validation schema
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Create session
     const sessionId = generateSessionId();
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
     
     await prisma.session.create({
       data: {
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: SESSION_MAX_AGE_HOURS * 60 * 60,
+      maxAge: SESSION_MAX_AGE_DAYS * 24 * 60 * 60,
       path: '/',
     });
     

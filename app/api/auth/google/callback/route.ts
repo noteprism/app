@@ -9,8 +9,8 @@ const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/auth/google/callback';
 const SESSION_COOKIE_NAME = 'noteprism_session';
-const SESSION_EXPIRY_MINUTES = 30;
-const SESSION_MAX_AGE_HOURS = 24;
+const SESSION_EXPIRY_DAYS = 30;
+const SESSION_MAX_AGE_DAYS = 30;
 const BASE_URL = process.env.GOOGLE_REDIRECT_URI ? new URL(process.env.GOOGLE_REDIRECT_URI).origin : 'http://localhost:3000';
 
 async function exchangeCodeForTokens(code: string) {
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     // 4. Create a secure session
     const sessionId = generateSessionId();
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(now.getTime() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
     
     // Store session in DB
     await prisma.session.create({
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: SESSION_MAX_AGE_HOURS * 60 * 60,
+      maxAge: SESSION_MAX_AGE_DAYS * 24 * 60 * 60,
       path: '/',
     });
     return response;

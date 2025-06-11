@@ -38,6 +38,12 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const isColorPickerInteractionRef = React.useRef(false)
 
+  // Keep checkedStates in sync with note.checkedStates when the note prop changes
+  // This is crucial for when notes are moved between groups via drag and drop
+  React.useEffect(() => {
+    setCheckedStates(note.checkedStates ?? []);
+  }, [note.checkedStates]);
+
   // Auto-save on blur
   const handleBlur = (e: React.FocusEvent) => {
     // If we're interacting with the color picker, don't close edit mode
@@ -142,11 +148,25 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
     const newCheckedStates = [...checkedStates]
     newCheckedStates[idx] = !newCheckedStates[idx]
     setCheckedStates(newCheckedStates)
-    await fetch("/api/notes", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([{ id: note.id, checkedStates: newCheckedStates }]),
-    })
+    
+    // Make a copy of the updated states to send to the backend
+    // This prevents any race conditions with state updates
+    const updatedStates = [...newCheckedStates]
+    
+    try {
+      await fetch("/api/notes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([{ id: note.id, checkedStates: updatedStates }]),
+      })
+      
+      // Update the note object directly to ensure the parent components have the latest state
+      note.checkedStates = updatedStates;
+    } catch (error) {
+      console.error("Failed to update checkbox states:", error);
+      // Revert the local state if the API call fails
+      setCheckedStates(note.checkedStates ?? []);
+    }
   }
 
   // Get the glass effect class for this note's color
