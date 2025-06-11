@@ -158,21 +158,7 @@ export default function PanelLeft({
                                 <>
                                   <span className="truncate flex-1">{group.name}</span>
                                   <div className="flex items-center">
-                                    <span className="text-xs text-muted-foreground mr-2">{group.notes.length}</span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        startEditing(group);
-                                      }}
-                                      onMouseDown={(e) => e.stopPropagation()}
-                                      onTouchStart={(e) => e.stopPropagation()}
-                                    >
-                                      <Pencil className="h-3 w-3" />
-                                      <span className="sr-only">Rename</span>
-                                    </Button>
+                                    <span className="text-xs text-muted-foreground">{group.notes.length}</span>
                                   </div>
                                 </>
                               )}
