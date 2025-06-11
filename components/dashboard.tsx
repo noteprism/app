@@ -37,7 +37,6 @@ export default function Dashboard() {
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
 
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
-  const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
 
@@ -143,19 +142,19 @@ export default function Dashboard() {
 
   const handleNewNote = async () => {
     try {
-      const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
-      const res = await fetch("/api/notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: "", color }),
-      })
+    const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: "", color }),
+    })
       
       if (!res.ok) {
         console.error("Error creating note:", await res.text())
         return
       }
       
-      const newNote = await res.json()
+    const newNote = await res.json()
       
       // Update positions in frontend to match what we just did in the backend
       setStandaloneNotes(prev => {
@@ -169,7 +168,7 @@ export default function Dashboard() {
         return [newNote, ...updated]
       })
       
-      setEditingNoteId(newNote.id)
+    setEditingNoteId(newNote.id)
     } catch (error) {
       console.error("Failed to create note:", error)
     }
@@ -185,86 +184,67 @@ export default function Dashboard() {
   };
 
   return (
-    <SidebarProvider>
+    <DragDropContext onDragEnd={handleAnyDragEnd}>
       <div className="flex h-screen bg-background">
         <PanelLeft
           groups={groups}
-          activeGroup={activeGroup}
-          setActiveGroup={setActiveGroup}
           handleCreateGroup={handleCreateGroup}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onNewNote={handleNewNote}
         />
-        <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-            <SidebarTrigger />
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">Dashboard</h1>
-            </div>
-          </header>
-          <main className="p-4 md:p-6 bg-background text-foreground">
-            <DragDropContext onDragEnd={handleAnyDragEnd}>
-              <Droppable droppableId="groups-droppable" direction="vertical" type="group">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    <Masonry
-                      breakpointCols={breakpointColumnsObj}
-                      className="my-masonry-grid"
-                      columnClassName="my-masonry-grid_column"
-                    >
-                      {filteredStandaloneNotes.length > 0 && (
-                        <div className="mb-6">
-                          <NoteGroupless
-                            standaloneNotes={filteredStandaloneNotes}
-                            onDeleteStandaloneNote={handleDeleteStandaloneNote}
-                            onUpdateStandaloneNote={handleUpdateStandaloneNote}
-                            STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
-                            editingNoteId={editingNoteId}
-                            setEditingNoteId={setEditingNoteId}
-                            cardStyle="outline"
-                          />
-                        </div>
-                      )}
-                      {filteredGroups.map((group, idx) => (
-                        <Draggable key={group.id} draggableId={group.id} index={idx}>
-                          {(provided) => (
-                            <div 
-                              ref={provided.innerRef} 
-                              {...provided.draggableProps} 
-                              {...provided.dragHandleProps}
-                              className="mb-6"
-                            >
-                              <NoteGroup
-                                group={group}
-                                onDeleteNote={handleDeleteNote}
-                                onUpdateGroup={handleUpdateGroup}
-                                onDeleteGroup={handleDeleteGroup}
-                                onUpdateNote={handleUpdateNote}
-                                cardStyle="outline"
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    </Masonry>
-                    {provided.placeholder}
+        
+        <SidebarProvider>
+          <div className="flex-1 transition-[width] duration-200 ease-linear">
+            <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+              <SidebarTrigger />
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold">Dashboard</h1>
+              </div>
+            </header>
+            <main className="p-4 md:p-6 bg-background text-foreground">
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {filteredStandaloneNotes.length > 0 && (
+                  <div className="mb-6">
+                    <NoteGroupless
+                      standaloneNotes={filteredStandaloneNotes}
+                      onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                      onUpdateStandaloneNote={handleUpdateStandaloneNote}
+                      STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                      editingNoteId={editingNoteId}
+                      setEditingNoteId={setEditingNoteId}
+                      cardStyle="outline"
+                    />
                   </div>
                 )}
-              </Droppable>
-            </DragDropContext>
-          </main>
-        </div>
+                {filteredGroups.map((group) => (
+                  <div key={group.id} className="mb-6">
+                    <NoteGroup
+                      group={group}
+                      onDeleteNote={handleDeleteNote}
+                      onUpdateGroup={handleUpdateGroup}
+                      onDeleteGroup={handleDeleteGroup}
+                      onUpdateNote={handleUpdateNote}
+                      cardStyle="outline"
+                    />
+                  </div>
+                ))}
+              </Masonry>
+            </main>
+          </div>
+        </SidebarProvider>
       </div>
+
       <CreateNoteDialog
         open={isCreateNoteOpen}
         onOpenChange={setIsCreateNoteOpen}
         groups={groups}
         onCreateNote={handleCreateNote}
       />
-    </SidebarProvider>
+    </DragDropContext>
   )
 }

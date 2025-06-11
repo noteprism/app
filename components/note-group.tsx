@@ -92,30 +92,17 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                     <div 
                       ref={provided.innerRef} 
                       {...provided.draggableProps} 
-                      className="draggable-card mb-3"
-                      style={{
-                        ...provided.draggableProps.style,
-                        height: 'auto',
-                        width: 'auto',
-                        maxWidth: '100%'
-                      }}
+                      {...provided.dragHandleProps}
                     >
-                      <div 
-                        {...provided.dragHandleProps}
-                        className="draggable-handle"
-                        style={{
-                          touchAction: 'none'
-                        }}
-                      >
-                        <NoteCard 
-                          note={note} 
-                          onDelete={() => onDeleteNote(note.id, group.id)} 
-                          onUpdate={(updated) => {
-                            onUpdateNote(note.id, group.id, updated);
-                          }} 
-                          cardStyle={cardStyle} 
-                        />
-                      </div>
+                      <NoteCard 
+                        note={note} 
+                        onDelete={() => onDeleteNote(note.id, group.id)} 
+                        onUpdate={(updated) => {
+                          onUpdateNote(note.id, group.id, updated);
+                        }} 
+                        cardStyle={cardStyle}
+                        isDragging={snapshot.isDragging}
+                      />
                     </div>
                   )}
                 </Draggable>

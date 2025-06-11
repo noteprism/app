@@ -19,6 +19,7 @@ interface NoteCardProps {
   onUpdate: (updated: { content: string; color?: string }) => void
   isEditing?: boolean
   cardStyle?: "outline" | "filled"
+  isDragging?: boolean
 }
 
 export const colorOptions = [
@@ -29,7 +30,7 @@ export const colorOptions = [
   { value: "bg-gradient-to-br from-purple-200 via-purple-100 to-pink-100", label: "Purple", swatch: "bg-purple-400", glass: "glass-purple" },
 ]
 
-export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp, cardStyle = "outline" }: NoteCardProps) {
+export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditingProp, cardStyle = "outline", isDragging }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(!!isEditingProp)
   const [content, setContent] = useState(note.content)
   const [checkedStates, setCheckedStates] = useState<boolean[]>(note.checkedStates ?? [])
@@ -218,6 +219,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
         'shadow-sm transition-all glass-card',
         isEditing ? 'bg-background' : getGlassEffect(),
         isEditing ? 'ring-2 ring-primary' : 'hover:shadow-lg',
+        isDragging ? 'w-full' : '',
         'relative'
       )}
       onClick={!isEditing ? handleCardClick : undefined}

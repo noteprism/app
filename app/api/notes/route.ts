@@ -146,31 +146,31 @@ export async function PATCH(req: NextRequest) {
   
   // Process updates as a transaction to ensure consistency
   await prisma.$transaction(async (tx) => {
-    for (const update of updates) {
-      const { id, position, checkedStates } = update
-      const updateData: any = { position }
-      
-      if (checkedStates !== undefined) {
-        updateData.checkedStates = checkedStates
-      }
-      
+  for (const update of updates) {
+    const { id, position, checkedStates } = update
+    const updateData: any = { position }
+    
+    if (checkedStates !== undefined) {
+      updateData.checkedStates = checkedStates
+    }
+    
       // Clear or set the noteGroupId based on the groupId from frontend
-      if (update.groupId !== undefined) {
+    if (update.groupId !== undefined) {
         updateData.noteGroupId = update.groupId === null ? null : update.groupId
         
         // Log the update for debugging
         console.log(`Updating note ${id} with noteGroupId: ${updateData.noteGroupId}`)
-      }
-      
-      const note = await tx.note.update({ 
-        where: { 
-          id,
-          userId: user.id // Only allow updating their own notes
-        }, 
-        data: updateData
-      })
-      results.push(note)
     }
+    
+      const note = await tx.note.update({ 
+      where: { 
+        id,
+        userId: user.id // Only allow updating their own notes
+      }, 
+      data: updateData
+    })
+    results.push(note)
+  }
   }).catch(error => {
     console.error("Error updating note positions:", error)
     throw error

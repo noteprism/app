@@ -28,32 +28,19 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
                 <div 
                   ref={provided.innerRef} 
                   {...provided.draggableProps} 
-                  className="mb-4"
-                  style={{
-                    ...provided.draggableProps.style,
-                    height: 'auto', // Ensure height doesn't extend
-                    width: 'auto', // Width will be determined by content
-                    maxWidth: '100%'
-                  }}
+                  {...provided.dragHandleProps}
                 >
-                  <div 
-                    {...provided.dragHandleProps}
-                    className="cursor-grab active:cursor-grabbing h-auto"
-                    style={{
-                      touchAction: 'none' // Fix for mobile dragging
+                  <NoteCard
+                    note={note}
+                    onDelete={() => onDeleteStandaloneNote(note.id)}
+                    onUpdate={(updated) => {
+                      onUpdateStandaloneNote(note.id, updated)
+                      if (setEditingNoteId) setEditingNoteId(null)
                     }}
-                  >
-                    <NoteCard
-                      note={note}
-                      onDelete={() => onDeleteStandaloneNote(note.id)}
-                      onUpdate={(updated) => {
-                        onUpdateStandaloneNote(note.id, updated)
-                        if (setEditingNoteId) setEditingNoteId(null)
-                      }}
-                      isEditing={note.id === editingNoteId}
-                      cardStyle={cardStyle}
-                    />
-                  </div>
+                    isEditing={note.id === editingNoteId}
+                    cardStyle={cardStyle}
+                    isDragging={snapshot.isDragging}
+                  />
                 </div>
               )}
             </Draggable>
