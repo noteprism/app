@@ -192,6 +192,7 @@ export default function Dashboard() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onNewNote={handleNewNote}
+          onUpdateGroup={handleUpdateGroup}
         />
         
         <SidebarProvider>

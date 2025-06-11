@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
-import React from "react"
+import React, { useState } from "react"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 
 interface PanelLeftProps {
@@ -12,6 +12,7 @@ interface PanelLeftProps {
   searchQuery: string
   setSearchQuery: (q: string) => void
   onNewNote: () => void
+  onUpdateGroup: (groupId: string, name: string) => void
 }
 
 export default function PanelLeft({
@@ -20,7 +21,47 @@ export default function PanelLeft({
   searchQuery,
   setSearchQuery,
   onNewNote,
+  onUpdateGroup,
 }: PanelLeftProps) {
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
+    // Stop propagation to prevent drag behavior when clicking to edit
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    setEditingGroupId(group.id);
+    setEditingName(group.name);
+    
+    // Focus the input after a short delay to ensure it's rendered
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 10);
+  };
+
+  const saveEditing = () => {
+    if (editingGroupId && editingName.trim()) {
+      onUpdateGroup(editingGroupId, editingName.trim());
+    }
+    setEditingGroupId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingGroupId(null);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      saveEditing();
+    } else if (e.key === 'Escape') {
+      cancelEditing();
+    }
+  };
+
   return (
     <div className="peer h-screen w-64 shrink-0 border-r bg-card text-card-foreground shadow-sm transition-all data-[state=collapsed]:w-14 flex flex-col">
       {/* Header */}
@@ -82,11 +123,59 @@ export default function PanelLeft({
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className={`${snapshot.isDragging ? 'bg-accent rounded-md shadow-lg z-50' : ''} transition-all duration-150`}
+                            className={`${snapshot.isDragging ? 'bg-accent rounded-md shadow-lg z-50' : ''} transition-all duration-150 group`}
                           >
-                            <div className="px-3 py-2 text-sm rounded-md cursor-grab active:cursor-grabbing hover:bg-accent/50">
-                              <span>{group.name}</span>
-                              <span className="ml-auto text-xs text-muted-foreground float-right">{group.notes.length}</span>
+                            <div 
+                              className="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-grab active:cursor-grabbing hover:bg-accent/50"
+                              onClick={(e) => {
+                                // Only start editing if we're not already editing and it's not a dragHandleProps interaction
+                                if (editingGroupId !== group.id) {
+                                  // Check if we're not interacting with the dragHandleProps
+                                  const isDragInteraction = e.target === e.currentTarget || 
+                                    (e.currentTarget as HTMLElement).contains(e.target as HTMLElement);
+                                  
+                                  if (isDragInteraction) {
+                                    startEditing(group, e);
+                                  }
+                                }
+                              }}
+                            >
+                              {editingGroupId === group.id ? (
+                                <Input
+                                  ref={inputRef}
+                                  value={editingName}
+                                  onChange={(e) => setEditingName(e.target.value)}
+                                  className="h-6 text-sm py-0 px-1 w-full"
+                                  autoFocus
+                                  onBlur={saveEditing}
+                                  onKeyDown={handleNameKeyDown}
+                                  // These are crucial to prevent drag from happening while editing
+                                  onClick={(e) => e.stopPropagation()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                />
+                              ) : (
+                                <>
+                                  <span className="truncate flex-1">{group.name}</span>
+                                  <div className="flex items-center">
+                                    <span className="text-xs text-muted-foreground mr-2">{group.notes.length}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        startEditing(group);
+                                      }}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                      onTouchStart={(e) => e.stopPropagation()}
+                                    >
+                                      <Pencil className="h-3 w-3" />
+                                      <span className="sr-only">Rename</span>
+                                    </Button>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </li>
                         )}

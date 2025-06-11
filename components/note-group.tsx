@@ -98,7 +98,7 @@ export default function NoteGroup({ group, onDeleteNote, onUpdateGroup, onDelete
                         note={note} 
                         onDelete={() => onDeleteNote(note.id, group.id)} 
                         onUpdate={(updated) => {
-                          onUpdateNote(note.id, group.id, updated);
+                        onUpdateNote(note.id, group.id, updated);
                         }} 
                         cardStyle={cardStyle}
                         isDragging={snapshot.isDragging}
