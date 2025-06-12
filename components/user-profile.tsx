@@ -1,17 +1,25 @@
 import { useState, useEffect } from "react"
-import { User, LogOut, Pencil } from "lucide-react"
+import { User, LogOut, Pencil, Mail, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SimpleBadge } from "@/components/ui/simple-badge"
+
+interface ConnectedProviders {
+  google: boolean
+  linkedin: boolean
+  email: boolean
+}
 
 interface UserData {
   id: string
   name: string | null
   email: string
   profilePicture: string | null
+  connectedProviders: ConnectedProviders
 }
 
 export default function UserProfile() {
@@ -124,6 +132,18 @@ export default function UserProfile() {
     )
   }
 
+  // Get list of connected providers
+  const getConnectedProviders = () => {
+    if (!userData.connectedProviders) return [];
+    
+    const providers = [];
+    if (userData.connectedProviders.google) providers.push("Google");
+    if (userData.connectedProviders.linkedin) providers.push("LinkedIn");
+    if (userData.connectedProviders.email) providers.push("Email");
+    
+    return providers;
+  }
+
   // Render user profile with modal
   return (
     <>
@@ -171,6 +191,25 @@ export default function UserProfile() {
                   placeholder="Enter your name"
                   className="flex-1"
                 />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Connected:</Label>
+              <div className="col-span-3">
+                {userData.connectedProviders ? (
+                  <div className="text-sm">
+                    {[
+                      userData.connectedProviders.google ? "Google" : null,
+                      userData.connectedProviders.linkedin ? "LinkedIn" : null,
+                      userData.connectedProviders.email ? "Email" : null
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">No connected accounts</div>
+                )}
               </div>
             </div>
           </div>

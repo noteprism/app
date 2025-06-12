@@ -37,12 +37,20 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Determine connected SSO providers
+  const connectedProviders = {
+    google: !!user.googleId,
+    linkedin: !!user.linkedinId,
+    email: !!user.password
+  }
+
   // Return user info without sensitive fields
   return NextResponse.json({
     id: user.id,
     email: user.email,
     name: user.name,
-    profilePicture: user.profilePicture
+    profilePicture: user.profilePicture,
+    connectedProviders
   })
 }
 
@@ -63,11 +71,19 @@ export async function PUT(req: NextRequest) {
       }
     })
 
+    // Determine connected SSO providers for the updated user
+    const connectedProviders = {
+      google: !!updatedUser.googleId,
+      linkedin: !!updatedUser.linkedinId,
+      email: !!updatedUser.password
+    }
+
     return NextResponse.json({
       id: updatedUser.id,
       email: updatedUser.email,
       name: updatedUser.name,
-      profilePicture: updatedUser.profilePicture
+      profilePicture: updatedUser.profilePicture,
+      connectedProviders
     })
   } catch (error) {
     console.error('Error updating user:', error)
