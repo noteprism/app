@@ -1,11 +1,15 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeft as PanelLeftIcon } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React, { useState } from "react"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 import UserProfile from "@/components/user-profile"
+import { useSidebar } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface PanelLeftProps {
   groups: NoteGroupType[]
@@ -27,6 +31,9 @@ export default function PanelLeft({
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  const mobileActive = isMobile && openMobile;
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
     // Stop propagation to prevent drag behavior when clicking to edit
@@ -63,17 +70,56 @@ export default function PanelLeft({
     }
   };
 
+  // If on mobile and sidebar is not open, don't render the main panel
+  if (isMobile && !openMobile && isCollapsed) {
+    return null;
+  }
+  
+  // If the sidebar is collapsed, render just the floating control
+  if (isCollapsed && !isMobile) {
+    return (
+      <div className="floating-header left-side">
+        <div className="flex h-8 w-8 items-center justify-center">
+          <Image src="/mark.png" alt="Noteprism Logo" width={28} height={28} className="rounded-sm" />
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar}
+          className="h-7 w-7 p-0"
+        >
+          <PanelLeftIcon className="h-4 w-4" strokeWidth={1.5} />
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="peer h-screen w-64 shrink-0 border-r bg-card text-card-foreground shadow-sm transition-all data-[state=collapsed]:w-14 flex flex-col">
+    <div 
+      className={`h-screen shrink-0 border-r bg-card text-card-foreground shadow-sm transition-all flex flex-col
+        ${isCollapsed && !isMobile ? 'w-14' : 'w-64'}
+        ${isMobile ? 'absolute z-40 left-0' : ''}
+      `}
+      data-state={isCollapsed ? 'collapsed' : 'expanded'}
+    >
       {/* Header */}
       <div className="border-b">
-        <div className="flex items-center px-2 py-3">
-          <div className="flex items-center gap-2 font-semibold text-xl">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg">
-              <Image src="/mark.png" alt="Noteprism Logo" width={32} height={32} className="rounded-lg" />
+        <div className="flex items-center justify-between px-3 py-3">
+          <div className="flex items-center">
+            <div className="flex h-8 w-8 items-center justify-center">
+              <Image src="/mark.png" alt="Noteprism Logo" width={28} height={28} className="rounded-sm" />
             </div>
-            <span>Noteprism</span>
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleSidebar}
+            className="h-7 w-7 p-0"
+          >
+            <PanelLeftIcon className="h-4 w-4" strokeWidth={1.5} />
+            <span className="sr-only">Toggle Sidebar</span>
+          </Button>
         </div>
         <div className="px-2 pb-2">
           <Input
@@ -92,7 +138,7 @@ export default function PanelLeft({
             size="sm"
           >
             <StickyNote className="h-4 w-4 mr-2" strokeWidth={1.5} />
-            New Note
+            <span>New Note</span>
           </Button>
         </div>
       </div>

@@ -32,6 +32,10 @@ import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
 import Masonry from 'react-masonry-css'
 
+// Constants for sidebar
+const SIDEBAR_COOKIE_NAME = "sidebar:state"
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
@@ -177,33 +181,45 @@ export default function Dashboard() {
   // Define breakpoints for the masonry layout
   const breakpointColumnsObj = {
     default: 4,
-    1600: 4,
-    1200: 3,
+    1600: 3,
+    1200: 2,
     900: 2,
     600: 1
   };
 
+  // Add responsive sidebar class based on screen width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=collapsed; path=/; max-age=${60 * 60 * 24 * 7}`;
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <DragDropContext onDragEnd={handleAnyDragEnd}>
-      <div className="flex h-screen bg-background">
-        <PanelLeft
-          groups={groups}
-          handleCreateGroup={handleCreateGroup}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onNewNote={handleNewNote}
-          onUpdateGroup={handleUpdateGroup}
-        />
-        
-        <SidebarProvider>
+      <SidebarProvider>
+        <div className="flex h-screen bg-background">
+          <PanelLeft
+            groups={groups}
+            handleCreateGroup={handleCreateGroup}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onNewNote={handleNewNote}
+            onUpdateGroup={handleUpdateGroup}
+          />
+          
           <div className="flex-1 transition-[width] duration-200 ease-linear">
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-              <SidebarTrigger />
-              <div className="flex-1">
-                <h1 className="text-lg font-semibold">Dashboard</h1>
-              </div>
-            </header>
-            <main className="p-4 md:p-6 bg-background text-foreground">
+            <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
               <Masonry
                 breakpointCols={breakpointColumnsObj}
                 className="my-masonry-grid"
@@ -237,8 +253,8 @@ export default function Dashboard() {
               </Masonry>
             </main>
           </div>
-        </SidebarProvider>
-      </div>
+        </div>
+      </SidebarProvider>
 
       <CreateNoteDialog
         open={isCreateNoteOpen}
