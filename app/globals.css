@@ -289,6 +289,21 @@ body {
 .my-masonry-grid_column {
   padding-left: 16px; /* Adjust based on your gap needs */
   background-clip: padding-box;
+  min-width: 280px; /* Set a minimum width for columns */
+  flex-grow: 1; /* Allow columns to grow to fill space */
+}
+
+/* Ensure items maintain good width during filtered search */
+.search-filtered-container .my-masonry-grid {
+  margin: 0 auto; /* Center the grid */
+  max-width: 1600px; /* Limit max width when filtered */
+  justify-content: center; /* Center the columns */
+}
+
+.search-filtered-container .my-masonry-grid_column {
+  min-width: 300px; /* Slightly wider for filtered views */
+  max-width: 500px; /* Prevent excessive expansion */
+  flex-basis: 0; /* Distribute space evenly */
 }
 
 /* Floating header styles */

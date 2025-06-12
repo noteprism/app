@@ -187,6 +187,15 @@ export default function Dashboard() {
     600: 1
   };
 
+  // Adjust column count based on search results for better layout
+  const getColumnCount = () => {
+    const totalItems = filteredStandaloneNotes.length + filteredGroups.length;
+    if (searchQuery && totalItems <= 2) {
+      return Math.max(totalItems, 1);
+    }
+    return breakpointColumnsObj;
+  };
+
   // Add responsive sidebar class based on screen width
   useEffect(() => {
     const handleResize = () => {
@@ -220,37 +229,39 @@ export default function Dashboard() {
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
-              <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-              >
-                {filteredStandaloneNotes.length > 0 && (
-                  <div className="mb-6">
-                    <NoteGroupless
-                      standaloneNotes={filteredStandaloneNotes}
-                      onDeleteStandaloneNote={handleDeleteStandaloneNote}
-                      onUpdateStandaloneNote={handleUpdateStandaloneNote}
-                      STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
-                      editingNoteId={editingNoteId}
-                      setEditingNoteId={setEditingNoteId}
-                      cardStyle="outline"
-                    />
-                  </div>
-                )}
-                {filteredGroups.map((group) => (
-                  <div key={group.id} className="mb-6">
-                    <NoteGroup
-                      group={group}
-                      onDeleteNote={handleDeleteNote}
-                      onUpdateGroup={handleUpdateGroup}
-                      onDeleteGroup={handleDeleteGroup}
-                      onUpdateNote={handleUpdateNote}
-                      cardStyle="outline"
-                    />
-                  </div>
-                ))}
-              </Masonry>
+              <div className={searchQuery ? 'search-filtered-container' : ''}>
+                <Masonry
+                  breakpointCols={getColumnCount()}
+                  className="my-masonry-grid"
+                  columnClassName="my-masonry-grid_column"
+                >
+                  {filteredStandaloneNotes.length > 0 && (
+                    <div className="mb-6">
+                      <NoteGroupless
+                        standaloneNotes={filteredStandaloneNotes}
+                        onDeleteStandaloneNote={handleDeleteStandaloneNote}
+                        onUpdateStandaloneNote={handleUpdateStandaloneNote}
+                        STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
+                        editingNoteId={editingNoteId}
+                        setEditingNoteId={setEditingNoteId}
+                        cardStyle="outline"
+                      />
+                    </div>
+                  )}
+                  {filteredGroups.map((group) => (
+                    <div key={group.id} className="mb-6">
+                      <NoteGroup
+                        group={group}
+                        onDeleteNote={handleDeleteNote}
+                        onUpdateGroup={handleUpdateGroup}
+                        onDeleteGroup={handleDeleteGroup}
+                        onUpdateNote={handleUpdateNote}
+                        cardStyle="outline"
+                      />
+                    </div>
+                  ))}
+                </Masonry>
+              </div>
             </main>
           </div>
         </div>
