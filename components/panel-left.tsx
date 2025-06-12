@@ -5,6 +5,7 @@ import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React, { useState } from "react"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
+import UserProfile from "@/components/user-profile"
 
 interface PanelLeftProps {
   groups: NoteGroupType[]
@@ -179,10 +180,7 @@ export default function PanelLeft({
       {/* Footer */}
       <div className="border-t">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5" strokeWidth={1} />
-            <span className="text-sm font-medium">User</span>
-          </div>
+          <UserProfile />
         </div>
       </div>
     </div>
