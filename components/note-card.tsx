@@ -145,28 +145,26 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
 
   // Handle checkbox toggle and persist to backend
   const handleCheckboxChange = async (idx: number) => {
-    const newCheckedStates = [...checkedStates]
-    newCheckedStates[idx] = !newCheckedStates[idx]
-    setCheckedStates(newCheckedStates)
+    // Toggle the state directly
+    const newStates = [...checkedStates];
+    newStates[idx] = !newStates[idx];
     
-    // Make a copy of the updated states to send to the backend
-    // This prevents any race conditions with state updates
-    const updatedStates = [...newCheckedStates]
+    // Update local state immediately
+    setCheckedStates(newStates);
     
-    try {
-      await fetch("/api/notes", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([{ id: note.id, checkedStates: updatedStates }]),
-      })
-      
-      // Update the note object directly to ensure the parent components have the latest state
-      note.checkedStates = updatedStates;
-    } catch (error) {
-      console.error("Failed to update checkbox states:", error);
-      // Revert the local state if the API call fails
-      setCheckedStates(note.checkedStates ?? []);
+    // Also update the note object to keep things in sync
+    if (note.checkedStates) {
+      note.checkedStates[idx] = newStates[idx];
+    } else {
+      note.checkedStates = newStates;
     }
+    
+    // Send to backend
+    await fetch("/api/notes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([{ id: note.id, checkedStates: newStates }]),
+    });
   }
 
   // Get the glass effect class for this note's color
@@ -337,6 +335,7 @@ export default function NoteCard({ note, onDelete, onUpdate, isEditing: isEditin
                                   checked={!!checkedStates[idx]}
                                   onChange={() => handleCheckboxChange(idx)}
                                   className={getAccentColor()}
+                                  onClick={(e) => e.stopPropagation()}
                                 />
                                 <span className={cn(checkedStates[idx] ? 'line-through opacity-70' : undefined, getMutedTextColor())}>{match[1]}</span>
                               </div>
