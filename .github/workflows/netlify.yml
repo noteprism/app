@@ -1,13 +1,16 @@
-name: Netlify Build
+name: Netlify Build & Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - preview
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,6 +19,6 @@ jobs:
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
       
-      # Trigger Netlify build
-      - name: Trigger Netlify build
+      # Trigger Netlify build and deploy
+      - name: Trigger Netlify build and deploy
         run: netlify deploy --trigger --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }} 
