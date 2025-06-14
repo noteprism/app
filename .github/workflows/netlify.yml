@@ -18,4 +18,4 @@ jobs:
       
       # Trigger Netlify build
       - name: Trigger Netlify build
-        run: netlify build --trigger --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} 
+        run: netlify deploy --trigger --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }} 
