@@ -12,48 +12,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Add environment variables at the job level
-    env:
-      LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
-      LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
-      LINKEDIN_REDIRECT_URI: ${{ secrets.LINKEDIN_REDIRECT_URI }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-      NEXT_PUBLIC_DOMAIN: ${{ secrets.NEXT_PUBLIC_DOMAIN }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      # Install pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
-
-      # Install dependencies
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      
-      # Generate Prisma Client
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
-      
-      # Build with environment variables
-      - name: Build
-        run: pnpm build
-      
       # Install Netlify CLI
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
       
-      # Deploy to Netlify (non-interactive)
-      - name: Deploy to Netlify
-        run: netlify deploy --dir=.next --prod --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --site ${{ secrets.NETLIFY_SITE_ID }} 
+      # Trigger Netlify build
+      - name: Trigger Netlify build
+        run: netlify build --trigger --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} 
