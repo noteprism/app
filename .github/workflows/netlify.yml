@@ -15,10 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # Install Netlify CLI
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
-      
-      # Trigger Netlify build and deploy
-      - name: Trigger Netlify build and deploy
-        run: netlify deploy --trigger --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }} 
+      # Deploy directly to Netlify
+      - name: Deploy to Netlify
+        uses: South-Paw/action-netlify-deploy@v1.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
+          build-dir: '.'
+          comment-on-commit: true 
