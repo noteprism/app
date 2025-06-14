@@ -58,11 +58,20 @@ export async function GET(req: NextRequest) {
     if (!linkedinId || !email) throw new Error('Missing LinkedIn user info');
 
     // 3. Create or update user in DB
-    const user = await prisma.user.upsert({
-      where: { linkedinId },
-      update: { email, name, profilePicture: picture },
-      create: { linkedinId, email, name, profilePicture: picture },
-    });
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (user) {
+      // Link LinkedIn to existing user
+      user = await prisma.user.update({
+        where: { email },
+        data: { linkedinId, name, profilePicture: picture },
+      });
+    } else {
+      // Create new user
+      user = await prisma.user.create({
+        data: { linkedinId, email, name, profilePicture: picture },
+      });
+    }
 
     // 4. Create a secure session
     const sessionId = generateSessionId();

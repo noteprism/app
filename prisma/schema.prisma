@@ -25,6 +25,7 @@ model User {
   notes          Note[]
   noteGroups     NoteGroup[]
   sessions       Session[]
+  plan           String?    // 'free' or 'standard'
 }
 
 model Note {
