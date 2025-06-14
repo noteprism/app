@@ -20,12 +20,16 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="flex flex-col gap-4 h-full"
+          className="flex flex-col gap-4"
         >
           {standaloneNotes.map((note, idx) => (
             <Draggable key={note.id} draggableId={note.id} index={idx}>
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+              {(provided, snapshot) => (
+                <div 
+                  ref={provided.innerRef} 
+                  {...provided.draggableProps} 
+                  {...provided.dragHandleProps}
+                >
                   <NoteCard
                     note={note}
                     onDelete={() => onDeleteStandaloneNote(note.id)}
@@ -35,6 +39,7 @@ export default function NoteGroupless({ standaloneNotes, onDeleteStandaloneNote,
                     }}
                     isEditing={note.id === editingNoteId}
                     cardStyle={cardStyle}
+                    isDragging={snapshot.isDragging}
                   />
                 </div>
               )}

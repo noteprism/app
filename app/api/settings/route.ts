@@ -7,19 +7,25 @@ const prisma = new PrismaClient();
 const DEMO_EMAIL = 'demo@user.com';
 
 export async function GET(req: NextRequest) {
-  const user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
-  return NextResponse.json({ noteStyle: user?.noteStyle || 'outline' });
+  return NextResponse.json({});
 }
 
 export async function POST(req: NextRequest) {
-  const { noteStyle } = await req.json();
-  if (noteStyle !== 'outline' && noteStyle !== 'filled') {
-    return NextResponse.json({ error: 'Invalid noteStyle' }, { status: 400 });
+  const data = await req.json();
+  // Remove any future references to noteStyle
+  const cleanedData = { ...data };
+  delete cleanedData.noteStyle;
+  
+  if (Object.keys(cleanedData).length === 0) {
+    return NextResponse.json({});
   }
+  
+  // Handle other settings if needed in the future
   const user = await prisma.user.upsert({
     where: { email: DEMO_EMAIL },
-    update: { noteStyle },
-    create: { email: DEMO_EMAIL, noteStyle },
+    update: cleanedData,
+    create: { email: DEMO_EMAIL, ...cleanedData },
   });
-  return NextResponse.json({ noteStyle: user.noteStyle });
+  
+  return NextResponse.json({});
 } 

@@ -52,14 +52,40 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await req.json()
+  
+  // Find the highest position for existing notes in the same group context
+  const noteGroupId = data.groupId || null;
+  const existingNotes = await prisma.note.findMany({
+    where: { 
+      userId: user.id,
+      noteGroupId: noteGroupId
+    },
+    orderBy: { position: 'asc' }
+  });
+  
+  // Shift all existing notes down by 1 to make room for the new note at position 0
+  if (existingNotes.length > 0) {
+    await prisma.$transaction(
+      existingNotes.map(note => 
+        prisma.note.update({
+          where: { id: note.id },
+          data: { position: note.position + 1 }
+        })
+      )
+    );
+  }
+  
+  // Create the new note at position 0
   const note = await prisma.note.create({ 
     data: {
       ...data,
+      position: 0, // Set to top position (0)
       user: {
         connect: { id: user.id }
       }
     } 
   })
+  
   return NextResponse.json(note)
 }
 
@@ -116,8 +142,10 @@ export async function PATCH(req: NextRequest) {
   }
 
   const updates = await req.json() // [{id, position, groupId?, checkedStates?}, ...]
-  const results = []
+  const results: any[] = []
   
+  // Process updates as a transaction to ensure consistency
+  await prisma.$transaction(async (tx) => {
   for (const update of updates) {
     const { id, position, checkedStates } = update
     const updateData: any = { position }
@@ -126,11 +154,15 @@ export async function PATCH(req: NextRequest) {
       updateData.checkedStates = checkedStates
     }
     
+      // Clear or set the noteGroupId based on the groupId from frontend
     if (update.groupId !== undefined) {
-      updateData.groupId = update.groupId
+        updateData.noteGroupId = update.groupId === null ? null : update.groupId
+        
+        // Log the update for debugging
+        console.log(`Updating note ${id} with noteGroupId: ${updateData.noteGroupId}`)
     }
     
-    const note = await prisma.note.update({ 
+      const note = await tx.note.update({ 
       where: { 
         id,
         userId: user.id // Only allow updating their own notes
@@ -139,6 +171,10 @@ export async function PATCH(req: NextRequest) {
     })
     results.push(note)
   }
+  }).catch(error => {
+    console.error("Error updating note positions:", error)
+    throw error
+  })
   
   return NextResponse.json({ success: true, notes: results })
 } 

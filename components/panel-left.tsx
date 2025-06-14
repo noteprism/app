@@ -1,73 +1,125 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from "@/components/ui/sidebar"
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeft as PanelLeftIcon } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
-import React from "react"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
+import React, { useState } from "react"
+import { Droppable, Draggable } from "@hello-pangea/dnd"
+import UserProfile from "@/components/user-profile"
+import { useSidebar } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface PanelLeftProps {
   groups: NoteGroupType[]
-  activeGroup: string | null
-  setActiveGroup: (id: string) => void
   handleCreateGroup: () => void
   searchQuery: string
   setSearchQuery: (q: string) => void
   onNewNote: () => void
-  cardStyle: "outline" | "filled"
-  setCardStyle: (style: "outline" | "filled") => void
+  onUpdateGroup: (groupId: string, name: string) => void
 }
 
 export default function PanelLeft({
   groups,
-  activeGroup,
-  setActiveGroup,
   handleCreateGroup,
   searchQuery,
   setSearchQuery,
   onNewNote,
-  cardStyle,
-  setCardStyle,
+  onUpdateGroup,
 }: PanelLeftProps) {
-  const [settingsOpen, setSettingsOpen] = React.useState(false)
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  const mobileActive = isMobile && openMobile;
+
+  const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
+    // Stop propagation to prevent drag behavior when clicking to edit
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    setEditingGroupId(group.id);
+    setEditingName(group.name);
+    
+    // Focus the input after a short delay to ensure it's rendered
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 10);
+  };
+
+  const saveEditing = () => {
+    if (editingGroupId && editingName.trim()) {
+      onUpdateGroup(editingGroupId, editingName.trim());
+    }
+    setEditingGroupId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingGroupId(null);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      saveEditing();
+    } else if (e.key === 'Escape') {
+      cancelEditing();
+    }
+  };
+
+  // If on mobile and sidebar is not open, don't render the main panel
+  if (isMobile && !openMobile && isCollapsed) {
+    return null;
+  }
+  
+  // If the sidebar is collapsed, render just the floating control
+  if (isCollapsed && !isMobile) {
+    return (
+      <div className="floating-header left-side">
+        <div className="flex h-8 w-8 items-center justify-center">
+          <Image src="/mark.png" alt="Noteprism Logo" width={28} height={28} className="rounded-sm" />
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar}
+          className="h-7 w-7 p-0"
+        >
+          <PanelLeftIcon className="h-4 w-4" strokeWidth={1.5} />
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b">
-        <svg width="0" height="0" className="prismatic-gradient-icon-defs">
-          <defs>
-            <linearGradient id="prismatic-gradient-stroke" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f46e5">
-                <animate attributeName="stop-color" values="#4f46e5;#06b6d4;#ec4899;#4f46e5" dur="8s" repeatCount="indefinite" />
-              </stop>
-              <stop offset="50%" stopColor="#06b6d4">
-                <animate attributeName="stop-color" values="#06b6d4;#ec4899;#4f46e5;#06b6d4" dur="8s" repeatCount="indefinite" />
-              </stop>
-              <stop offset="100%" stopColor="#ec4899">
-                <animate attributeName="stop-color" values="#ec4899;#4f46e5;#06b6d4;#ec4899" dur="8s" repeatCount="indefinite" />
-              </stop>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="flex items-center px-2 py-3">
-          <div className="flex items-center gap-2 font-semibold text-xl">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg">
-              <Image src="/mark.png" alt="Noteprism Logo" width={32} height={32} className="rounded-lg" />
+    <div 
+      className={`h-screen shrink-0 border-r bg-card text-card-foreground shadow-sm transition-all flex flex-col
+        ${isCollapsed && !isMobile ? 'w-14' : 'w-64'}
+        ${isMobile ? 'absolute z-40 left-0' : ''}
+      `}
+      data-state={isCollapsed ? 'collapsed' : 'expanded'}
+    >
+      {/* Header */}
+      <div className="border-b">
+        <div className="flex items-center justify-between px-3 py-3">
+          <div className="flex items-center">
+            <div className="flex h-8 w-8 items-center justify-center">
+              <Image src="/mark.png" alt="Noteprism Logo" width={28} height={28} className="rounded-sm" />
             </div>
-            <span>Noteprism</span>
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleSidebar}
+            className="h-7 w-7 p-0"
+          >
+            <PanelLeftIcon className="h-4 w-4" strokeWidth={1.5} />
+            <span className="sr-only">Toggle Sidebar</span>
+          </Button>
         </div>
         <div className="px-2 pb-2">
           <Input
@@ -80,66 +132,103 @@ export default function PanelLeft({
         </div>
         <div className="px-2 pb-2">
           <Button
-            className="w-full prismatic-gradient-btn flex items-center justify-center"
+            className="w-full"
             onClick={onNewNote}
             aria-label="New Note"
+            size="sm"
           >
-            <StickyNote className="h-5 w-5" strokeWidth={1} />
+            <StickyNote className="h-4 w-4 mr-2" strokeWidth={1.5} />
+            <span>New Note</span>
           </Button>
         </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex justify-between items-center mb-3">
-            <button
+      </div>
+      
+      {/* Content */}
+      <div className="py-2 flex-1 overflow-y-auto">
+        <div>
+          <div className="flex justify-between items-center mb-3 px-4">
+            <span className="text-xs uppercase font-medium text-muted-foreground">Note Groups</span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
               onClick={handleCreateGroup}
-              className="w-full prismatic-gradient-outline-btn flex items-center justify-center h-9 rounded-full bg-white border border-transparent relative overflow-hidden transition-shadow transition-transform duration-200 hover:shadow-lg hover:-translate-y-0.5 focus:shadow-lg focus:-translate-y-0.5"
-              style={{ minHeight: '36px', minWidth: '36px' }}
-              aria-label="Add Group"
+              className="h-5 w-5"
             >
-              <span className="absolute inset-0 rounded-full pointer-events-none prismatic-outline" />
-              <Folder className="h-5 w-5 stroke-1 relative z-10 prismatic-gradient-icon" strokeWidth={1} />
-            </button>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {groups.map((group) => (
-                <SidebarMenuItem key={group.id}>
-                  <SidebarMenuButton isActive={activeGroup === group.id} onClick={() => setActiveGroup(group.id)}>
-                    <span>{group.name}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">{group.notes.length}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter className="border-t">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5" strokeWidth={1} />
-            <span className="text-sm font-medium">User</span>
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">Add Group</span>
+            </Button>
           </div>
-          <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Settings className="h-4 w-4" strokeWidth={1} />
-                <span className="sr-only">Settings</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Settings</DialogTitle>
-              </DialogHeader>
-              <div className="flex items-center justify-between py-2">
-                <span>Filled note style</span>
-                <Switch checked={cardStyle === "filled"} onCheckedChange={v => setCardStyle(v ? "filled" : "outline")} />
-              </div>
-            </DialogContent>
-          </Dialog>
+          <div>
+            <Droppable droppableId="groups-sidebar" type="group">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  <ul className="space-y-1 px-2">
+                    {groups.map((group, idx) => (
+                      <Draggable key={group.id} draggableId={group.id} index={idx}>
+                        {(provided, snapshot) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`${snapshot.isDragging ? 'bg-accent rounded-md shadow-lg z-50' : ''} transition-all duration-150 group`}
+                          >
+                            <div 
+                              className="flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-grab active:cursor-grabbing hover:bg-accent/50"
+                              onClick={(e) => {
+                                // Only start editing if we're not already editing and it's not a dragHandleProps interaction
+                                if (editingGroupId !== group.id) {
+                                  // Check if we're not interacting with the dragHandleProps
+                                  const isDragInteraction = e.target === e.currentTarget || 
+                                    (e.currentTarget as HTMLElement).contains(e.target as HTMLElement);
+                                  
+                                  if (isDragInteraction) {
+                                    startEditing(group, e);
+                                  }
+                                }
+                              }}
+                            >
+                              {editingGroupId === group.id ? (
+                                <Input
+                                  ref={inputRef}
+                                  value={editingName}
+                                  onChange={(e) => setEditingName(e.target.value)}
+                                  className="h-6 text-sm py-0 px-1 w-full"
+                                  autoFocus
+                                  onBlur={saveEditing}
+                                  onKeyDown={handleNameKeyDown}
+                                  // These are crucial to prevent drag from happening while editing
+                                  onClick={(e) => e.stopPropagation()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                />
+                              ) : (
+                                <>
+                                  <span className="truncate flex-1">{group.name}</span>
+                                  <div className="flex items-center">
+                                    <span className="text-xs text-muted-foreground">{group.notes.length}</span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </ul>
+                </div>
+              )}
+            </Droppable>
+          </div>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+      </div>
+      
+      {/* Footer */}
+      <div className="border-t">
+        <div className="flex items-center justify-between p-4">
+          <UserProfile />
+        </div>
+      </div>
+    </div>
   )
 } 

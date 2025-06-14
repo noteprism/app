@@ -2,7 +2,10 @@ import type { Metadata } from "next"
 import { cookies } from 'next/headers';
 import { PrismaClient } from '../lib/generated/prisma';
 import Dashboard from "@/components/dashboard"
-import AuthButtons from "@/components/AuthButtons";
+import ConnectForm from "@/components/ConnectForm";
+import PricingTable from "@/components/PricingTable";
+import { hasUpgradeIntentCookie } from "./logic/upgrade-intent";
+import { redirect } from 'next/navigation';
 
 const prisma = new PrismaClient();
 
@@ -26,13 +29,12 @@ export default async function Home() {
   }
 
   if (isLoggedIn) {
+    // Server-side upgrade intent check and redirect
+    if (await hasUpgradeIntentCookie()) {
+      redirect('/api/stripe/checkout');
+    }
     return <Dashboard />;
   } else {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <h1>Noteprism</h1>
-        <AuthButtons />
-      </div>
-    );
+    return <PricingTable />;
   }
 }

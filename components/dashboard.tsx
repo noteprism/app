@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import NoteGroup from "@/components/note-group"
 import CreateNoteDialog from "@/components/create-note-dialog"
-import { colorOptions } from "@/components/create-note-dialog"
+import { colorOptions } from "@/components/note-card"
 import type { Note, NoteGroup as NoteGroupType } from "@/types/notes"
 import Image from "next/image"
 import NoteCard from "@/components/note-card"
@@ -30,16 +30,19 @@ import NoteGroupless from "@/components/note-groupless"
 import PanelLeft from "@/components/panel-left"
 import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
+import Masonry from 'react-masonry-css'
+
+// Constants for sidebar
+const SIDEBAR_COOKIE_NAME = "sidebar:state"
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
 
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
-  const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-  const [cardStyle, setCardStyleState] = useState<"outline" | "filled">("outline")
 
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
@@ -64,32 +67,10 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(data => {
         setStandaloneNotes(
-          data.filter((n: Note) => !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
+          data.filter((n: Note) => !n.noteGroupId && !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
         )
       })
   }, [])
-
-  // Load note style from API on mount
-  useEffect(() => {
-    fetch("/api/settings")
-      .then(res => res.json())
-      .then(data => {
-        if (data && (data.noteStyle === "outline" || data.noteStyle === "filled")) {
-          setCardStyleState(data.noteStyle)
-        }
-      })
-      .catch(() => {})
-  }, [])
-
-  // Save note style to API when changed
-  const setCardStyle = (style: "outline" | "filled") => {
-    setCardStyleState(style)
-    fetch("/api/settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ noteStyle: style })
-    })
-  }
 
   const { handleDragEnd } = useNoteDragAndDrop({
     groups,
@@ -164,48 +145,98 @@ export default function Dashboard() {
   }
 
   const handleNewNote = async () => {
+    try {
     const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
     const res = await fetch("/api/notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: "", color }),
     })
+      
+      if (!res.ok) {
+        console.error("Error creating note:", await res.text())
+        return
+      }
+      
     const newNote = await res.json()
-    setStandaloneNotes(prev => [newNote, ...prev])
+      
+      // Update positions in frontend to match what we just did in the backend
+      setStandaloneNotes(prev => {
+        // New note is at position 0, and all others shift down
+        const updated = prev.map(note => ({
+          ...note,
+          position: (note.position ?? 0) + 1
+        }))
+        
+        // Insert new note at the beginning
+        return [newNote, ...updated]
+      })
+      
     setEditingNoteId(newNote.id)
+    } catch (error) {
+      console.error("Failed to create note:", error)
+    }
   }
 
+  // Define breakpoints for the masonry layout
+  const breakpointColumnsObj = {
+    default: 4,
+    1600: 3,
+    1200: 2,
+    900: 2,
+    600: 1
+  };
+
+  // Adjust column count based on search results for better layout
+  const getColumnCount = () => {
+    const totalItems = filteredStandaloneNotes.length + filteredGroups.length;
+    if (searchQuery && totalItems <= 2) {
+      return Math.max(totalItems, 1);
+    }
+    return breakpointColumnsObj;
+  };
+
+  // Add responsive sidebar class based on screen width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=collapsed; path=/; max-age=${60 * 60 * 24 * 7}`;
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <SidebarProvider>
-      <div className="flex h-screen bg-white">
-        <PanelLeft
-          groups={groups}
-          activeGroup={activeGroup}
-          setActiveGroup={setActiveGroup}
-          handleCreateGroup={handleCreateGroup}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onNewNote={handleNewNote}
-          cardStyle={cardStyle}
-          setCardStyle={setCardStyle}
-        />
-        <div className="w-screen peer-data-[state=expanded]:w-[calc(100vw-16rem)] transition-[width] duration-200 ease-linear">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-            <SidebarTrigger />
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">Dashboard</h1>
-            </div>
-          </header>
-          <main className="p-4 md:p-6">
-            <DragDropContext onDragEnd={handleAnyDragEnd}>
-              <Droppable droppableId="groups-droppable" direction="vertical" type="group">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
-                  >
-                    {filteredStandaloneNotes.length > 0 && (
+    <DragDropContext onDragEnd={handleAnyDragEnd}>
+      <SidebarProvider>
+        <div className="flex h-screen bg-background">
+          <PanelLeft
+            groups={groups}
+            handleCreateGroup={handleCreateGroup}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onNewNote={handleNewNote}
+            onUpdateGroup={handleUpdateGroup}
+          />
+          
+          <div className="flex-1 transition-[width] duration-200 ease-linear">
+            <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
+              <div className={searchQuery ? 'search-filtered-container' : ''}>
+                <Masonry
+                  breakpointCols={getColumnCount()}
+                  className="my-masonry-grid"
+                  columnClassName="my-masonry-grid_column"
+                >
+                  {filteredStandaloneNotes.length > 0 && (
+                    <div className="mb-6">
                       <NoteGroupless
                         standaloneNotes={filteredStandaloneNotes}
                         onDeleteStandaloneNote={handleDeleteStandaloneNote}
@@ -213,39 +244,35 @@ export default function Dashboard() {
                         STANDALONE_DROPPABLE_ID={STANDALONE_DROPPABLE_ID}
                         editingNoteId={editingNoteId}
                         setEditingNoteId={setEditingNoteId}
-                        cardStyle={cardStyle}
+                        cardStyle="outline"
                       />
-                    )}
-                    {filteredGroups.map((group, idx) => (
-                      <Draggable key={group.id} draggableId={group.id} index={idx}>
-                        {(provided) => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <NoteGroup
-                              group={group}
-                              onDeleteNote={handleDeleteNote}
-                              onUpdateGroup={handleUpdateGroup}
-                              onDeleteGroup={handleDeleteGroup}
-                              onUpdateNote={handleUpdateNote}
-                              cardStyle={cardStyle}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </main>
+                    </div>
+                  )}
+                  {filteredGroups.map((group) => (
+                    <div key={group.id} className="mb-6">
+                      <NoteGroup
+                        group={group}
+                        onDeleteNote={handleDeleteNote}
+                        onUpdateGroup={handleUpdateGroup}
+                        onDeleteGroup={handleDeleteGroup}
+                        onUpdateNote={handleUpdateNote}
+                        cardStyle="outline"
+                      />
+                    </div>
+                  ))}
+                </Masonry>
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
+
       <CreateNoteDialog
         open={isCreateNoteOpen}
         onOpenChange={setIsCreateNoteOpen}
         groups={groups}
         onCreateNote={handleCreateNote}
       />
-    </SidebarProvider>
+    </DragDropContext>
   )
 }

@@ -19,12 +19,13 @@ model User {
   linkedinId     String?    @unique
   googleId       String?    @unique
   email          String     @unique
+  password       String?
   name           String?
   profilePicture String?
-  noteStyle      String     @default("outline")
   notes          Note[]
   noteGroups     NoteGroup[]
   sessions       Session[]
+  plan           String?    // 'free' or 'standard'
 }
 
 model Note {
