@@ -1,5 +1,5 @@
 [build]
-  command = "npm i -g pnpm && pnpm install --frozen-lockfile && pnpm run build"
+  command = "npm i -g pnpm && pnpm install && pnpm run build"
   publish = ".next"
 
 [build.environment]
