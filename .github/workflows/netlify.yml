@@ -18,17 +18,24 @@ jobs:
         with:
           node-version: '20'
       
+      # Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+      
       # Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --no-frozen-lockfile
       
       # Generate Prisma Client
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: pnpm prisma generate
       
       # Build with environment variables
       - name: Build
-        run: npm run build
+        run: pnpm run build
         env:
           LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
