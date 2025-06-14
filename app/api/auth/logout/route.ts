@@ -18,7 +18,6 @@ export async function POST() {
         })
       } catch (e) {
         // Session might already be expired or deleted, just continue
-        console.log('Session not found or already deleted')
       }
     }
     

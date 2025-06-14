@@ -157,9 +157,6 @@ export async function PATCH(req: NextRequest) {
       // Clear or set the noteGroupId based on the groupId from frontend
     if (update.groupId !== undefined) {
         updateData.noteGroupId = update.groupId === null ? null : update.groupId
-        
-        // Log the update for debugging
-        console.log(`Updating note ${id} with noteGroupId: ${updateData.noteGroupId}`)
     }
     
       const note = await tx.note.update({ 

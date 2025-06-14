@@ -29,7 +29,6 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
 
   const handleCreateGroup = useCallback(async () => {
     const generatedName = generateGroupName();
-    console.log("Generated group name:", generatedName); // Debug log
     
     const res = await fetch("/api/groups", {
       method: "POST",
@@ -37,7 +36,6 @@ export function useNoteActions({ setGroups, setStandaloneNotes, setIsCreateNoteO
       body: JSON.stringify({ name: generatedName }),
     })
     const newGroup = await res.json()
-    console.log("New group created:", newGroup); // Debug log
     setGroups(prev => [...prev, { ...newGroup, notes: [] }])
   }, [setGroups])
 

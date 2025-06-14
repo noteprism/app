@@ -54,7 +54,6 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await req.json()
-  console.log("Creating group with data:", data); // Debug log
   
   const group = await prisma.noteGroup.create({
     data: {
