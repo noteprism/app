@@ -5,22 +5,37 @@ import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
+// Ensure required environment variables are set
 const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
+
+if (!CLIENT_ID) {
+  throw new Error('LINKEDIN_CLIENT_ID environment variable is not set');
+}
+
+if (!CLIENT_SECRET) {
+  throw new Error('LINKEDIN_CLIENT_SECRET environment variable is not set');
+}
+
+if (!REDIRECT_URI) {
+  throw new Error('LINKEDIN_REDIRECT_URI environment variable is not set');
+}
+
 const SESSION_COOKIE_NAME = 'noteprism_session';
 const SESSION_EXPIRY_DAYS = 30;
 const SESSION_MAX_AGE_DAYS = 30;
-const BASE_URL = process.env.LINKEDIN_REDIRECT_URI ? new URL(process.env.LINKEDIN_REDIRECT_URI).origin : 'http://localhost:3000';
+const BASE_URL = new URL(REDIRECT_URI).origin;
 
 async function exchangeCodeForTokens(code: string) {
   const params = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: REDIRECT_URI!,
-    client_id: CLIENT_ID!,
-    client_secret: CLIENT_SECRET!,
-  });
+    redirect_uri: REDIRECT_URI,
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+  } as Record<string, string>);
+  
   const res = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

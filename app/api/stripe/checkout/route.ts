@@ -3,7 +3,13 @@ import Stripe from 'stripe';
 import { PrismaClient } from '@/lib/generated/prisma';
 import { cookies } from 'next/headers';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Ensure we have the Stripe secret key
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+}
+
+const stripe = new Stripe(stripeSecretKey);
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
