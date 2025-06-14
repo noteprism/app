@@ -20,13 +20,32 @@ jobs:
         with:
           node-version: '20'
 
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+      
+      # Generate Prisma Client
+      - name: Generate Prisma Client
+        run: npx prisma generate
+      
+      # Build with environment variables
+      - name: Build
+        run: npm run build
+        env:
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_REDIRECT_URI: ${{ secrets.LINKEDIN_REDIRECT_URI }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_DOMAIN: ${{ secrets.NEXT_PUBLIC_DOMAIN }}
+
       # Install Netlify CLI
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
       
-      # Deploy directly with Netlify CLI (this will use the environment variables from Netlify)
+      # Deploy to Netlify (non-interactive)
       - name: Deploy to Netlify
-        run: netlify deploy --build --prod
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }} 
+        run: netlify deploy --dir=.next --prod --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --site ${{ secrets.NETLIFY_SITE_ID }} 
