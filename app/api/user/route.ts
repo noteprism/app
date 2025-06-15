@@ -51,6 +51,13 @@ export async function GET() {
     canManageBilling: !!user.stripeCustomerId
   };
 
+  // Get subscription information
+  let subscriptionInfo = {
+    plan: user.plan || 'free',
+    status: user.stripeSubscriptionStatus || null,
+    canManageBilling: !!user.stripeCustomerId
+  };
+
   // Return user info without sensitive fields
   return NextResponse.json({
     id: user.id,
@@ -86,6 +93,13 @@ export async function PUT(req: NextRequest) {
       email: !!updatedUser.password
     }
     
+    // Get subscription information
+    let subscriptionInfo = {
+      plan: updatedUser.plan || 'free',
+      status: updatedUser.stripeSubscriptionStatus || null,
+      canManageBilling: !!updatedUser.stripeCustomerId
+    };
+
     // Get subscription information
     let subscriptionInfo = {
       plan: updatedUser.plan || 'free',

@@ -9,6 +9,7 @@ datasource db {
 }
 
 model User {
+<<<<<<< HEAD
   id                       String      @id @default(uuid())
   linkedinId               String?     @unique
   googleId                 String?     @unique
@@ -24,6 +25,23 @@ model User {
   notes                    Note[]
   noteGroups               NoteGroup[]
   sessions                 Session[]
+=======
+  id             String     @id @default(uuid())
+  linkedinId     String?    @unique
+  googleId       String?    @unique
+  email          String     @unique
+  password       String?
+  name           String?
+  profilePicture String?
+  notes          Note[]
+  noteGroups     NoteGroup[]
+  sessions       Session[]
+  plan           String?    // 'free' or 'standard'
+  stripeCustomerId String?   @unique
+  stripeSubscriptionId String?
+  stripeSubscriptionStatus String?
+  stripePriceId String?
+>>>>>>> 3117ecedd063b7f1dfb3becb6c8d55450eedc543
 }
 
 model Note {
