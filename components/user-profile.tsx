@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { User, LogOut, Pencil, Mail, Check } from "lucide-react"
+import { User, LogOut, Pencil, Mail, Check, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -14,12 +14,19 @@ interface ConnectedProviders {
   email: boolean
 }
 
+interface Subscription {
+  plan: string
+  status: string | null
+  canManageBilling: boolean
+}
+
 interface UserData {
   id: string
   name: string | null
   email: string
   profilePicture: string | null
   connectedProviders: ConnectedProviders
+  subscription?: Subscription
 }
 
 export default function UserProfile() {
@@ -100,6 +107,28 @@ export default function UserProfile() {
       console.error("Error during logout:", error)
       setIsLoggingOut(false)
     }
+  }
+
+  // Handle manage subscription
+  const handleManageSubscription = () => {
+    window.location.href = "/api/stripe/manage";
+  }
+
+  // Get plan display name
+  const getPlanDisplayName = () => {
+    if (!userData?.subscription) return "Free";
+    
+    const { plan, status } = userData.subscription;
+    
+    if (plan === "standard") {
+      return status === "active" ? "Standard (Active)" : 
+             status === "trialing" ? "Standard (Trial)" : 
+             status === "past_due" ? "Standard (Past Due)" : 
+             status === "canceled" ? "Standard (Canceled)" : 
+             "Standard";
+    }
+    
+    return "Free";
   }
 
   // Generate initials for avatar fallback
@@ -212,6 +241,30 @@ export default function UserProfile() {
                 )}
               </div>
             </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Account Type:</Label>
+              <div className="col-span-3">
+                <div className="text-sm font-medium">
+                  {getPlanDisplayName()}
+                </div>
+              </div>
+            </div>
+            
+            {userData.subscription?.canManageBilling && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <div className="col-span-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={handleManageSubscription}
+                  >
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Manage Subscription
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
           
           <DialogFooter className="flex justify-between items-center gap-2">

@@ -26,6 +26,10 @@ model User {
   noteGroups     NoteGroup[]
   sessions       Session[]
   plan           String?    // 'free' or 'standard'
+  stripeCustomerId String?   @unique
+  stripeSubscriptionId String?
+  stripeSubscriptionStatus String?
+  stripePriceId String?
 }
 
 model Note {
