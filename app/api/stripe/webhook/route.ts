@@ -41,14 +41,76 @@ export async function POST(req: NextRequest) {
       console.error('No userId in session metadata');
       return new NextResponse('No userId', { status: 400 });
     }
+    
     try {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { plan: 'standard' },
-      });
+      // Get subscription details
+      const subscriptionId = session.subscription as string;
+      const customerId = session.customer as string;
+      
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const priceId = subscription.items.data[0]?.price.id;
+        
+        await prisma.user.update({
+          where: { id: userId },
+          data: { 
+            plan: 'standard',
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+            stripeSubscriptionStatus: subscription.status,
+            stripePriceId: priceId
+          },
+        });
+      } else {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { 
+            plan: 'standard',
+            stripeCustomerId: customerId
+          },
+        });
+      }
+      
       return new NextResponse('Success', { status: 200 });
     } catch (err) {
       console.error('Failed to update user plan:', err);
+      return new NextResponse('DB Error', { status: 400 });
+    }
+  }
+  
+  // Handle subscription updated or deleted
+  if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription;
+    const customerId = subscription.customer as string;
+    
+    try {
+      // Find user by Stripe customer ID
+      const user = await prisma.user.findUnique({
+        where: { stripeCustomerId: customerId }
+      });
+      
+      if (!user) {
+        console.error('No user found with Stripe customer ID:', customerId);
+        return new NextResponse('User not found', { status: 400 });
+      }
+      
+      // Update subscription status
+      const status = subscription.status;
+      const priceId = subscription.items.data[0]?.price.id;
+      const plan = status === 'active' || status === 'trialing' ? 'standard' : 'free';
+      
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          plan,
+          stripeSubscriptionStatus: status,
+          stripePriceId: priceId
+        }
+      });
+      
+      return new NextResponse('Success', { status: 200 });
+    } catch (err) {
+      console.error('Failed to update subscription status:', err);
       return new NextResponse('DB Error', { status: 400 });
     }
   }

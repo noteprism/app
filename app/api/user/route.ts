@@ -43,6 +43,13 @@ export async function GET() {
     linkedin: !!user.linkedinId,
     email: !!user.password
   }
+  
+  // Get subscription information
+  let subscriptionInfo = {
+    plan: user.plan || 'free',
+    status: user.stripeSubscriptionStatus || null,
+    canManageBilling: !!user.stripeCustomerId
+  };
 
   // Return user info without sensitive fields
   return NextResponse.json({
@@ -50,7 +57,8 @@ export async function GET() {
     email: user.email,
     name: user.name,
     profilePicture: user.profilePicture,
-    connectedProviders
+    connectedProviders,
+    subscription: subscriptionInfo
   })
 }
 
@@ -77,13 +85,21 @@ export async function PUT(req: NextRequest) {
       linkedin: !!updatedUser.linkedinId,
       email: !!updatedUser.password
     }
+    
+    // Get subscription information
+    let subscriptionInfo = {
+      plan: updatedUser.plan || 'free',
+      status: updatedUser.stripeSubscriptionStatus || null,
+      canManageBilling: !!updatedUser.stripeCustomerId
+    };
 
     return NextResponse.json({
       id: updatedUser.id,
       email: updatedUser.email,
       name: updatedUser.name,
       profilePicture: updatedUser.profilePicture,
-      connectedProviders
+      connectedProviders,
+      subscription: subscriptionInfo
     })
   } catch (error) {
     console.error('Error updating user:', error)
