@@ -131,28 +131,6 @@ export default function UserProfile() {
     return "Free";
   }
 
-  // Handle manage subscription
-  const handleManageSubscription = () => {
-    window.location.href = "/api/stripe/manage";
-  }
-
-  // Get plan display name
-  const getPlanDisplayName = () => {
-    if (!userData?.subscription) return "Free";
-    
-    const { plan, status } = userData.subscription;
-    
-    if (plan === "standard") {
-      return status === "active" ? "Standard (Active)" : 
-             status === "trialing" ? "Standard (Trial)" : 
-             status === "past_due" ? "Standard (Past Due)" : 
-             status === "canceled" ? "Standard (Canceled)" : 
-             "Standard";
-    }
-    
-    return "Free";
-  }
-
   // Generate initials for avatar fallback
   const getInitials = (name: string | null) => {
     if (!name) return "U"
