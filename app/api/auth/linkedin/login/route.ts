@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  const clientId = process.env.LINKEDIN_CLIENT_ID;
-  const redirectUri = process.env.LINKEDIN_REDIRECT_URI;
+  // Get the intent from the query string
+  const url = new URL(req.url);
+  const intent = url.searchParams.get('intent') || '';
   
-  if (!clientId) {
-    throw new Error('LINKEDIN_CLIENT_ID environment variable is not set');
-  }
+  // Store the intent in the session for later use
+  const redirectUri = process.env.LINKEDIN_REDIRECT_URI || '';
   
-  if (!redirectUri) {
-    throw new Error('LINKEDIN_REDIRECT_URI environment variable is not set');
-  }
+  // Create the OAuth URL with the state parameter containing the intent
+  const state = Buffer.from(JSON.stringify({ intent })).toString('base64');
   
-  const state = Math.random().toString(36).substring(2); // Simple random state
-  const scope = 'openid%20profile%20email';
-
-  const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}`;
-
-  return NextResponse.redirect(authUrl);
+  const linkedinAuthUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
+  linkedinAuthUrl.searchParams.append('client_id', process.env.LINKEDIN_CLIENT_ID || '');
+  linkedinAuthUrl.searchParams.append('redirect_uri', redirectUri);
+  linkedinAuthUrl.searchParams.append('response_type', 'code');
+  linkedinAuthUrl.searchParams.append('scope', 'r_liteprofile r_emailaddress');
+  linkedinAuthUrl.searchParams.append('state', state);
+  
+  return NextResponse.redirect(linkedinAuthUrl.toString());
 } 

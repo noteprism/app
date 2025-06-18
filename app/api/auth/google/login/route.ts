@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  // Get the intent from the query string
+  const url = new URL(req.url);
+  const intent = url.searchParams.get('intent') || '';
   
-  if (!clientId) {
-    throw new Error('GOOGLE_CLIENT_ID environment variable is not set');
-  }
+  // Store the intent in the session for later use
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || '';
   
-  if (!redirectUri) {
-    throw new Error('GOOGLE_REDIRECT_URI environment variable is not set');
-  }
+  // Create the OAuth URL with the state parameter containing the intent
+  const state = Buffer.from(JSON.stringify({ intent })).toString('base64');
   
-  const state = Math.random().toString(36).substring(2); // Simple random state
-  const scope = 'openid+profile+email';
-
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}&prompt=select_account`;
-
-  return NextResponse.redirect(authUrl);
+  const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  googleAuthUrl.searchParams.append('client_id', process.env.GOOGLE_CLIENT_ID || '');
+  googleAuthUrl.searchParams.append('redirect_uri', redirectUri);
+  googleAuthUrl.searchParams.append('response_type', 'code');
+  googleAuthUrl.searchParams.append('scope', 'email profile');
+  googleAuthUrl.searchParams.append('state', state);
+  
+  return NextResponse.redirect(googleAuthUrl.toString());
 } 

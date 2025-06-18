@@ -1,16 +1,12 @@
 "use client"
 import { useState } from "react";
-import ConnectForm from "@/components/ConnectForm";
 import { useRouter } from "next/navigation";
 
 export default function PricingTable() {
-  const [showAuthForm, setShowAuthForm] = useState(false);
   const router = useRouter();
 
-  // Called by ConnectForm after successful login/signup
-  const handleAuthSuccess = async () => {
-    // Always redirect to start trial
-    router.push("/?start_trial=1");
+  const handleStartTrial = () => {
+    router.push('/connect?intent=trial');
   };
 
   return (
@@ -32,7 +28,7 @@ export default function PricingTable() {
           <div className="text-4xl font-bold mb-2">$5<span className="text-base font-normal"> per month</span></div>
           <button
             className="w-full bg-blue-600 text-white py-2 rounded mt-4 mb-4"
-            onClick={() => setShowAuthForm(true)}
+            onClick={handleStartTrial}
           >
             Start Free Trial
           </button>
@@ -41,19 +37,12 @@ export default function PricingTable() {
             <ul className="list-none space-y-2 text-sm">
               <li>✔ Unlimited Notes</li>
               <li>✔ Search All Notes</li>
-              <li>✔ Cancel anytime during trial</li>
+              <li>✔ Cancel anytime</li>
               <li>✔ No credit card required to start</li>
             </ul>
           </div>
         </div>
       </div>
-      
-      {/* Show ConnectForm only after Start Trial is clicked */}
-      {showAuthForm && (
-        <div className="relative z-10 mt-8 w-full max-w-md">
-          <ConnectForm onSuccess={handleAuthSuccess} />
-        </div>
-      )}
     </div>
   );
 } 

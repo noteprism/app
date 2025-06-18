@@ -60,10 +60,21 @@ function generateSessionId() {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
-  const state = searchParams.get('state');
+  const stateParam = searchParams.get('state');
   if (!code) return NextResponse.redirect(`${BASE_URL}/?error=missing_code`);
 
   try {
+    // Parse the state parameter to get the intent
+    let intent = '';
+    if (stateParam) {
+      try {
+        const stateObj = JSON.parse(Buffer.from(stateParam, 'base64').toString());
+        intent = stateObj.intent || '';
+      } catch (e) {
+        console.error('Error parsing state parameter:', e);
+      }
+    }
+
     // 1. Exchange code for tokens
     const { access_token } = await exchangeCodeForTokens(code);
 
@@ -104,7 +115,14 @@ export async function GET(req: NextRequest) {
     });
 
     // 5. Set secure, HTTPOnly cookie
-    const response = NextResponse.redirect(`${BASE_URL}/`);
+    let redirectUrl = `${BASE_URL}/`;
+    
+    // Handle redirect based on intent
+    if (intent === 'trial') {
+      redirectUrl = `${BASE_URL}/?start_trial=1`;
+    }
+    
+    const response = NextResponse.redirect(redirectUrl);
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
