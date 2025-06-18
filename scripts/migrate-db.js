@@ -1,10 +1,15 @@
 const { execSync } = require('child_process');
-const { PrismaClient } = require('@prisma/client');
 
 // This script is used to run migrations in production
 // It also handles failed migrations by cleaning them up first
 async function main() {
   try {
+    console.log('Generating Prisma client...');
+    execSync('npx prisma generate', { stdio: 'inherit' });
+    
+    // Now that Prisma is generated, we can import it
+    const { PrismaClient } = require('@prisma/client');
+    
     console.log('Connecting to database...');
     const prisma = new PrismaClient();
     
