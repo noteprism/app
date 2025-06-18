@@ -34,7 +34,7 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, onManageSubscription
         <AlertDescription className="flex items-center justify-between">
           <span>
             {trialEndingSoon
-              ? `Your trial ends in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}. Add payment info to continue using premium features.`
+              ? `Your trial ends in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}. Add payment info to continue using Noteprism Pro features.`
               : `You have ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} left in your trial (ends ${format(new Date(trialEndsAt), 'MMM d, yyyy')}).`}
           </span>
           <Button 
@@ -55,7 +55,7 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, onManageSubscription
       <AlertCircle className="text-red-500" />
       <AlertTitle className="font-medium">Trial Expired</AlertTitle>
       <AlertDescription className="flex items-center justify-between">
-        <span>Your trial has expired. Subscribe now to continue using premium features.</span>
+        <span>Your trial has expired. Subscribe now to continue using Noteprism Pro features.</span>
         <Button variant="default" size="sm" onClick={onManageSubscription}>
           Subscribe Now
         </Button>

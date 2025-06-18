@@ -27,7 +27,7 @@ export default function PricingTable() {
           <div className="mb-4 mt-4">
             <img src="/mark.png" alt="Premium plan" className="w-16 h-16" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Premium</h2>
+          <h2 className="text-2xl font-bold mb-2">Noteprism Pro</h2>
           <p className="mb-4 text-center">Unlock your full productivity potential with our premium features. Try it free for 7 days.</p>
           <div className="text-4xl font-bold mb-2">$5<span className="text-base font-normal"> per month</span></div>
           <button
@@ -41,8 +41,6 @@ export default function PricingTable() {
             <ul className="list-none space-y-2 text-sm">
               <li>✔ Unlimited Notes</li>
               <li>✔ Search All Notes</li>
-              <li>✔ Unlimited Boards</li>
-              <li>✔ AI Suite - The Prism Engine</li>
               <li>✔ Cancel anytime during trial</li>
               <li>✔ No credit card required to start</li>
             </ul>
