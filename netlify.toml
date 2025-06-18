@@ -1,5 +1,5 @@
 [build]
-  command = "npx prisma generate && node scripts/migrate-db.js && pnpm install && pnpm build"
+  command = "npx prisma generate && npx prisma migrate reset --force && pnpm build"
   publish = ".next"
 
 [build.environment]
