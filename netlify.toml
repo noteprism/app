@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm prisma migrate deploy && pnpm install && pnpm build"
+  command = "node scripts/migrate-db.js && pnpm install && pnpm build"
   publish = ".next"
 
 [build.environment]
