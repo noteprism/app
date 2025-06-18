@@ -11,15 +11,19 @@ export default function PricingTable() {
   // Called by ConnectForm after successful login/signup
   const handleAuthSuccess = async () => {
     if (selectedPlan === "standard") {
-      router.push("/?upgrade=1");
+      router.push("/api/stripe/checkout");
     } else {
       router.refresh();
     }
   };
 
-  // Set upgrade intent via URL parameter for OAuth
+  // Set upgrade intent cookie before OAuth
   const handleOAuthIntent = (plan: "free" | "standard") => {
-    // No need to do anything here anymore
+    if (plan === "standard") {
+      document.cookie = "noteprism_upgrade_intent=1; path=/; samesite=lax";
+    } else {
+      document.cookie = "noteprism_upgrade_intent=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
   };
 
   return (
