@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
         
+        // Update user with subscription info and set plan to standard
         await prisma.user.update({
           where: { id: userId },
           data: { 
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
       });
       
       if (user) {
+        // Set plan to standard when subscription is created
         await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -65,6 +67,29 @@ export async function POST(req: NextRequest) {
         });
         
         console.log(`User ${user.id} subscription created and set to standard plan`);
+      } else {
+        // If user not found by customer ID, try to find by metadata
+        try {
+          const customer = await stripe.customers.retrieve(customerId as string) as Stripe.Customer;
+          const userId = customer.metadata?.userId;
+          
+          if (userId) {
+            await prisma.user.update({
+              where: { id: userId },
+              data: {
+                plan: 'standard',
+                stripeCustomerId: customerId,
+                stripeSubscriptionId: subscription.id,
+                stripeSubscriptionStatus: subscription.status,
+                stripePriceId: subscription.items.data[0]?.price.id
+              }
+            });
+            
+            console.log(`User ${userId} found by metadata and updated to standard plan`);
+          }
+        } catch (error) {
+          console.error('Error retrieving customer:', error);
+        }
       }
     }
     

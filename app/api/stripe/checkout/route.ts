@@ -27,16 +27,38 @@ async function handleCheckout(req: NextRequest) {
     
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
+    const user = session.user;
+    
+    // Ensure user has a Stripe customer ID
+    let customerId = user.stripeCustomerId;
+    
+    if (!customerId) {
+      // Create a new customer in Stripe
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name || undefined,
+        metadata: { userId: user.id }
+      });
+      
+      customerId = customer.id;
+      
+      // Update user with Stripe customer ID
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { stripeCustomerId: customerId }
+      });
+    }
+    
     // Create checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: session.user.email,
+      customer: customerId,
       line_items: [{ price: 'price_1RZFRIK0jvA0kTsfXyv67IID', quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=cancel`,
-      metadata: { userId: session.user.id },
+      metadata: { userId: user.id },
     });
 
     // Return URL based on request method
