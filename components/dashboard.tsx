@@ -31,6 +31,8 @@ import PanelLeft from "@/components/panel-left"
 import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
 import Masonry from 'react-masonry-css'
+import { TrialBanner } from "@/components/trial-banner"
+import { useRouter } from "next/navigation"
 
 // Constants for sidebar
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -39,10 +41,24 @@ const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 export default function Dashboard() {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
+  const [userSubscription, setUserSubscription] = useState<{
+    plan: string | null;
+    status: string | null;
+    canManageBilling: boolean;
+    trialEndsAt: string | null;
+    trialEndingSoon: boolean;
+  }>({
+    plan: null,
+    status: null,
+    canManageBilling: false,
+    trialEndsAt: null,
+    trialEndingSoon: false
+  });
 
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const router = useRouter()
 
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
@@ -71,6 +87,19 @@ export default function Dashboard() {
         )
       })
   }, [])
+
+  useEffect(() => {
+    fetch("/api/user")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.subscription) {
+          setUserSubscription(data.subscription);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching user data:", error);
+      });
+  }, []);
 
   const { handleDragEnd } = useNoteDragAndDrop({
     groups,
@@ -214,6 +243,21 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleManageSubscription = () => {
+    fetch("/api/stripe/manage", {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      })
+      .catch((error) => {
+        console.error("Error managing subscription:", error);
+      });
+  };
+
   return (
     <DragDropContext onDragEnd={handleAnyDragEnd}>
       <SidebarProvider>
@@ -229,6 +273,16 @@ export default function Dashboard() {
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
+              {userSubscription.status === 'trialing' && (
+                <div className="mb-4">
+                  <TrialBanner 
+                    trialEndsAt={userSubscription.trialEndsAt}
+                    trialEndingSoon={userSubscription.trialEndingSoon}
+                    onManageSubscription={handleManageSubscription}
+                  />
+                </div>
+              )}
+              
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry
                   breakpointCols={getColumnCount()}

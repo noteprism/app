@@ -21,6 +21,8 @@ model User {
   stripePriceId            String?
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
+  trialEndsAt              DateTime?
+  trialEndingSoon          Boolean     @default(false)
   notes                    Note[]
   noteGroups               NoteGroup[]
   sessions                 Session[]

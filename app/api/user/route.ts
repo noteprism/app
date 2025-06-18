@@ -48,7 +48,9 @@ export async function GET() {
   let subscriptionInfo = {
     plan: user.plan || 'free',
     status: user.stripeSubscriptionStatus || null,
-    canManageBilling: !!user.stripeCustomerId
+    canManageBilling: !!user.stripeCustomerId,
+    trialEndsAt: user.trialEndsAt || null,
+    trialEndingSoon: user.trialEndingSoon || false
   };
 
   // Return user info without sensitive fields
@@ -90,7 +92,9 @@ export async function PUT(req: NextRequest) {
     let subscriptionInfo = {
       plan: updatedUser.plan || 'free',
       status: updatedUser.stripeSubscriptionStatus || null,
-      canManageBilling: !!updatedUser.stripeCustomerId
+      canManageBilling: !!updatedUser.stripeCustomerId,
+      trialEndsAt: updatedUser.trialEndsAt || null,
+      trialEndingSoon: updatedUser.trialEndingSoon || false
     };
 
     return NextResponse.json({

@@ -28,7 +28,10 @@ export async function POST(req: NextRequest) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
         
-        // Update user with subscription info and set plan to standard
+        // Determine if the subscription is in trial
+        const isTrialing = subscription.status === 'trialing';
+        const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+        
         await prisma.user.update({
           where: { id: userId },
           data: { 
@@ -36,11 +39,12 @@ export async function POST(req: NextRequest) {
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscriptionId,
             stripeSubscriptionStatus: subscription.status,
-            stripePriceId: priceId
+            stripePriceId: priceId,
+            trialEndsAt: trialEnd
           },
         });
         
-        console.log(`User ${userId} subscription updated to standard plan`);
+        console.log(`User ${userId} subscription created with status ${subscription.status}`);
       }
     }
     
@@ -55,18 +59,22 @@ export async function POST(req: NextRequest) {
       });
       
       if (user) {
-        // Set plan to standard when subscription is created
+        // Determine if the subscription is in trial
+        const isTrialing = subscription.status === 'trialing';
+        const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+        
         await prisma.user.update({
           where: { id: user.id },
           data: {
             plan: 'standard',
             stripeSubscriptionId: subscription.id,
             stripeSubscriptionStatus: subscription.status,
-            stripePriceId: subscription.items.data[0]?.price.id
+            stripePriceId: subscription.items.data[0]?.price.id,
+            trialEndsAt: trialEnd
           }
         });
         
-        console.log(`User ${user.id} subscription created and set to standard plan`);
+        console.log(`User ${user.id} subscription created with status ${subscription.status}`);
       } else {
         // If user not found by customer ID, try to find by metadata
         try {
@@ -74,6 +82,10 @@ export async function POST(req: NextRequest) {
           const userId = customer.metadata?.userId;
           
           if (userId) {
+            // Determine if the subscription is in trial
+            const isTrialing = subscription.status === 'trialing';
+            const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+            
             await prisma.user.update({
               where: { id: userId },
               data: {
@@ -81,11 +93,12 @@ export async function POST(req: NextRequest) {
                 stripeCustomerId: customerId,
                 stripeSubscriptionId: subscription.id,
                 stripeSubscriptionStatus: subscription.status,
-                stripePriceId: subscription.items.data[0]?.price.id
+                stripePriceId: subscription.items.data[0]?.price.id,
+                trialEndsAt: trialEnd
               }
             });
             
-            console.log(`User ${userId} found by metadata and updated to standard plan`);
+            console.log(`User ${userId} found by metadata and subscription created with status ${subscription.status}`);
           }
         } catch (error) {
           console.error('Error retrieving customer:', error);
@@ -105,17 +118,41 @@ export async function POST(req: NextRequest) {
       if (user) {
         const status = subscription.status;
         const plan = status === 'active' || status === 'trialing' ? 'standard' : 'free';
+        const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
         
         await prisma.user.update({
           where: { id: user.id },
           data: {
             plan,
             stripeSubscriptionStatus: status,
-            stripePriceId: subscription.items.data[0]?.price.id
+            stripePriceId: subscription.items.data[0]?.price.id,
+            trialEndsAt: trialEnd
           }
         });
         
         console.log(`User ${user.id} subscription updated to ${plan} plan with status ${status}`);
+      }
+    }
+    
+    // Handle trial ending soon
+    if (event.type === 'customer.subscription.trial_will_end') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer as string;
+      
+      const user = await prisma.user.findUnique({
+        where: { stripeCustomerId: customerId }
+      });
+      
+      if (user) {
+        // Here you would typically send an email to the user
+        // This is where you'd integrate with your email service
+        console.log(`Trial ending soon for user ${user.id}, subscription ${subscription.id}`);
+        
+        // Update user record to indicate trial ending soon
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { trialEndingSoon: true }
+        });
       }
     }
     
@@ -132,18 +169,45 @@ export async function POST(req: NextRequest) {
         
         if (user) {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
           
           await prisma.user.update({
             where: { id: user.id },
             data: {
               plan: 'standard',
               stripeSubscriptionStatus: subscription.status,
-              stripeSubscriptionId: subscriptionId
+              stripeSubscriptionId: subscriptionId,
+              trialEndsAt: trialEnd,
+              trialEndingSoon: false // Reset the trial ending soon flag
             }
           });
           
           console.log(`User ${user.id} payment succeeded, subscription confirmed`);
         }
+      }
+    }
+    
+    // Handle subscription deleted (canceled)
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer as string;
+      
+      const user = await prisma.user.findUnique({
+        where: { stripeCustomerId: customerId }
+      });
+      
+      if (user) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            plan: 'free',
+            stripeSubscriptionStatus: 'canceled',
+            trialEndsAt: null,
+            trialEndingSoon: false
+          }
+        });
+        
+        console.log(`User ${user.id} subscription canceled`);
       }
     }
     

@@ -6,6 +6,9 @@ import { cookies } from 'next/headers';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const prisma = new PrismaClient();
 
+// Trial period in days
+const TRIAL_PERIOD_DAYS = 7;
+
 export async function POST(req: NextRequest) {
   return handleCheckout(req);
 }
@@ -49,12 +52,34 @@ async function handleCheckout(req: NextRequest) {
       });
     }
     
-    // Create checkout session
+    // Check if user already has an active subscription
+    if (user.stripeSubscriptionId && user.stripeSubscriptionStatus === 'active') {
+      // Redirect to the billing portal to manage existing subscription
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: `${process.env.NEXT_PUBLIC_DOMAIN}/dashboard`,
+      });
+      
+      return NextResponse.redirect(portalSession.url);
+    }
+    
+    // Create checkout session with trial period
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer: customerId,
-      line_items: [{ price: 'price_1RZFRIK0jvA0kTsfXyv67IID', quantity: 1 }],
+      line_items: [{ 
+        price: 'price_1RbMrtK0jvA0kTsf456Zw5bW',
+        quantity: 1 
+      }],
+      subscription_data: {
+        trial_period_days: TRIAL_PERIOD_DAYS,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel'
+          }
+        }
+      },
       allow_promotion_codes: true,
       success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=cancel`,

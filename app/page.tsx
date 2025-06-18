@@ -21,7 +21,7 @@ export default async function Home({ searchParams }: { searchParams: { [key: str
   // Check for checkout success or cancel parameters
   const isCheckoutSuccess = searchParams.checkout === 'success';
   const isCheckoutCancel = searchParams.checkout === 'cancel';
-  const upgradeIntent = searchParams.upgrade === '1';
+  const startTrialIntent = searchParams.start_trial === '1';
   
   if (sessionId) {
     const session = await prisma.session.findUnique({
@@ -30,14 +30,15 @@ export default async function Home({ searchParams }: { searchParams: { [key: str
     });
     if (session && session.expiresAt > new Date()) {
       isLoggedIn = true;
+      
+      // If user has just logged in and wants to start a trial, redirect to checkout
+      if (startTrialIntent) {
+        redirect('/api/stripe/checkout');
+      }
     }
   }
 
   if (isLoggedIn) {
-    // If user has upgrade intent, redirect to checkout
-    if (upgradeIntent) {
-      redirect('/api/stripe/checkout');
-    }
     return <Dashboard />;
   } else {
     return <PricingTable />;
