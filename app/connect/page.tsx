@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 export default async function ConnectPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
-  const intent = searchParams.intent || 'login';
+  const intentParam = searchParams?.intent;
+  const intent = intentParam || 'login';
   
   // Check if user is already logged in
   if (sessionId) {
@@ -66,15 +67,7 @@ export default async function ConnectPage({ searchParams }: { searchParams: { [k
             </a>
           </div>
           
-          <ConnectForm 
-            onSuccess={() => {
-              if (intent === 'trial') {
-                return '/?start_trial=1';
-              } else {
-                return '/';
-              }
-            }} 
-          />
+          <ConnectForm onSuccess={intent === 'trial' ? '/?start_trial=1' : '/'} />
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ const formSchema = z.object({
 })
 
 interface ConnectFormProps {
-  onSuccess?: (() => void) | (() => string);
+  onSuccess?: (() => void) | string;
 }
 
 const ConnectForm: FC<ConnectFormProps> = ({ onSuccess }) => {
@@ -60,11 +60,10 @@ const ConnectForm: FC<ConnectFormProps> = ({ onSuccess }) => {
       toast.success("Connected successfully!")
       
       if (onSuccess) {
-        const result = onSuccess();
-        if (typeof result === 'string') {
-          router.push(result);
+        if (typeof onSuccess === 'string') {
+          router.push(onSuccess);
         } else {
-          router.refresh();
+          onSuccess();
         }
       } else {
         router.refresh();

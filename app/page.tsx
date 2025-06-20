@@ -19,9 +19,10 @@ export default async function Home({ searchParams }: { searchParams: { [key: str
   let isLoggedIn = false;
   
   // Check for checkout success or cancel parameters
-  const isCheckoutSuccess = searchParams.checkout === 'success';
-  const isCheckoutCancel = searchParams.checkout === 'cancel';
-  const startTrialIntent = searchParams.start_trial === '1';
+  const checkout = searchParams?.checkout;
+  const isCheckoutSuccess = checkout === 'success';
+  const isCheckoutCancel = checkout === 'cancel';
+  const startTrialIntent = searchParams?.start_trial === '1';
   
   if (sessionId) {
     const session = await prisma.session.findUnique({
