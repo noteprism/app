@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
             stripeSubscriptionId: subscriptionId,
             stripeSubscriptionStatus: subscription.status,
             stripePriceId: priceId,
-            trialEndsAt: trialEnd
+            trialEndsAt: trialEnd,
+            trialEndingSoon: false
           },
         });
         

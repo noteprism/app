@@ -242,6 +242,19 @@ export default function Dashboard() {
     // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  // Check for checkout success parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    
+    if (checkout === 'success') {
+      // Clear the checkout parameter from URL without reloading the page
+      const url = new URL(window.location.href);
+      url.searchParams.delete('checkout');
+      window.history.replaceState({}, '', url);
+    }
+  }, []);
 
   const handleManageSubscription = () => {
     fetch("/api/stripe/manage", {
@@ -273,7 +286,7 @@ export default function Dashboard() {
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
-              {userSubscription.status === 'trialing' && (
+              {userSubscription.trialEndsAt && (
                 <div className="mb-4">
                   <TrialBanner 
                     trialEndsAt={userSubscription.trialEndsAt}

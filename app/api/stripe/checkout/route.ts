@@ -81,7 +81,7 @@ async function handleCheckout(req: NextRequest) {
         }
       },
       allow_promotion_codes: true,
-      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=success`,
+      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/dashboard?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=cancel`,
       metadata: { userId: user.id },
     });
