@@ -243,16 +243,16 @@ export default function PanelLeft({
         </div>
       </div>
       
+      {/* Trial info */}
+      {userSubscription?.status === "trialing" && userSubscription?.trialEndsAt && (
+        <div className="px-4 py-2 text-xs">
+          Trial: {getTrialDaysRemaining()} days
+        </div>
+      )}
+      
       {/* Footer */}
       <div className="border-t">
-        <div className="flex flex-col p-4">
-          {userSubscription?.status === "trialing" && userSubscription?.trialEndsAt && (
-            <div className="mb-2 text-xs text-muted-foreground">
-              <div className="font-medium">
-                Trial: {getTrialDaysRemaining()} days
-              </div>
-            </div>
-          )}
+        <div className="flex items-center p-4">
           <UserProfile />
         </div>
       </div>

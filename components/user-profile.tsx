@@ -111,18 +111,7 @@ export default function UserProfile() {
   
   // Handle manage subscription
   const handleManageSubscription = () => {
-    fetch("/api/stripe/manage", {
-      method: "GET",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.url) {
-          window.location.href = data.url;
-        }
-      })
-      .catch((error) => {
-        console.error("Error managing subscription:", error);
-      });
+    window.location.href = "/api/stripe/manage";
   }
   
   // Get plan display name
