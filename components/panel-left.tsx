@@ -10,6 +10,7 @@ import { Droppable, Draggable } from "@hello-pangea/dnd"
 import UserProfile from "@/components/user-profile"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { differenceInDays, format } from 'date-fns'
 
 interface PanelLeftProps {
   groups: NoteGroupType[]
@@ -18,6 +19,13 @@ interface PanelLeftProps {
   setSearchQuery: (q: string) => void
   onNewNote: () => void
   onUpdateGroup: (groupId: string, name: string) => void
+  userSubscription?: {
+    plan: string | null;
+    status: string | null;
+    canManageBilling: boolean;
+    trialEndsAt: string | null;
+    trialEndingSoon: boolean;
+  }
 }
 
 export default function PanelLeft({
@@ -27,6 +35,7 @@ export default function PanelLeft({
   setSearchQuery,
   onNewNote,
   onUpdateGroup,
+  userSubscription,
 }: PanelLeftProps) {
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -34,6 +43,17 @@ export default function PanelLeft({
   const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const mobileActive = isMobile && openMobile;
+
+  // Calculate days remaining in trial safely
+  const getTrialDaysRemaining = () => {
+    if (!userSubscription?.trialEndsAt) return 0;
+    
+    const endDate = new Date(userSubscription.trialEndsAt);
+    const now = new Date();
+    const days = differenceInDays(endDate, now);
+    
+    return Math.max(0, days);
+  };
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
     // Stop propagation to prevent drag behavior when clicking to edit
@@ -225,7 +245,14 @@ export default function PanelLeft({
       
       {/* Footer */}
       <div className="border-t">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex flex-col p-4">
+          {userSubscription?.status === "trialing" && userSubscription?.trialEndsAt && (
+            <div className="mb-2 text-xs text-muted-foreground">
+              <div className="font-medium">
+                Trial: {getTrialDaysRemaining()} days
+              </div>
+            </div>
+          )}
           <UserProfile />
         </div>
       </div>

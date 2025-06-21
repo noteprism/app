@@ -282,20 +282,11 @@ export default function Dashboard() {
             setSearchQuery={setSearchQuery}
             onNewNote={handleNewNote}
             onUpdateGroup={handleUpdateGroup}
+            userSubscription={userSubscription}
           />
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
-              {userSubscription.trialEndsAt && (
-                <div className="mb-4">
-                  <TrialBanner 
-                    trialEndsAt={userSubscription.trialEndsAt}
-                    trialEndingSoon={userSubscription.trialEndingSoon}
-                    onManageSubscription={handleManageSubscription}
-                  />
-                </div>
-              )}
-              
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry
                   breakpointCols={getColumnCount()}
