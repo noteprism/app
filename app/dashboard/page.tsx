@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { PrismaClient } from '../../lib/generated/prisma';
 import Dashboard from "@/components/dashboard"
 import { redirect } from 'next/navigation';
+import { userHasActiveTrial, userHasActiveSubscription } from "../logic/plan";
 
 const prisma = new PrismaClient();
 
@@ -30,8 +31,8 @@ export default async function DashboardPage() {
   
   // Check if user has an active subscription or is in trial period
   const user = session.user;
-  const hasActiveSubscription = user.stripeSubscriptionStatus === 'active';
-  const isInTrial = user.trialEndsAt && new Date(user.trialEndsAt) > new Date();
+  const hasActiveSubscription = userHasActiveSubscription(user);
+  const isInTrial = userHasActiveTrial(user);
   
   // If user doesn't have an active subscription or valid trial, redirect to homepage
   if (!hasActiveSubscription && !isInTrial) {

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { useState, FC } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +30,8 @@ interface ConnectFormProps {
 const ConnectForm: FC<ConnectFormProps> = ({ onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const intent = searchParams.get('intent')
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,12 +44,18 @@ const ConnectForm: FC<ConnectFormProps> = ({ onSuccess }) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
+      // Include intent in the request if available
+      const payload = {
+        ...values,
+        intent: intent || undefined
+      }
+      
       const response = await fetch('/api/auth/email/connect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       })
 
       const data = await response.json()
@@ -59,6 +67,13 @@ const ConnectForm: FC<ConnectFormProps> = ({ onSuccess }) => {
       // Success - handle redirect
       toast.success("Connected successfully!")
       
+      // If there's a specific redirect path from the API, use that first
+      if (data.redirectPath) {
+        router.push(data.redirectPath);
+        return;
+      }
+      
+      // Otherwise use the onSuccess prop
       if (onSuccess) {
         if (typeof onSuccess === 'string') {
           router.push(onSuccess);
