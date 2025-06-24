@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   linkedinAuthUrl.searchParams.append('client_id', process.env.LINKEDIN_CLIENT_ID || '');
   linkedinAuthUrl.searchParams.append('redirect_uri', redirectUri);
   linkedinAuthUrl.searchParams.append('response_type', 'code');
-  linkedinAuthUrl.searchParams.append('scope', 'r_liteprofile r_emailaddress');
+  linkedinAuthUrl.searchParams.append('scope', 'openid profile email');
   linkedinAuthUrl.searchParams.append('state', state);
   
   return NextResponse.redirect(linkedinAuthUrl.toString());
