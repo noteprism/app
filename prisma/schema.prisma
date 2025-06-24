@@ -16,11 +16,12 @@ model User {
   password                 String?
   name                     String?
   profilePicture           String?
-  plan                     String?    // 'free' or 'standard'
+  plan                     String?    // 'free', 'trial', or 'paid'
   stripeCustomerId         String?     @unique
   stripePriceId            String?
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
+  subscriptionVerifiedAt   DateTime?   // When we last verified with Stripe
   trialEndsAt              DateTime?
   trialEndingSoon          Boolean     @default(false)
   notes                    Note[]

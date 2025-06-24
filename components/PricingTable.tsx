@@ -30,7 +30,7 @@ export default function PricingTable() {
             className="w-full bg-blue-600 text-white py-2 rounded mt-4 mb-4"
             onClick={handleStartTrial}
           >
-            Start Free Trial
+            Get Started
           </button>
           <div className="w-full mt-2">
             <div className="font-semibold mb-2">This includes:</div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '../../../../../lib/generated/prisma';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { TRIAL_PERIOD_DAYS } from '@/app/logic/plan';
 
 const prisma = new PrismaClient();
 
@@ -89,6 +90,8 @@ export async function GET(req: NextRequest) {
       where: { email }
     });
 
+    let isNewUser = false;
+
     if (user) {
       // Update the existing user with Google ID
       user = await prisma.user.update({
@@ -102,6 +105,7 @@ export async function GET(req: NextRequest) {
       });
     } else {
       // Create a new user
+      isNewUser = true;
       user = await prisma.user.create({
         data: { 
           googleId, 
@@ -133,7 +137,29 @@ export async function GET(req: NextRequest) {
     
     // Handle redirect based on intent
     if (intent === 'trial') {
-      redirectUrl = `${BASE_URL}/?start_trial=1`;
+      // Set trial period for the user if not already set
+      if (!user.trialEndsAt) {
+        const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            trialEndsAt,
+            plan: 'trial' // Set plan to trial during trial
+          }
+        });
+      }
+      redirectUrl = `${BASE_URL}/trial-activated`;
+    } else if (isNewUser) {
+      // For new users without trial intent, still set a trial period
+      const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { 
+          trialEndsAt,
+          plan: 'trial' // Set plan to trial during trial
+        }
+      });
+      redirectUrl = `${BASE_URL}/trial-activated`;
     }
     
     const response = NextResponse.redirect(redirectUrl);

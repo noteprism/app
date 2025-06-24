@@ -3,18 +3,20 @@ import { PrismaClient } from '../../../../../lib/generated/prisma';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import * as z from 'zod';
+import { TRIAL_PERIOD_DAYS } from '@/app/logic/plan';
 
 const prisma = new PrismaClient();
 
 const SESSION_COOKIE_NAME = 'noteprism_session';
 const SESSION_EXPIRY_DAYS = 30; // 30 day session expiration
 const SESSION_MAX_AGE_DAYS = 30; // 30 day cookie
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
 
 // Input validation schema
 const connectSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  intent: z.string().optional(),
 });
 
 function generateSessionId() {
@@ -36,13 +38,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
     
-    const { email, password } = result.data;
+    const { email, password, intent } = result.data;
     const hashedPassword = hashPassword(password);
     
     // Check if user exists
     let user = await prisma.user.findUnique({
       where: { email }
     });
+    
+    let isNewUser = false;
     
     if (user) {
       // Check if user has a password (in case they previously logged in with social)
@@ -57,6 +61,7 @@ export async function POST(req: NextRequest) {
       }
     } else {
       // Create new user
+      isNewUser = true;
       user = await prisma.user.create({
         data: {
           email,
@@ -81,8 +86,30 @@ export async function POST(req: NextRequest) {
       },
     });
     
-    // Set cookie and redirect
-    const response = NextResponse.json({ success: true });
+    // Handle trial activation
+    let redirectPath = '';
+    
+    if (intent === 'trial' || isNewUser) {
+      // Set trial period for the user if not already set
+      if (!user.trialEndsAt) {
+        const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            trialEndsAt,
+            plan: 'trial' // Set plan to trial during trial
+          }
+        });
+      }
+      redirectPath = '/trial-activated';
+    }
+    
+    // Set cookie and return response
+    const response = NextResponse.json({ 
+      success: true,
+      redirectPath
+    });
+    
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
