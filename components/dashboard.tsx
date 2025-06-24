@@ -287,16 +287,6 @@ export default function Dashboard() {
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
-              {userSubscription.plan !== 'paid' && (
-                <div className="mb-6">
-                  <TrialBanner 
-                    trialEndsAt={userSubscription.trialEndsAt} 
-                    trialEndingSoon={userSubscription.trialEndingSoon}
-                    plan={userSubscription.plan}
-                    onManageSubscription={handleManageSubscription}
-                  />
-                </div>
-              )}
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry
                   breakpointCols={getColumnCount()}

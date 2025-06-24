@@ -11,14 +11,11 @@ export const metadata: Metadata = {
   description: "Sign in or create an account to get started with Noteprism",
 }
 
-export default async function ConnectPage({ 
-  searchParams 
-}: { 
-  searchParams: { [key: string]: string | undefined } 
-}) {
+export default async function ConnectPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
-  const intent = searchParams.intent || 'login';
+  const intentParam = searchParams?.intent;
+  const intent = intentParam || 'login';
   
   // Check if user is already logged in
   if (sessionId) {

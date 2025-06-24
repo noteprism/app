@@ -3,7 +3,6 @@ import { cookies } from 'next/headers';
 import { PrismaClient } from '../lib/generated/prisma';
 import PricingTable from "@/components/PricingTable";
 import { redirect } from 'next/navigation';
-import { userHasActiveTrial, userHasActiveSubscription } from "./logic/plan";
 
 const prisma = new PrismaClient();
 
@@ -12,14 +11,16 @@ export const metadata: Metadata = {
   description: "A fusion of Notion and TickTick for organizing your notes and tasks",
 }
 
-export default async function Home({ 
-  searchParams 
-}: { 
-  searchParams: { [key: string]: string | undefined } 
-}) {
+export default async function Home({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
   let isLoggedIn = false;
+  
+  // Check for checkout success or cancel parameters
+  const checkout = searchParams?.checkout;
+  const isCheckoutSuccess = checkout === 'success';
+  const isCheckoutCancel = checkout === 'cancel';
+  const startTrialIntent = searchParams?.start_trial === '1';
   
   if (sessionId) {
     const session = await prisma.session.findUnique({
@@ -30,13 +31,24 @@ export default async function Home({
     if (session && session.expiresAt > new Date()) {
       isLoggedIn = true;
       
+      // If user has just logged in and wants to start a trial, redirect to checkout
+      if (startTrialIntent) {
+        redirect('/api/stripe/checkout');
+      }
+      
+      // If user canceled checkout, they should stay on the pricing page
+      if (isCheckoutCancel) {
+        // Return pricing page even if logged in
+        return <PricingTable />;
+      }
+      
       // Check if user has an active subscription or is in trial period
       const user = session.user;
-      const hasActiveSubscription = userHasActiveSubscription(user);
-      const isInTrial = userHasActiveTrial(user);
+      const hasActiveSubscription = user.stripeSubscriptionStatus === 'active';
+      const isInTrial = user.trialEndsAt && new Date(user.trialEndsAt) > new Date();
       
       // If user has active subscription or valid trial, redirect to dashboard
-      if (hasActiveSubscription || isInTrial || user.plan === 'trial') {
+      if (hasActiveSubscription || isInTrial) {
         redirect('/dashboard');
       }
     }

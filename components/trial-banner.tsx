@@ -7,11 +7,10 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 interface TrialBannerProps {
   trialEndsAt: string | null;
   trialEndingSoon: boolean;
-  plan: string | null;
   onManageSubscription: () => void;
 }
 
-export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscription }: TrialBannerProps) {
+export function TrialBanner({ trialEndsAt, trialEndingSoon, onManageSubscription }: TrialBannerProps) {
   const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
   
   useEffect(() => {
@@ -22,11 +21,10 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscr
     }
   }, [trialEndsAt]);
   
-  // Don't show banner for paid users
-  if (plan === 'paid') return null;
+  if (!trialEndsAt) return null;
   
   // Trial is active
-  if (plan === 'trial' && daysRemaining !== null && daysRemaining > 0 && trialEndsAt) {
+  if (daysRemaining !== null && daysRemaining > 0) {
     return (
       <Alert className={trialEndingSoon ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}>
         <AlertCircle className={trialEndingSoon ? 'text-amber-500' : 'text-blue-500'} />
@@ -44,28 +42,24 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscr
             size="sm" 
             onClick={onManageSubscription}
           >
-            {trialEndingSoon ? 'Add Payment Method' : 'Upgrade Now'}
+            {trialEndingSoon ? 'Add Payment Method' : 'Manage Subscription'}
           </Button>
         </AlertDescription>
       </Alert>
     );
   }
   
-  // Trial has ended or user is on free plan
-  if (plan === 'free') {
-    return (
-      <Alert className="bg-red-50 border-red-200">
-        <AlertCircle className="text-red-500" />
-        <AlertTitle className="font-medium">Free Plan</AlertTitle>
-        <AlertDescription className="flex items-center justify-between">
-          <span>Upgrade to Noteprism Pro to unlock all features.</span>
-          <Button variant="default" size="sm" onClick={onManageSubscription}>
-            Upgrade Now
-          </Button>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  return null;
+  // Trial has ended
+  return (
+    <Alert className="bg-red-50 border-red-200">
+      <AlertCircle className="text-red-500" />
+      <AlertTitle className="font-medium">Trial Expired</AlertTitle>
+      <AlertDescription className="flex items-center justify-between">
+        <span>Your trial has expired. Subscribe now to continue using Noteprism Pro features.</span>
+        <Button variant="default" size="sm" onClick={onManageSubscription}>
+          Subscribe Now
+        </Button>
+      </AlertDescription>
+    </Alert>
+  );
 } 
