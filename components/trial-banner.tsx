@@ -28,15 +28,15 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscr
   // Trial is active
   if (plan === 'trial' && daysRemaining !== null && daysRemaining > 0 && trialEndsAt) {
     return (
-      <Alert className={trialEndingSoon ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}>
-        <AlertCircle className={trialEndingSoon ? 'text-amber-500' : 'text-blue-500'} />
-        <AlertTitle className="font-medium">
+      <Alert className={trialEndingSoon ? 'bg-transparent border-amber-500' : 'bg-transparent border-[#232425]'}>
+        <AlertCircle className={trialEndingSoon ? 'text-amber-500' : 'text-blue-400'} />
+        <AlertTitle className="font-medium text-foreground">
           {trialEndingSoon ? 'Your trial is ending soon!' : 'Trial Active'}
         </AlertTitle>
-        <AlertDescription className="flex items-center justify-between">
+        <AlertDescription className="flex items-center justify-between text-foreground">
           <span>
             {trialEndingSoon
-              ? `Your trial ends in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}. Add payment info to continue using Noteprism Pro features.`
+              ? `Your trial ends in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}. Subscribe now to continue using Noteprism Pro features.`
               : `You have ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} left in your trial (ends ${format(new Date(trialEndsAt), 'MMM d, yyyy')}).`}
           </span>
           <Button 
@@ -44,7 +44,7 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscr
             size="sm" 
             onClick={onManageSubscription}
           >
-            {trialEndingSoon ? 'Add Payment Method' : 'Upgrade Now'}
+            {trialEndingSoon ? 'Subscribe Now' : 'Upgrade Now'}
           </Button>
         </AlertDescription>
       </Alert>
@@ -54,13 +54,13 @@ export function TrialBanner({ trialEndsAt, trialEndingSoon, plan, onManageSubscr
   // Trial has ended or user is on free plan
   if (plan === 'free') {
     return (
-      <Alert className="bg-red-50 border-red-200">
+      <Alert className="bg-transparent border-[#232425]">
         <AlertCircle className="text-red-500" />
-        <AlertTitle className="font-medium">Free Plan</AlertTitle>
-        <AlertDescription className="flex items-center justify-between">
-          <span>Upgrade to Noteprism Pro to unlock all features.</span>
+        <AlertTitle className="font-medium text-foreground">Free Plan</AlertTitle>
+        <AlertDescription className="flex items-center justify-between text-foreground">
+          <span>Subscribe to Noteprism Pro to unlock all features.</span>
           <Button variant="default" size="sm" onClick={onManageSubscription}>
-            Upgrade Now
+            Subscribe Now
           </Button>
         </AlertDescription>
       </Alert>

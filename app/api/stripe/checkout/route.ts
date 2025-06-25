@@ -66,7 +66,7 @@ async function handleCheckout(req: NextRequest) {
       payment_method_types: ['card'],
       customer: customerId,
       line_items: [{ 
-        price: 'price_1RcXSgK0jvA0kTsf1gcrQDUn', // New price ID without trial
+        price: 'price_1RcXSgK0jvA0kTsf1gcrQDUn', // Original price ID
         quantity: 1 
       }],
       allow_promotion_codes: true,

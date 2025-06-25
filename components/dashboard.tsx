@@ -257,7 +257,7 @@ export default function Dashboard() {
   }, []);
 
   const handleManageSubscription = () => {
-    fetch("/api/stripe/manage", {
+    fetch("/api/stripe/checkout", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -267,7 +267,7 @@ export default function Dashboard() {
         }
       })
       .catch((error) => {
-        console.error("Error managing subscription:", error);
+        console.error("Error creating subscription:", error);
       });
   };
 
