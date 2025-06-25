@@ -31,7 +31,6 @@ import PanelLeft from "@/components/panel-left"
 import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
 import Masonry from 'react-masonry-css'
-import { TrialBanner } from "@/components/trial-banner"
 import { useRouter } from "next/navigation"
 
 // Constants for sidebar
@@ -256,31 +255,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  const handleManageSubscription = () => {
-    fetch("/api/stripe/checkout", {
-      method: "GET",
-    })
-      .then((res) => {
-        // Check if it's a redirect response
-        if (res.redirected) {
-          // Follow the redirect directly
-          window.location.href = res.url;
-          return;
-        }
-        // Otherwise, try to parse as JSON
-        return res.json();
-      })
-      .then((data) => {
-        // This will only run if we got a JSON response
-        if (data && data.url) {
-          window.location.href = data.url;
-        }
-      })
-      .catch((error) => {
-        console.error("Error creating subscription:", error);
-      });
-  };
-
   return (
     <DragDropContext onDragEnd={handleAnyDragEnd}>
       <SidebarProvider>
@@ -297,16 +271,6 @@ export default function Dashboard() {
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
-              {userSubscription.plan !== 'paid' && (
-                <div className="mb-6">
-                  <TrialBanner 
-                    trialEndsAt={userSubscription.trialEndsAt} 
-                    trialEndingSoon={userSubscription.trialEndingSoon}
-                    plan={userSubscription.plan}
-                    onManageSubscription={handleManageSubscription}
-                  />
-                </div>
-              )}
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry
                   breakpointCols={getColumnCount()}

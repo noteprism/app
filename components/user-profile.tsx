@@ -18,6 +18,8 @@ interface Subscription {
   plan: string
   status: string | null
   canManageBilling: boolean
+  trialEndsAt: string | null
+  trialEndingSoon: boolean
 }
 
 interface UserData {
@@ -111,7 +113,12 @@ export default function UserProfile() {
   
   // Handle manage subscription
   const handleManageSubscription = () => {
-    window.location.href = "/api/stripe/manage";
+    // Use checkout for non-paid users, manage for paid users
+    if (userData?.subscription?.plan === 'paid') {
+      window.location.href = "/api/stripe/manage";
+    } else {
+      router.push('/pricing');
+    }
   }
   
   // Get plan display name
@@ -246,25 +253,35 @@ export default function UserProfile() {
               <Label className="text-right">Account Type:</Label>
               <div className="col-span-3">
                 <div className="text-sm font-medium">
-                  {getPlanDisplayName()}
+                  {userData.subscription?.plan === 'trial' ? 'Trial' : 
+                   userData.subscription?.plan === 'paid' ? 'Pro' : 'Free'}
                 </div>
+                {userData.subscription?.plan === 'trial' && userData.subscription.trialEndsAt && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Trial ends on {new Date(userData.subscription.trialEndsAt).toLocaleDateString()}
+                  </div>
+                )}
               </div>
             </div>
             
-            {userData.subscription?.canManageBilling && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <div className="col-span-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={handleManageSubscription}
-                  >
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Manage Subscription
-                  </Button>
-                </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="col-span-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleManageSubscription}
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  {userData.subscription?.plan === 'paid' ? 'Manage Subscription' : 
+                   userData.subscription?.plan === 'trial' ? 'Subscribe Now' : 'Upgrade to Pro'}
+                </Button>
+                {userData.subscription?.plan === 'trial' && userData.subscription.trialEndsAt && (
+                  <div className="text-xs text-center text-muted-foreground mt-1">
+                    Subscribe now to continue using Pro features after your trial ends
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
           
           <DialogFooter className="flex justify-between items-center gap-2">
