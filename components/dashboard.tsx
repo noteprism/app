@@ -260,9 +260,19 @@ export default function Dashboard() {
     fetch("/api/stripe/checkout", {
       method: "GET",
     })
-      .then((res) => res.json())
+      .then((res) => {
+        // Check if it's a redirect response
+        if (res.redirected) {
+          // Follow the redirect directly
+          window.location.href = res.url;
+          return;
+        }
+        // Otherwise, try to parse as JSON
+        return res.json();
+      })
       .then((data) => {
-        if (data.url) {
+        // This will only run if we got a JSON response
+        if (data && data.url) {
           window.location.href = data.url;
         }
       })
