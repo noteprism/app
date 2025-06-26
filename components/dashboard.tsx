@@ -183,6 +183,7 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
     setGroups,
     setStandaloneNotes,
     setIsCreateNoteOpen,
+    isPublic,
   })
   const {
     handleCreateNote,
@@ -257,8 +258,31 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
 
   const handleNewNote = async () => {
     if (isPublic) {
-      // In public mode, redirect to connect page
-      router.push('/connect');
+      // In public mode, create a temporary note with a generated ID
+      const tempId = 'temp-' + Math.random().toString(36).substring(2, 11);
+      const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value;
+      
+      const newNote = {
+        id: tempId,
+        content: "",
+        color,
+        position: 0,
+        createdAt: new Date().toISOString(),
+      };
+      
+      // Update positions in frontend
+      setStandaloneNotes(prev => {
+        // New note is at position 0, and all others shift down
+        const updated = prev.map(note => ({
+          ...note,
+          position: (note.position ?? 0) + 1
+        }));
+        
+        // Insert new note at the beginning
+        return [newNote, ...updated];
+      });
+      
+      setEditingNoteId(tempId);
       return;
     }
     

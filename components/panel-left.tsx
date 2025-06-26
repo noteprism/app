@@ -61,12 +61,6 @@ export default function PanelLeft({
   };
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
-    if (isPublic) {
-      // In public mode, redirect to connect page instead of editing
-      router.push('/connect');
-      return;
-    }
-    
     // Stop propagation to prevent drag behavior when clicking to edit
     if (e) {
       e.stopPropagation();
@@ -103,15 +97,39 @@ export default function PanelLeft({
 
   const handleCreateGroupClick = () => {
     if (isPublic) {
-      router.push('/connect');
+      // In public mode, create a temporary group with a generated ID
+      const tempId = 'temp-' + Math.random().toString(36).substring(2, 11);
+      const name = generateRandomGroupName();
+      
+      // Add the temporary group to the local state
+      const newGroup = {
+        id: tempId,
+        name,
+        position: groups.length,
+        notes: []
+      };
+      
+      handleCreateGroup();
       return;
     }
     handleCreateGroup();
   };
 
+  // Helper function to generate a random group name for public mode
+  const generateRandomGroupName = () => {
+    const adjectives = ['New', 'Quick', 'Sample', 'Demo', 'Test'];
+    const nouns = ['Group', 'Collection', 'List', 'Project', 'Category'];
+    
+    const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    
+    return `${adjective} ${noun}`;
+  };
+
   const handleNewNoteClick = () => {
     if (isPublic) {
-      router.push('/connect');
+      // In public mode, create a note directly
+      onNewNote();
       return;
     }
     onNewNote();
