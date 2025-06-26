@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import Stripe from 'stripe';
-import { TRIAL_PERIOD_DAYS } from '@/app/logic/plan';
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -31,67 +30,22 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     let updated = false;
     
-    // Handle trial users
-    if (user.plan === 'trial') {
-      // If trial end date is set and it's in the past, update to free plan
-      if (user.trialEndsAt && new Date(user.trialEndsAt) < now) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            plan: 'free',
-            trialEndingSoon: false
-          }
-        });
-        updated = true;
-      } 
-      // If trial end date is not set, calculate based on account creation time
-      else if (!user.trialEndsAt) {
-        // Calculate trial end date based on account creation
-        const creationDate = new Date(session.createdAt);
-        const trialEndsAt = new Date(creationDate);
-        trialEndsAt.setDate(trialEndsAt.getDate() + TRIAL_PERIOD_DAYS);
-        
-        // If calculated trial end date is in the past, update to free
-        if (trialEndsAt < now) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              plan: 'free',
-              trialEndingSoon: false
+    // Skip verification for local development mode
+    const isLocalDev = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
+    if (isLocalDev) {
+      return NextResponse.json({ 
+        success: true, 
+        updated: false,
+        user: {
+          id: user.id,
+          plan: user.plan,
+          stripeSubscriptionStatus: user.stripeSubscriptionStatus
             }
           });
-          updated = true;
-        } 
-        // Otherwise, set the trial end date
-        else {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              trialEndsAt
-            }
-          });
-          updated = true;
-        }
-      }
-      // Check if trial is ending within 24 hours and not already marked
-      else if (!user.trialEndingSoon) {
-        const trialEndDate = new Date(user.trialEndsAt);
-        const oneDayFromNow = new Date();
-        oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
-        
-        if (trialEndDate < oneDayFromNow) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              trialEndingSoon: true
-            }
-          });
-          updated = true;
-        }
-      }
     }
+    
     // Handle paid users - check with Stripe only if verification date is old or missing
-    else if (user.plan === 'paid' && user.stripeSubscriptionId) {
+    if (user.plan === 'active' && user.stripeSubscriptionId) {
       // Only check with Stripe if we haven't verified in the last 31 days
       const needsVerification = !user.subscriptionVerifiedAt || 
         ((now.getTime() - new Date(user.subscriptionVerifiedAt).getTime()) > 
@@ -107,8 +61,8 @@ export async function POST(req: NextRequest) {
             data: {
               subscriptionVerifiedAt: now,
               stripeSubscriptionStatus: subscription.status,
-              // If subscription is not active, downgrade to free
-              plan: subscription.status === 'active' ? 'paid' : 'free'
+              // If subscription is not active, downgrade to inactive
+              plan: subscription.status === 'active' ? 'active' : 'inactive'
             }
           });
           updated = true;
@@ -129,8 +83,6 @@ export async function POST(req: NextRequest) {
       user: {
         id: user.id,
         plan: user.plan,
-        trialEndsAt: user.trialEndsAt,
-        trialEndingSoon: user.trialEndingSoon,
         stripeSubscriptionStatus: user.stripeSubscriptionStatus
       }
     });

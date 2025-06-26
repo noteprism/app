@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { PrismaClient } from '../../lib/generated/prisma';
 import Dashboard from "@/components/dashboard"
 import { redirect } from 'next/navigation';
-import { userHasActiveTrial, userHasActiveSubscription } from "../logic/plan";
+import { userHasActivePlan } from "../logic/plan";
 
 const prisma = new PrismaClient();
 
@@ -29,13 +29,15 @@ export default async function DashboardPage() {
     redirect('/');
   }
   
-  // Check if user has an active subscription or is in trial period
-  const user = session.user;
-  const hasActiveSubscription = userHasActiveSubscription(user);
-  const isInTrial = userHasActiveTrial(user);
+  // Check if local development mode is enabled
+  const isLocalDev = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
   
-  // If user doesn't have an active subscription or valid trial, redirect to homepage
-  if (!hasActiveSubscription && !isInTrial) {
+  // Check if user has an active subscription
+  const user = session.user;
+  const hasActivePlan = userHasActivePlan(user);
+  
+  // If user doesn't have an active plan and we're not in local dev mode, redirect to homepage
+  if (!hasActivePlan && !isLocalDev) {
     redirect('/');
   }
   

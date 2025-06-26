@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeft as PanelLeftIcon } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeftIcon, LogIn } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React, { useState } from "react"
@@ -10,6 +10,8 @@ import { Droppable, Draggable } from "@hello-pangea/dnd"
 import UserProfile from "@/components/user-profile"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { differenceInDays, format } from 'date-fns'
 
 interface PanelLeftProps {
@@ -26,6 +28,7 @@ interface PanelLeftProps {
     trialEndsAt: string | null;
     trialEndingSoon: boolean;
   }
+  isPublic?: boolean;
 }
 
 export default function PanelLeft({
@@ -36,6 +39,7 @@ export default function PanelLeft({
   onNewNote,
   onUpdateGroup,
   userSubscription,
+  isPublic = false,
 }: PanelLeftProps) {
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -43,6 +47,7 @@ export default function PanelLeft({
   const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const mobileActive = isMobile && openMobile;
+  const router = useRouter();
 
   // Calculate days remaining in trial safely
   const getTrialDaysRemaining = () => {
@@ -56,6 +61,12 @@ export default function PanelLeft({
   };
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
+    if (isPublic) {
+      // In public mode, redirect to connect page instead of editing
+      router.push('/connect');
+      return;
+    }
+    
     // Stop propagation to prevent drag behavior when clicking to edit
     if (e) {
       e.stopPropagation();
@@ -88,6 +99,22 @@ export default function PanelLeft({
     } else if (e.key === 'Escape') {
       cancelEditing();
     }
+  };
+
+  const handleCreateGroupClick = () => {
+    if (isPublic) {
+      router.push('/connect');
+      return;
+    }
+    handleCreateGroup();
+  };
+
+  const handleNewNoteClick = () => {
+    if (isPublic) {
+      router.push('/connect');
+      return;
+    }
+    onNewNote();
   };
 
   // If on mobile and sidebar is not open, don't render the main panel
@@ -153,7 +180,7 @@ export default function PanelLeft({
         <div className="px-2 pb-2">
           <Button
             className="w-full"
-            onClick={onNewNote}
+            onClick={handleNewNoteClick}
             aria-label="New Note"
             size="sm"
           >
@@ -171,7 +198,7 @@ export default function PanelLeft({
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={handleCreateGroup}
+              onClick={handleCreateGroupClick}
               className="h-5 w-5"
             >
               <Plus className="h-4 w-4" />
@@ -253,7 +280,16 @@ export default function PanelLeft({
       {/* Footer */}
       <div className="border-t">
         <div className="flex items-center p-4">
+          {isPublic ? (
+            <Link href="/connect" className="w-full">
+              <Button className="w-full" variant="default">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign Up / Login
+              </Button>
+            </Link>
+          ) : (
           <UserProfile />
+          )}
         </div>
       </div>
     </div>

@@ -16,14 +16,13 @@ model User {
   password                 String?
   name                     String?
   profilePicture           String?
-  plan                     String?    // 'free', 'trial', or 'paid'
+  plan                     String?
   stripeCustomerId         String?     @unique
   stripePriceId            String?
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
-  subscriptionVerifiedAt   DateTime?   // When we last verified with Stripe
-  trialEndsAt              DateTime?
-  trialEndingSoon          Boolean     @default(false)
+  subscriptionVerifiedAt   DateTime?
+  localDevelopment         Boolean     @default(false)
   notes                    Note[]
   noteGroups               NoteGroup[]
   sessions                 Session[]

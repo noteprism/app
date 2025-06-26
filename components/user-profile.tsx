@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { User, LogOut, Pencil, Mail, Check, CreditCard } from "lucide-react"
+import { User, LogOut, Pencil, Mail, Check, CreditCard, ToggleLeft, ToggleRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -18,8 +18,7 @@ interface Subscription {
   plan: string
   status: string | null
   canManageBilling: boolean
-  trialEndsAt: string | null
-  trialEndingSoon: boolean
+  localDevelopment?: boolean
 }
 
 interface UserData {
@@ -38,7 +37,9 @@ export default function UserProfile() {
   const [editName, setEditName] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isTogglingSubscription, setIsTogglingSubscription] = useState(false)
   const router = useRouter()
+  const isDevelopment = process.env.NODE_ENV === 'development'
 
   // Fetch user data when component mounts
   useEffect(() => {
@@ -113,29 +114,52 @@ export default function UserProfile() {
   
   // Handle manage subscription
   const handleManageSubscription = () => {
-    // Use checkout for non-paid users, manage for paid users
-    if (userData?.subscription?.plan === 'paid') {
+    // Use checkout for non-active users, manage for active users
+    if (userData?.subscription?.plan === 'active') {
       window.location.href = "/api/stripe/manage";
     } else {
       router.push('/pricing');
     }
   }
   
+  // Handle toggle subscription in development mode
+  const handleToggleSubscription = async () => {
+    if (!isDevelopment) return;
+    
+    setIsTogglingSubscription(true);
+    try {
+      const res = await fetch("/api/dev/toggle-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        // Refresh user data
+        const userRes = await fetch("/api/user");
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setUserData(userData);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling subscription:", error);
+    } finally {
+      setIsTogglingSubscription(false);
+    }
+  };
+  
   // Get plan display name
   const getPlanDisplayName = () => {
-    if (!userData?.subscription) return "Free";
+    if (!userData?.subscription) return "Inactive";
     
     const { plan, status } = userData.subscription;
     
-    if (plan === "standard") {
-      return status === "active" ? "Standard (Active)" : 
-             status === "trialing" ? "Standard (Trial)" : 
-             status === "past_due" ? "Standard (Past Due)" : 
-             status === "canceled" ? "Standard (Canceled)" : 
-             "Standard";
+    if (plan === "active" || status === "active") {
+      return "Active";
     }
     
-    return "Free";
+    return "Inactive";
   }
 
   // Generate initials for avatar fallback
@@ -253,16 +277,35 @@ export default function UserProfile() {
               <Label className="text-right">Account Type:</Label>
               <div className="col-span-3">
                 <div className="text-sm font-medium">
-                  {userData.subscription?.plan === 'trial' ? 'Trial' : 
-                   userData.subscription?.plan === 'paid' ? 'Pro' : 'Free'}
+                  {userData.subscription?.plan === 'active' ? 'Active' : 'Inactive'}
                 </div>
-                {userData.subscription?.plan === 'trial' && userData.subscription.trialEndsAt && (
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Trial ends on {new Date(userData.subscription.trialEndsAt).toLocaleDateString()}
-                  </div>
-                )}
               </div>
             </div>
+            
+            {/* Development mode toggle */}
+            {isDevelopment && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Dev Mode:</Label>
+                <div className="col-span-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleToggleSubscription}
+                    disabled={isTogglingSubscription}
+                    className="flex items-center"
+                  >
+                    {userData.subscription?.plan === 'active' ? (
+                      <ToggleRight className="mr-2 h-4 w-4 text-green-500" />
+                    ) : (
+                      <ToggleLeft className="mr-2 h-4 w-4" />
+                    )}
+                    {isTogglingSubscription ? 'Toggling...' : 'Toggle Subscription'}
+                  </Button>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Development mode only - toggle subscription status
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="grid grid-cols-4 items-center gap-4">
               <div className="col-span-4">
@@ -272,14 +315,8 @@ export default function UserProfile() {
                   onClick={handleManageSubscription}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
-                  {userData.subscription?.plan === 'paid' ? 'Manage Subscription' : 
-                   userData.subscription?.plan === 'trial' ? 'Subscribe Now' : 'Upgrade to Pro'}
+                  {userData.subscription?.plan === 'active' ? 'Manage Subscription' : 'Upgrade to Pro'}
                 </Button>
-                {userData.subscription?.plan === 'trial' && userData.subscription.trialEndsAt && (
-                  <div className="text-xs text-center text-muted-foreground mt-1">
-                    Subscribe now to continue using Pro features after your trial ends
-                  </div>
-                )}
               </div>
             </div>
           </div>

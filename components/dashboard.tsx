@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
-import { PlusCircle, Search, Settings, User, Plus } from "lucide-react"
+import { PlusCircle, Search, Settings, User, Plus, LogIn } from "lucide-react"
 import { nanoid } from "nanoid"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,12 +32,71 @@ import { useNoteDragAndDrop } from "@/components/useNoteDragAndDrop"
 import { useNoteActions } from "@/components/note-actions"
 import Masonry from 'react-masonry-css'
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 // Constants for sidebar
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
-export default function Dashboard() {
+// Sample data for public mode
+const sampleGroups: NoteGroupType[] = [
+  {
+    id: "sample-group-1",
+    name: "Project Ideas",
+    notes: [
+      {
+        id: "sample-note-1",
+        content: "Build a personal website with Next.js and Tailwind",
+        color: "#3b82f6",
+        position: 0,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "sample-note-2",
+        content: "Create a mobile app for tracking daily habits",
+        color: "#10b981",
+        position: 1,
+        createdAt: new Date().toISOString(),
+      }
+    ]
+  },
+  {
+    id: "sample-group-2",
+    name: "Learning Goals",
+    notes: [
+      {
+        id: "sample-note-3",
+        content: "Complete React advanced patterns course",
+        color: "#f59e0b",
+        position: 0,
+        createdAt: new Date().toISOString(),
+      }
+    ]
+  }
+];
+
+const sampleStandaloneNotes: Note[] = [
+  {
+    id: "sample-standalone-1",
+    content: "Welcome to Noteprism! This is a sample note to show you how the app works. Sign up to create your own notes and groups.",
+    color: "#6366f1",
+    position: 0,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "sample-standalone-2",
+    content: "Click here to sign up for an account and start organizing your notes!",
+    color: "#ec4899",
+    position: 1,
+    createdAt: new Date().toISOString(),
+  }
+];
+
+interface DashboardProps {
+  isPublic?: boolean;
+}
+
+export default function Dashboard({ isPublic = false }: DashboardProps) {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
   const [userSubscription, setUserSubscription] = useState<{
@@ -62,6 +121,14 @@ export default function Dashboard() {
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
   useEffect(() => {
+    // In public mode, use sample data instead of fetching from API
+    if (isPublic) {
+      setGroups(sampleGroups);
+      setStandaloneNotes(sampleStandaloneNotes);
+      return;
+    }
+
+    // Only fetch data if not in public mode
     fetch("/api/groups")
       .then(res => res.json())
       .then(data => {
@@ -75,9 +142,11 @@ export default function Dashboard() {
         }
       })
       .catch(() => {})
-  }, [])
+  }, [isPublic])
 
   useEffect(() => {
+    if (isPublic) return;
+    
     fetch("/api/notes")
       .then(res => res.json())
       .then(data => {
@@ -85,9 +154,11 @@ export default function Dashboard() {
           data.filter((n: Note) => !n.noteGroupId && !n.groupId).sort((a: Note, b: Note) => (a.position ?? 0) - (b.position ?? 0))
         )
       })
-  }, [])
+  }, [isPublic])
 
   useEffect(() => {
+    if (isPublic) return;
+    
     fetch("/api/user")
       .then(res => res.json())
       .then(data => {
@@ -98,7 +169,7 @@ export default function Dashboard() {
       .catch(error => {
         console.error("Error fetching user data:", error);
       });
-  }, []);
+  }, [isPublic]);
 
   const { handleDragEnd } = useNoteDragAndDrop({
     groups,
@@ -124,6 +195,12 @@ export default function Dashboard() {
   } = noteActions
 
   const handleUpdateStandaloneNote = async (noteId: string, updated: { content: string, color?: string }) => {
+    if (isPublic) {
+      // In public mode, just update the state without API calls
+      setStandaloneNotes(prev => prev.map(note => note.id === noteId ? { ...note, ...updated } : note));
+      return;
+    }
+    
     await fetch("/api/notes", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -151,6 +228,12 @@ export default function Dashboard() {
 
   // Handle drag end for groups and notes
   const handleAnyDragEnd = async (result: DropResult) => {
+    // If in public mode, just update the UI state without API calls
+    if (isPublic) {
+      handleDragEnd(result);
+      return;
+    }
+    
     // If dragging a group (top-level), handle group reorder
     if (result.type === 'group') {
       if (!result.destination) return
@@ -173,6 +256,12 @@ export default function Dashboard() {
   }
 
   const handleNewNote = async () => {
+    if (isPublic) {
+      // In public mode, redirect to connect page
+      router.push('/connect');
+      return;
+    }
+    
     try {
     const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
     const res = await fetch("/api/notes", {
@@ -267,6 +356,7 @@ export default function Dashboard() {
             onNewNote={handleNewNote}
             onUpdateGroup={handleUpdateGroup}
             userSubscription={userSubscription}
+            isPublic={isPublic}
           />
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">

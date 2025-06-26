@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '../../../../../lib/generated/prisma';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
-import { TRIAL_PERIOD_DAYS } from '@/app/logic/plan';
+import { userHasActivePlan } from '@/app/logic/plan';
 
 const prisma = new PrismaClient();
 
@@ -95,10 +95,16 @@ export async function GET(req: NextRequest) {
         data: { linkedinId, name, profilePicture: picture },
       });
     } else {
-      // Create new user
+      // Create new user with inactive plan by default
       isNewUser = true;
       user = await prisma.user.create({
-        data: { linkedinId, email, name, profilePicture: picture },
+        data: { 
+          linkedinId, 
+          email, 
+          name, 
+          profilePicture: picture,
+          plan: 'inactive'
+        },
       });
     }
 
@@ -118,33 +124,19 @@ export async function GET(req: NextRequest) {
     });
 
     // 5. Set secure, HTTPOnly cookie
-    let redirectUrl = `${BASE_URL}/`;
+    let redirectUrl = `${BASE_URL}/dashboard`;
     
-    // Handle redirect based on intent
-    if (intent === 'trial') {
-      // Set trial period for the user if not already set
-      if (!user.trialEndsAt) {
-        const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { 
-            trialEndsAt,
-            plan: 'trial' // Set plan to trial during trial
-          }
-        });
-      }
-      redirectUrl = `${BASE_URL}/trial-activated`;
-    } else if (isNewUser) {
-      // For new users without trial intent, still set a trial period
-      const trialEndsAt = new Date(now.getTime() + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+    // Check if we need to enable local development mode
+    const localDevMode = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
+    if (localDevMode && isNewUser) {
+      // For local development, set the plan to active
       await prisma.user.update({
         where: { id: user.id },
         data: { 
-          trialEndsAt,
-          plan: 'trial' // Set plan to trial during trial
+          plan: 'active',
+          localDevelopment: true
         }
       });
-      redirectUrl = `${BASE_URL}/trial-activated`;
     }
     
     const response = NextResponse.redirect(redirectUrl);

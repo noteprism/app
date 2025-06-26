@@ -60,7 +60,7 @@ async function handleCheckout(req: NextRequest) {
       return NextResponse.redirect(portalSession.url);
     }
     
-    // Create checkout session without trial period since we handle it ourselves
+    // Create checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],

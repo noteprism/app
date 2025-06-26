@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
-import { TRIAL_PERIOD_DAYS } from '../logic/plan';
 import Stripe from 'stripe';
 import type { User } from '@/types/user';
 
