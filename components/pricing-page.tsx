@@ -32,15 +32,6 @@ export function PricingPageContent() {
               }}
             />
           </div>
-          
-          <div className="text-center mt-4">
-            <button 
-              onClick={() => router.push('/dashboard')}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Return to Noteprism
-            </button>
-          </div>
         </div>
       </div>
     </div>

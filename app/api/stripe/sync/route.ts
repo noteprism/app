@@ -28,15 +28,13 @@ export async function GET(req: NextRequest) {
         data: { 
           plan: 'inactive',
           stripeSubscriptionStatus: null,
-          stripeSubscriptionId: null,
-          stripePriceId: null
+          stripeSubscriptionId: null
         }
       });
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'inactive', 
-        message: 'User has no Stripe customer ID, set to inactive plan' 
+        plan: 'inactive'
       });
     }
     
@@ -50,7 +48,6 @@ export async function GET(req: NextRequest) {
     if (subscriptions.data.length > 0) {
       // User has an active subscription
       const subscription = subscriptions.data[0];
-      const priceId = subscription.items.data[0]?.price.id;
       
       await prisma.user.update({
         where: { id: user.id },
@@ -58,14 +55,13 @@ export async function GET(req: NextRequest) {
           plan: 'active',
           stripeSubscriptionStatus: subscription.status,
           stripeSubscriptionId: subscription.id,
-          stripePriceId: priceId
+          subscriptionVerifiedAt: new Date()
         }
       });
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'active', 
-        message: 'User has active subscription, set to active plan'
+        plan: 'active'
       });
     } else {
       // No active subscription found
@@ -74,15 +70,13 @@ export async function GET(req: NextRequest) {
         data: { 
           plan: 'inactive',
           stripeSubscriptionStatus: null,
-          stripeSubscriptionId: null,
-          stripePriceId: null
+          stripeSubscriptionId: null
         }
       });
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'inactive', 
-        message: 'No active subscription found, set to inactive plan' 
+        plan: 'inactive'
       });
     }
   } catch (error) {

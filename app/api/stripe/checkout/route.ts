@@ -49,29 +49,16 @@ async function handleCheckout(req: NextRequest) {
       });
     }
     
-    // Check if user already has an active subscription
-    if (user.stripeSubscriptionId && user.stripeSubscriptionStatus === 'active') {
-      // Redirect to the billing portal to manage existing subscription
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: customerId,
-        return_url: `${process.env.NEXT_PUBLIC_DOMAIN}/dashboard`,
-      });
-      
-      return NextResponse.redirect(portalSession.url);
-    }
-    
-    // Create checkout session
+    // Create checkout session - the success/cancel URLs are configured in the Stripe Dashboard
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer: customerId,
       line_items: [{ 
-        price: 'price_1RcXSgK0jvA0kTsf1gcrQDUn', // Original price ID
+        price: 'price_1RcXSgK0jvA0kTsf1gcrQDUn',
         quantity: 1 
       }],
       allow_promotion_codes: true,
-      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/stripe/checkout/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/pricing?checkout=cancel`,
       metadata: { userId: user.id },
     });
 
