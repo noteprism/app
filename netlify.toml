@@ -1,5 +1,5 @@
 [build]
-  command = "npx prisma generate && npx prisma migrate deploy && pnpm build"
+  command = "npx prisma generate && npx prisma migrate resolve --applied 20250702000000_add_local_development && npx prisma migrate deploy && pnpm build"
   publish = ".next"
 
 [build.environment]
