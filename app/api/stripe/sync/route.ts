@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       await prisma.user.update({
         where: { id: user.id },
         data: { 
-          plan: 'free',
+          plan: 'inactive',
           stripeSubscriptionStatus: null,
           stripeSubscriptionId: null,
           stripePriceId: null
@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'free', 
-        message: 'User has no Stripe customer ID, set to free plan' 
+        plan: 'inactive', 
+        message: 'User has no Stripe customer ID, set to inactive plan' 
       });
     }
     
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          plan: 'standard',
+          plan: 'active',
           stripeSubscriptionStatus: subscription.status,
           stripeSubscriptionId: subscription.id,
           stripePriceId: priceId
@@ -64,15 +64,15 @@ export async function GET(req: NextRequest) {
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'standard', 
-        message: 'User has active subscription, set to standard plan'
+        plan: 'active', 
+        message: 'User has active subscription, set to active plan'
       });
     } else {
       // No active subscription found
       await prisma.user.update({
         where: { id: user.id },
         data: { 
-          plan: 'free',
+          plan: 'inactive',
           stripeSubscriptionStatus: null,
           stripeSubscriptionId: null,
           stripePriceId: null
@@ -81,8 +81,8 @@ export async function GET(req: NextRequest) {
       
       return NextResponse.json({ 
         success: true, 
-        plan: 'free', 
-        message: 'No active subscription found, set to free plan' 
+        plan: 'inactive', 
+        message: 'No active subscription found, set to inactive plan' 
       });
     }
   } catch (error) {

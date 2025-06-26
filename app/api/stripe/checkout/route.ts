@@ -70,8 +70,8 @@ async function handleCheckout(req: NextRequest) {
         quantity: 1 
       }],
       allow_promotion_codes: true,
-      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/dashboard?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/?checkout=cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/stripe/checkout/success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/pricing?checkout=cancel`,
       metadata: { userId: user.id },
     });
 

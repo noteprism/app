@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         await prisma.user.update({
           where: { id: userId },
           data: { 
-            plan: 'paid', // Use 'paid' for actual paying customers
+            plan: 'active', // Updated to 'active' from 'paid'
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscriptionId,
             stripeSubscriptionStatus: subscription.status,
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            plan: 'paid', // Use 'paid' for actual paying customers
+            plan: 'active', // Updated to 'active' from 'paid'
             stripeSubscriptionId: subscription.id,
             stripeSubscriptionStatus: subscription.status,
             stripePriceId: subscription.items.data[0]?.price.id,
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
             await prisma.user.update({
               where: { id: userId },
               data: {
-                plan: 'paid', // Use 'paid' for actual paying customers
+                plan: 'active', // Updated to 'active' from 'paid'
                 stripeCustomerId: customerId,
                 stripeSubscriptionId: subscription.id,
                 stripeSubscriptionStatus: subscription.status,
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       
       if (user) {
         const status = subscription.status;
-        const plan = status === 'active' ? 'paid' : 'free';
+        const plan = status === 'active' ? 'active' : 'inactive'; // Updated plan values
         
         await prisma.user.update({
           where: { id: user.id },
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
           await prisma.user.update({
             where: { id: user.id },
             data: {
-              plan: 'paid', // Use 'paid' for actual paying customers
+              plan: 'active', // Updated to 'active' from 'paid'
               stripeSubscriptionStatus: subscription.status,
               stripeSubscriptionId: subscriptionId,
               trialEndingSoon: false, // Reset the trial ending soon flag
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            plan: 'free',
+            plan: 'inactive', // Updated to 'inactive' from 'free'
             stripeSubscriptionStatus: 'canceled',
             trialEndsAt: null,
             trialEndingSoon: false,
