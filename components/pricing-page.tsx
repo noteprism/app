@@ -35,10 +35,10 @@ export function PricingPageContent() {
           
           <div className="text-center mt-4">
             <button 
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/dashboard')}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              Return to Home
+              Return to Noteprism
             </button>
           </div>
         </div>

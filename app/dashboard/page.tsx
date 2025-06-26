@@ -16,9 +16,9 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
   
-  // If no session, allow access to public dashboard
+  // If no session, redirect to connect page
   if (!sessionId) {
-    return <Dashboard isPublic={true} />;
+    redirect('/connect');
   }
   
   const session = await prisma.session.findUnique({
@@ -26,9 +26,9 @@ export default async function DashboardPage() {
     include: { user: true },
   });
   
-  // If invalid session, allow access to public dashboard
+  // If invalid session, redirect to connect page
   if (!session || session.expiresAt <= new Date()) {
-    return <Dashboard isPublic={true} />;
+    redirect('/connect');
   }
   
   // Check if local development mode is enabled
@@ -38,7 +38,11 @@ export default async function DashboardPage() {
   const user = session.user;
   const hasActivePlan = userHasActivePlan(user);
   
-  // Always allow access to dashboard for logged-in users
-  // They'll see appropriate UI based on their plan status
+  // If user doesn't have an active plan and we're not in local dev mode, redirect to pricing
+  if (!hasActivePlan && !isLocalDev) {
+    redirect('/pricing');
+  }
+  
+  // User has active plan, show dashboard
   return <Dashboard />;
 } 
