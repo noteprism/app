@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
-import { PlusCircle, Search, Settings, User, Plus, LogIn } from "lucide-react"
+import { PlusCircle, Search, Settings, User, Plus, LogIn, CheckCircle } from "lucide-react"
 import { nanoid } from "nanoid"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +33,7 @@ import { useNoteActions } from "@/components/note-actions"
 import Masonry from 'react-masonry-css'
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Constants for sidebar
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -94,9 +95,10 @@ const sampleStandaloneNotes: Note[] = [
 
 interface DashboardProps {
   isPublic?: boolean;
+  showSubscriptionSuccess?: boolean;
 }
 
-export default function Dashboard({ isPublic = false }: DashboardProps) {
+export default function Dashboard({ isPublic = false, showSubscriptionSuccess = false }: DashboardProps) {
   const [groups, setGroups] = useState<NoteGroupType[]>([])
   const [standaloneNotes, setStandaloneNotes] = useState<Note[]>([])
   const [userSubscription, setUserSubscription] = useState<{
@@ -183,7 +185,6 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
     setGroups,
     setStandaloneNotes,
     setIsCreateNoteOpen,
-    isPublic,
   })
   const {
     handleCreateNote,
@@ -258,31 +259,8 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
 
   const handleNewNote = async () => {
     if (isPublic) {
-      // In public mode, create a temporary note with a generated ID
-      const tempId = 'temp-' + Math.random().toString(36).substring(2, 11);
-      const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value;
-      
-      const newNote = {
-        id: tempId,
-        content: "",
-        color,
-        position: 0,
-        createdAt: new Date().toISOString(),
-      };
-      
-      // Update positions in frontend
-      setStandaloneNotes(prev => {
-        // New note is at position 0, and all others shift down
-        const updated = prev.map(note => ({
-          ...note,
-          position: (note.position ?? 0) + 1
-        }));
-        
-        // Insert new note at the beginning
-        return [newNote, ...updated];
-      });
-      
-      setEditingNoteId(tempId);
+      // In public mode, redirect to connect page
+      router.push('/connect');
       return;
     }
     
@@ -369,22 +347,71 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
   }, []);
 
   return (
-    <DragDropContext onDragEnd={handleAnyDragEnd}>
-      <SidebarProvider>
-        <div className="flex h-screen bg-background">
-          <PanelLeft
-            groups={groups}
-            handleCreateGroup={handleCreateGroup}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            onNewNote={handleNewNote}
-            onUpdateGroup={handleUpdateGroup}
-            userSubscription={userSubscription}
-            isPublic={isPublic}
-          />
+    <SidebarProvider
+      defaultState="open"
+      cookieName={SIDEBAR_COOKIE_NAME}
+      cookieMaxAge={SIDEBAR_COOKIE_MAX_AGE}
+    >
+      <div className="flex h-screen w-full overflow-hidden bg-background">
+        <PanelLeft />
+        <div className="flex w-full flex-col overflow-hidden">
+          <div className="flex h-16 items-center border-b px-4 md:px-6">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="md:hidden" />
+              <div className="hidden md:flex">
+                <Image src="/mark.png" alt="Noteprism" width={32} height={32} />
+              </div>
+              <h1 className="text-xl font-semibold tracking-tight">Noteprism</h1>
+            </div>
+            <div className="ml-auto flex items-center gap-4">
+              <div className="relative w-full max-w-[440px]">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search notes..."
+                  className="w-full bg-background pl-8 md:w-[300px] lg:w-[440px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              {!isPublic ? (
+                <Link href="/api/auth/logout">
+                  <Button variant="ghost" size="icon">
+                    <LogIn className="h-5 w-5" />
+                    <span className="sr-only">Logout</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/connect">
+                  <Button>Sign In</Button>
+                </Link>
+              )}
+            </div>
+          </div>
           
-          <div className="flex-1 transition-[width] duration-200 ease-linear">
-            <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
+          {showSubscriptionSuccess && (
+            <Alert className="mx-6 mt-4 bg-green-50 border-green-200">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <AlertDescription className="text-green-800">
+                Your subscription has been activated successfully! You now have full access to all features.
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 md:p-6">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold md:text-xl">All Notes</h2>
+              <Button
+                size="sm"
+                className="ml-auto"
+                onClick={() => setIsCreateNoteOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                New Note
+              </Button>
+            </div>
+            
+            <DragDropContext onDragEnd={handleAnyDragEnd}>
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry
                   breakpointCols={getColumnCount()}
@@ -418,10 +445,10 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
                   ))}
                 </Masonry>
               </div>
-            </main>
+            </DragDropContext>
           </div>
         </div>
-      </SidebarProvider>
+      </div>
 
       <CreateNoteDialog
         open={isCreateNoteOpen}
@@ -429,6 +456,6 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
         groups={groups}
         onCreateNote={handleCreateNote}
       />
-    </DragDropContext>
+    </SidebarProvider>
   )
 }

@@ -49,7 +49,10 @@ async function handleCheckout(req: NextRequest) {
       });
     }
     
-    // Create checkout session - the success/cancel URLs are configured in the Stripe Dashboard
+    // Get the base URL for success/cancel redirects
+    const baseUrl = req.nextUrl.origin;
+    
+    // Create checkout session with explicit success/cancel URLs
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -60,6 +63,8 @@ async function handleCheckout(req: NextRequest) {
       }],
       allow_promotion_codes: true,
       metadata: { userId: user.id },
+      success_url: `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/pricing`,
     });
 
     // Return URL based on request method

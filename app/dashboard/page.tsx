@@ -12,13 +12,16 @@ export const metadata: Metadata = {
   description: "Your organized workspace for notes and tasks",
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
   
-  // If no session, redirect to connect page
   if (!sessionId) {
-    redirect('/connect');
+    redirect('/');
   }
   
   const session = await prisma.session.findUnique({
@@ -26,9 +29,8 @@ export default async function DashboardPage() {
     include: { user: true },
   });
   
-  // If invalid session, redirect to connect page
   if (!session || session.expiresAt <= new Date()) {
-    redirect('/connect');
+    redirect('/');
   }
   
   // Check if local development mode is enabled
@@ -38,11 +40,32 @@ export default async function DashboardPage() {
   const user = session.user;
   const hasActivePlan = userHasActivePlan(user);
   
-  // If user doesn't have an active plan and we're not in local dev mode, redirect to pricing
-  if (!hasActivePlan && !isLocalDev) {
-    redirect('/pricing');
+  // Check if we're coming from a successful payment flow
+  const isPostPayment = searchParams.subscription === 'active';
+  
+  // If user doesn't have an active plan and we're not in local dev mode or post-payment flow, redirect to homepage
+  if (!hasActivePlan && !isLocalDev && !isPostPayment) {
+    // If we just completed payment but the database hasn't updated yet, force a sync
+    if (isPostPayment) {
+      // This is a fallback - the success handler should have already updated the user
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/stripe/sync`, {
+        method: 'GET',
+        headers: {
+          Cookie: `noteprism_session=${sessionId}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.plan === 'active') {
+          // User is now active, continue to dashboard
+          return <Dashboard showSubscriptionSuccess={true} />;
+        }
+      }
+    }
+    
+    redirect('/');
   }
   
-  // User has active plan, show dashboard
-  return <Dashboard />;
+  return <Dashboard showSubscriptionSuccess={isPostPayment} />;
 } 
