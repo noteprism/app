@@ -25,7 +25,7 @@ export async function checkSubscriptionStatus(req: NextRequest) {
     if (subscriptionParam === 'active') {
       return null; // Skip verification, user was just updated in the success handler
     }
-    
+
     // Call our API endpoint to verify the subscription
     // This runs in the Node.js runtime where Stripe can be properly initialized
     const baseUrl = req.nextUrl.origin;
