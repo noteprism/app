@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma db push --force-reset && prisma generate && next build",
+    "build": "prisma db push --force-reset && timeout /t 2 /nobreak >nul && prisma generate && timeout /t 2 /nobreak >nul && next build",
+    "build:safe": "prisma db push --force-reset && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",

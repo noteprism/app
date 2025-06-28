@@ -4,17 +4,13 @@ import Stripe from 'stripe';
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const SESSION_COOKIE_NAME = 'noteprism_session';
-
-// How often to verify with Stripe (in days)
-const VERIFICATION_PERIOD_DAYS = 31;
 
 export async function POST(req: NextRequest) {
   try {
-    const sessionId = req.cookies.get(SESSION_COOKIE_NAME)?.value;
+    const sessionId = req.cookies.get('noteprism_session')?.value;
     
     if (!sessionId) {
-      return NextResponse.json({ success: false, message: 'No session found' });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const session = await prisma.session.findUnique({
@@ -22,75 +18,84 @@ export async function POST(req: NextRequest) {
       include: { user: true },
     });
 
-    if (!session || session.expiresAt < new Date()) {
-      return NextResponse.json({ success: false, message: 'Invalid or expired session' });
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const user = session.user;
-    const now = new Date();
-    let updated = false;
-    
-    // Skip verification for local development mode
+
+    // Check if local development mode is enabled
     const isLocalDev = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
-    if (isLocalDev) {
+    
+    // Skip verification for local development accounts
+    if (isLocalDev && user.localDevelopment) {
       return NextResponse.json({ 
-        success: true, 
-        updated: false,
-        user: {
-          id: user.id,
-          plan: user.plan,
-          stripeSubscriptionStatus: user.stripeSubscriptionStatus
-            }
-          });
-    }
-    
-    // Handle paid users - check with Stripe only if verification date is old or missing
-    if (user.plan === 'active' && user.stripeSubscriptionId) {
-      // Only check with Stripe if we haven't verified in the last 31 days
-      const needsVerification = !user.subscriptionVerifiedAt || 
-        ((now.getTime() - new Date(user.subscriptionVerifiedAt).getTime()) > 
-         (VERIFICATION_PERIOD_DAYS * 24 * 60 * 60 * 1000));
-      
-      if (needsVerification) {
-        try {
-          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-          
-          // Update the verification date and subscription status
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              subscriptionVerifiedAt: now,
-              stripeSubscriptionStatus: subscription.status,
-              // If subscription is not active, downgrade to inactive
-              plan: subscription.status === 'active' ? 'active' : 'inactive'
-            }
-          });
-          updated = true;
-        } catch (error) {
-          console.error(`Error verifying subscription with Stripe:`, error);
-          // If we can't verify with Stripe, we'll try again next time
-          return NextResponse.json({ 
-            success: false, 
-            message: 'Failed to verify subscription with Stripe' 
-          });
-        }
-      }
-    }
-    
-    return NextResponse.json({ 
-      success: true, 
-      updated,
-      user: {
-        id: user.id,
+        hasActiveSubscription: true,
         plan: user.plan,
-        stripeSubscriptionStatus: user.stripeSubscriptionStatus
+        isLocalDev: true 
+      });
+    }
+
+    // If user doesn't have a Stripe subscription ID, they don't have an active subscription
+    if (!user.stripeSubscriptionId) {
+      return NextResponse.json({ 
+        hasActiveSubscription: false,
+        plan: user.plan 
+      });
+    }
+
+    // Check how long since last verification
+    const VERIFICATION_PERIOD_DAYS = 1; // Check daily for checkout success flow
+    const lastVerified = user.subscriptionVerifiedAt;
+    const now = new Date();
+    
+    if (lastVerified) {
+      const daysSinceVerification = (now.getTime() - lastVerified.getTime()) / (1000 * 60 * 60 * 24);
+      
+      // If recently verified and user has active plan, skip Stripe API call
+      if (daysSinceVerification < VERIFICATION_PERIOD_DAYS && user.plan === 'active') {
+        return NextResponse.json({ 
+          hasActiveSubscription: true,
+          plan: user.plan 
+        });
       }
-    });
+    }
+
+    // Verify with Stripe
+    try {
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      const isActive = subscription.status === 'active';
+      const plan = isActive ? 'active' : 'inactive';
+
+      // Update user's plan and verification timestamp
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          plan,
+          stripeSubscriptionStatus: subscription.status,
+          subscriptionVerifiedAt: now,
+        },
+      });
+
+      return NextResponse.json({ 
+        hasActiveSubscription: isActive,
+        plan,
+        stripeStatus: subscription.status 
+      });
+
+    } catch (stripeError) {
+      console.error('Stripe verification error:', stripeError);
+      
+      // If Stripe call fails, return current database state
+      return NextResponse.json({ 
+        hasActiveSubscription: user.plan === 'active',
+        plan: user.plan,
+        error: 'Could not verify with Stripe' 
+      });
+    }
+
   } catch (error) {
-    console.error('Error checking subscription status:', error);
-    return NextResponse.json({ 
-      success: false, 
-      message: 'Internal server error' 
-    }, { status: 500 });
+    console.error('Subscription verification error:', error);
+    return NextResponse.json({ error: 'Verification failed' }, { status: 500 });
   }
 } 

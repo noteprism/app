@@ -48,11 +48,11 @@ async function handleCheckout(req: NextRequest) {
         data: { stripeCustomerId: customerId }
       });
     }
-    
-    // Get the base URL for success/cancel redirects
+
+    // Get the base URL for success/cancel URLs
     const baseUrl = req.nextUrl.origin;
     
-    // Create checkout session with explicit success/cancel URLs
+    // Create checkout session with proper success/cancel URLs
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -63,8 +63,8 @@ async function handleCheckout(req: NextRequest) {
       }],
       allow_promotion_codes: true,
       metadata: { userId: user.id },
-      success_url: `${baseUrl}/api/stripe/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/pricing`,
+      success_url: `${baseUrl}/dashboard/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/pricing?cancelled=true`,
     });
 
     // Return URL based on request method

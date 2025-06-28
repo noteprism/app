@@ -17,15 +17,6 @@ export async function checkSubscriptionStatus(req: NextRequest) {
       return null; // No session, no user to check
     }
 
-    // Check if this is a post-payment redirect with subscription=active parameter
-    const searchParams = req.nextUrl.searchParams;
-    const subscriptionParam = searchParams.get('subscription');
-    
-    // If we're coming from a successful payment, skip verification
-    if (subscriptionParam === 'active') {
-      return null; // Skip verification, user was just updated in the success handler
-    }
-
     // Call our API endpoint to verify the subscription
     // This runs in the Node.js runtime where Stripe can be properly initialized
     const baseUrl = req.nextUrl.origin;
