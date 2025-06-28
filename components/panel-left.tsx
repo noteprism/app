@@ -61,12 +61,6 @@ export default function PanelLeft({
   };
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
-    if (isPublic) {
-      // In public mode, redirect to connect page instead of editing
-      router.push('/connect');
-      return;
-    }
-    
     // Stop propagation to prevent drag behavior when clicking to edit
     if (e) {
       e.stopPropagation();
@@ -102,18 +96,10 @@ export default function PanelLeft({
   };
 
   const handleCreateGroupClick = () => {
-    if (isPublic) {
-      router.push('/connect');
-      return;
-    }
     handleCreateGroup();
   };
 
   const handleNewNoteClick = () => {
-    if (isPublic) {
-      router.push('/connect');
-      return;
-    }
     onNewNote();
   };
 

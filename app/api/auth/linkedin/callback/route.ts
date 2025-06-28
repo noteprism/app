@@ -123,11 +123,11 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // 5. Set secure, HTTPOnly cookie
+    // 5. Set secure, HTTPOnly cookie and determine redirect URL
+    const localDevMode = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
     let redirectUrl = `${BASE_URL}/dashboard`;
     
     // Check if we need to enable local development mode
-    const localDevMode = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
     if (localDevMode && isNewUser) {
       // For local development, set the plan to active
       await prisma.user.update({
@@ -137,6 +137,10 @@ export async function GET(req: NextRequest) {
           localDevelopment: true
         }
       });
+      redirectUrl = `${BASE_URL}/dashboard`;
+    } else if (user.plan === 'inactive') {
+      // Redirect inactive users to pricing
+      redirectUrl = `${BASE_URL}/pricing`;
     }
     
     const response = NextResponse.redirect(redirectUrl);

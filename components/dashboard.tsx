@@ -121,10 +121,22 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
   const STANDALONE_DROPPABLE_ID = "standalone-notes"
 
   useEffect(() => {
-    // In public mode, use sample data instead of fetching from API
+    // In public mode, load from localStorage or use sample data
     if (isPublic) {
-      setGroups(sampleGroups);
-      setStandaloneNotes(sampleStandaloneNotes);
+      const savedGroups = localStorage.getItem('noteprism_demo_groups');
+      const savedNotes = localStorage.getItem('noteprism_demo_notes');
+      
+      if (savedGroups) {
+        setGroups(JSON.parse(savedGroups));
+      } else {
+        setGroups(sampleGroups);
+      }
+      
+      if (savedNotes) {
+        setStandaloneNotes(JSON.parse(savedNotes));
+      } else {
+        setStandaloneNotes(sampleStandaloneNotes);
+      }
       return;
     }
 
@@ -196,8 +208,10 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
 
   const handleUpdateStandaloneNote = async (noteId: string, updated: { content: string, color?: string }) => {
     if (isPublic) {
-      // In public mode, just update the state without API calls
-      setStandaloneNotes(prev => prev.map(note => note.id === noteId ? { ...note, ...updated } : note));
+      // In public mode, update localStorage
+      const updatedNotes = standaloneNotes.map(note => note.id === noteId ? { ...note, ...updated } : note);
+      setStandaloneNotes(updatedNotes);
+      localStorage.setItem('noteprism_demo_notes', JSON.stringify(updatedNotes));
       return;
     }
     
@@ -228,9 +242,23 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
 
   // Handle drag end for groups and notes
   const handleAnyDragEnd = async (result: DropResult) => {
-    // If in public mode, just update the UI state without API calls
+    // If in public mode, handle drag with localStorage
     if (isPublic) {
       handleDragEnd(result);
+      // Save to localStorage after drag
+      if (result.type === 'group') {
+        if (!result.destination) return
+        const reordered = Array.from(groups)
+        const [removed] = reordered.splice(result.source.index, 1)
+        reordered.splice(result.destination.index, 0, removed)
+        const updated = reordered.map((g, i) => ({ ...g, position: i }))
+        setGroups(updated)
+        localStorage.setItem('noteprism_demo_groups', JSON.stringify(updated));
+        return
+      }
+      // Save notes after drag
+      localStorage.setItem('noteprism_demo_notes', JSON.stringify(standaloneNotes));
+      localStorage.setItem('noteprism_demo_groups', JSON.stringify(groups));
       return;
     }
     
@@ -257,8 +285,26 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
 
   const handleNewNote = async () => {
     if (isPublic) {
-      // In public mode, redirect to connect page
-      router.push('/connect');
+      // In public mode, create note in localStorage
+      const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].value
+      const newNote: Note = {
+        id: nanoid(),
+        content: "",
+        color,
+        position: 0,
+        createdAt: new Date().toISOString(),
+      }
+      
+      // Update positions and add new note
+      const updatedNotes = standaloneNotes.map(note => ({
+        ...note,
+        position: (note.position ?? 0) + 1
+      }))
+      
+      const finalNotes = [newNote, ...updatedNotes];
+      setStandaloneNotes(finalNotes);
+      localStorage.setItem('noteprism_demo_notes', JSON.stringify(finalNotes));
+      setEditingNoteId(newNote.id);
       return;
     }
     
@@ -349,6 +395,18 @@ export default function Dashboard({ isPublic = false }: DashboardProps) {
           />
           
           <div className="flex-1 transition-[width] duration-200 ease-linear">
+            {/* Demo Mode Banner */}
+            {isPublic && (
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 text-center text-sm">
+                <div className="flex items-center justify-center gap-2">
+                  <span>🎉 You're trying Noteprism!</span>
+                  <span className="hidden sm:inline">Your notes are saved locally for this demo.</span>
+                  <Link href="/connect" className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md font-medium transition-colors">
+                    Sign up to save forever
+                  </Link>
+                </div>
+              </div>
+            )}
             <main className="p-4 pt-16 md:p-6 md:pt-16 bg-background text-foreground">
               <div className={searchQuery ? 'search-filtered-container' : ''}>
                 <Masonry

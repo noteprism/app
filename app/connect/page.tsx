@@ -23,8 +23,22 @@ export default async function ConnectPage() {
     });
     
     if (session && session.expiresAt > new Date()) {
-      // User is already logged in, redirect to dashboard
-      return redirect('/dashboard');
+      // User is already logged in, check subscription status
+      const user = session.user;
+      const localDevMode = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
+      
+      // If local dev mode and user has localDevelopment flag, redirect to dashboard
+      if (localDevMode && user.localDevelopment) {
+        return redirect('/dashboard');
+      }
+      
+      // If user has active plan, redirect to dashboard
+      if (user.plan === 'active' || user.stripeSubscriptionStatus === 'active') {
+        return redirect('/dashboard');
+      }
+      
+      // If user has inactive plan, redirect to pricing
+      return redirect('/pricing');
     }
   }
 

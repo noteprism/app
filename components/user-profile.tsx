@@ -114,8 +114,12 @@ export default function UserProfile() {
   
   // Handle manage subscription
   const handleManageSubscription = () => {
-    // Direct link to Stripe billing portal
-    window.location.href = "https://billing.stripe.com/p/login/00w14od5X6Ho0vecWNe3e00";
+    // Use checkout for non-active users, manage for active users
+    if (userData?.subscription?.plan === 'active') {
+      window.location.href = "/api/stripe/manage";
+    } else {
+      router.push('/pricing');
+    }
   }
   
   // Handle toggle subscription in development mode
@@ -311,7 +315,7 @@ export default function UserProfile() {
                   onClick={handleManageSubscription}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Manage Subscription
+                  {userData.subscription?.plan === 'active' ? 'Manage Subscription' : 'Upgrade to Pro'}
                 </Button>
               </div>
             </div>
