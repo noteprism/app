@@ -48,7 +48,7 @@ async function handleCheckout(req: NextRequest) {
         data: { stripeCustomerId: customerId }
       });
     }
-
+    
     // Get the base URL for success/cancel URLs
     const baseUrl = req.nextUrl.origin;
     

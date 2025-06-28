@@ -61,6 +61,23 @@ export default function PanelLeft({
   };
 
   const startEditing = (group: NoteGroupType, e?: React.MouseEvent) => {
+    if (isPublic) {
+      // In public mode, allow editing but work with demo data
+      // Stop propagation to prevent drag behavior when clicking to edit
+      if (e) {
+        e.stopPropagation();
+      }
+      
+      setEditingGroupId(group.id);
+      setEditingName(group.name);
+      
+      // Focus the input after a short delay to ensure it's rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+      return;
+    }
+    
     // Stop propagation to prevent drag behavior when clicking to edit
     if (e) {
       e.stopPropagation();
@@ -96,10 +113,20 @@ export default function PanelLeft({
   };
 
   const handleCreateGroupClick = () => {
+    if (isPublic) {
+      // In public mode, allow creating groups
+      handleCreateGroup();
+      return;
+    }
     handleCreateGroup();
   };
 
   const handleNewNoteClick = () => {
+    if (isPublic) {
+      // In public mode, allow creating notes
+      onNewNote();
+      return;
+    }
     onNewNote();
   };
 
