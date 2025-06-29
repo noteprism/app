@@ -31,7 +31,7 @@ export default function CheckoutSuccessClient() {
           const data = await response.json();
           
           if (data.hasActiveSubscription) {
-            router.push('/dashboard');
+            router.push('/dashboard?checkout=success');
             return;
           }
         }
@@ -50,7 +50,7 @@ export default function CheckoutSuccessClient() {
         pollCount++;
         
         if (pollCount >= maxPolls) {
-          router.push('/dashboard');
+          router.push('/dashboard?checkout=success');
           return;
         }
         
@@ -68,7 +68,7 @@ export default function CheckoutSuccessClient() {
           <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/dashboard?checkout=success')}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Go to Dashboard
