@@ -58,26 +58,26 @@ export async function POST(req: NextRequest) {
           hasActiveSubscription: true,
           plan: user.plan 
         });
+        }
       }
-    }
 
     // Verify with Stripe
-    try {
-      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       const isActive = subscription.status === 'active';
       const plan = isActive ? 'active' : 'inactive';
-      
+          
       // Update user's plan and verification timestamp
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
           plan,
           stripeSubscriptionStatus: subscription.status,
-          subscriptionVerifiedAt: now,
+              subscriptionVerifiedAt: now,
         },
-      });
+          });
 
-      return NextResponse.json({ 
+          return NextResponse.json({ 
         hasActiveSubscription: isActive,
         plan,
         stripeStatus: subscription.status 
@@ -87,12 +87,12 @@ export async function POST(req: NextRequest) {
       console.error('Stripe verification error:', stripeError);
       
       // If Stripe call fails, return current database state
-      return NextResponse.json({ 
+    return NextResponse.json({ 
         hasActiveSubscription: user.plan === 'active',
         plan: user.plan,
         error: 'Could not verify with Stripe' 
       });
-    }
+      }
 
   } catch (error) {
     console.error('Subscription verification error:', error);

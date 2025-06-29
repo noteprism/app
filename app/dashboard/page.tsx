@@ -40,10 +40,16 @@ export default async function DashboardPage({
   const user = session.user;
   const hasActivePlan = userHasActivePlan(user);
   
-  // If user doesn't have an active plan and we're not in local dev mode, redirect to pricing
-  // BUT don't redirect if they're coming from checkout success (give webhook time to process)
-  const fromCheckout = searchParams.checkout === 'success' || searchParams.session_id;
+  // More lenient checkout flow - allow any checkout success redirect
+  const fromCheckout = searchParams.checkout === 'success' || 
+                      searchParams.session_id || 
+                      searchParams.verified === 'true' ||
+                      searchParams.timeout === 'true' ||
+                      searchParams.error === 'true' ||
+                      searchParams.manual === 'true';
   
+  // If user doesn't have an active plan and we're not in local dev mode, redirect to pricing
+  // BUT be very lenient if they're coming from checkout (give webhook/verification time)
   if (!hasActivePlan && !isLocalDev && !fromCheckout) {
     redirect('/pricing');
   }

@@ -18,20 +18,24 @@ export default function CheckoutSuccessClient() {
     let pollCount = 0;
     const maxPolls = 30;
     
-    const pollSubscriptionStatus = async () => {
+    const pollStripeSession = async () => {
       try {
-        const response = await fetch('/api/stripe/verify-subscription', {
+        // Check Stripe session status directly (source of truth)
+        const response = await fetch('/api/stripe/checkout-session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ sessionId }),
         });
 
         if (response.ok) {
           const data = await response.json();
           
-          if (data.hasActiveSubscription) {
-            router.push('/dashboard?checkout=success');
+          // If Stripe confirms payment and we've updated the database
+          if (data.success && data.user_activated) {
+            console.log('✅ Payment verified via Stripe, user activated, redirecting to dashboard');
+            router.push('/dashboard?checkout=success&verified=true');
             return;
           }
         }
@@ -39,26 +43,29 @@ export default function CheckoutSuccessClient() {
         pollCount++;
         
         if (pollCount >= maxPolls) {
-          router.push('/dashboard');
+          // Fallback - redirect anyway, dashboard will handle it
+          console.log('⚠️ Polling timeout, redirecting to dashboard');
+          router.push('/dashboard?checkout=success&timeout=true');
           return;
         }
 
-        setTimeout(pollSubscriptionStatus, 1000);
+        setTimeout(pollStripeSession, 1000);
         
       } catch (error) {
-        console.error('Error checking subscription status:', error);
+        console.error('Error checking Stripe session:', error);
         pollCount++;
         
         if (pollCount >= maxPolls) {
-          router.push('/dashboard?checkout=success');
+          router.push('/dashboard?checkout=success&error=true');
           return;
         }
         
-        setTimeout(pollSubscriptionStatus, 1000);
+        setTimeout(pollStripeSession, 1000);
       }
     };
 
-    setTimeout(pollSubscriptionStatus, 2000);
+    // Start polling after 2 seconds
+    setTimeout(pollStripeSession, 2000);
   }, [sessionId, router]);
 
   if (error) {
@@ -68,7 +75,7 @@ export default function CheckoutSuccessClient() {
           <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
-            onClick={() => router.push('/dashboard?checkout=success')}
+            onClick={() => router.push('/dashboard?checkout=success&manual=true')}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Go to Dashboard
@@ -83,7 +90,7 @@ export default function CheckoutSuccessClient() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
         <h1 className="text-2xl font-bold text-green-600 mb-2">Payment Successful!</h1>
-        <p className="text-gray-600">Setting up your subscription...</p>
+        <p className="text-gray-600">Verifying with Stripe and activating your subscription...</p>
       </div>
     </div>
   );
