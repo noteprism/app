@@ -1,8 +1,5 @@
 import { Suspense } from 'react';
-
-function CheckoutSuccessClient() {
-  return <div>Loading checkout success...</div>;
-}
+import CheckoutSuccessClient from './checkout-success-client';
 
 export default function CheckoutSuccessPage() {
   return (

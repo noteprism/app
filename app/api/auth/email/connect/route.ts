@@ -89,35 +89,21 @@ export async function POST(req: NextRequest) {
       },
     });
     
-    // Set session cookie and determine redirect URL
-    const isLocalDev = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
-    let redirectPath = '/dashboard';
-    
-    if (isLocalDev) {
-      // For local development, set the plan to active
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { 
-          plan: 'active',
-          localDevelopment: true
-        }
-      });
-      redirectPath = '/dashboard';
-    } else if (user.plan === 'active') {
-      redirectPath = '/dashboard';
-    } else {
-      // User has inactive plan, send to pricing
-      redirectPath = '/pricing';
-    }
-
-    return NextResponse.json({
+    // Set cookie and return response
+    const response = NextResponse.json({ 
       success: true,
-      redirectPath
-    }, {
-      headers: {
-        'Set-Cookie': `noteprism_session=${sessionId}; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE_DAYS * 24 * 60 * 60}; Path=/`
-      }
+      redirectPath: '/dashboard'
     });
+    
+    response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: SESSION_MAX_AGE_DAYS * 24 * 60 * 60,
+      path: '/',
+    });
+    
+    return response;
   } catch (error) {
     console.error('Email connection error:', error);
     return NextResponse.json({ error: 'Connection failed' }, { status: 500 });

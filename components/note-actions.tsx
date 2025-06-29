@@ -55,14 +55,14 @@ export function useNoteActions({
     }
 
     try {
-      const body = groupId === 'no-group'
-        ? { ...note }
+    const body = groupId === 'no-group'
+      ? { ...note }
         : { ...note, groupId };
         
-      const res = await fetch("/api/notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -81,7 +81,7 @@ export function useNoteActions({
               }
             : group
         ));
-      } else {
+    } else {
         setStandaloneNotes(prev => {
           const updated = prev.map(n => ({
             ...n,
@@ -89,7 +89,7 @@ export function useNoteActions({
           }));
           return [newNote, ...updated];
         });
-      }
+    }
       setIsCreateNoteOpen(false);
     } catch (error) {
       console.error("Failed to create note:", error);
@@ -110,18 +110,18 @@ export function useNoteActions({
     }
 
     try {
-      const res = await fetch("/api/groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+    const res = await fetch("/api/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "New Group" }),
-      })
+    })
 
       if (!res.ok) {
         console.error("Error creating group:", await res.text())
         return
       }
 
-      const newGroup = await res.json()
+    const newGroup = await res.json()
       setGroups(prev => [...prev, newGroup])
     } catch (error) {
       console.error("Failed to create group:", error)

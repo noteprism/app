@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // 5. Set secure, HTTPOnly cookie and determine redirect URL
+    // 5. Set secure, HTTPOnly cookie
     let redirectUrl = `${BASE_URL}/dashboard`;
     
     // Check if we need to enable local development mode
@@ -149,16 +149,6 @@ export async function GET(req: NextRequest) {
       });
     }
     
-    // Route based on user plan status
-    if (localDevMode && user.localDevelopment) {
-      redirectUrl = `${BASE_URL}/dashboard`;
-    } else if (user.plan === 'active') {
-      redirectUrl = `${BASE_URL}/dashboard`;
-    } else {
-      // User has inactive plan, send to pricing
-      redirectUrl = `${BASE_URL}/pricing`;
-    }
-
     const response = NextResponse.redirect(redirectUrl);
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,
