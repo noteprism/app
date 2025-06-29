@@ -32,7 +32,7 @@ export default async function DashboardPage({
   if (!session || session.expiresAt <= new Date()) {
     redirect('/');
   }
-
+  
   // Await searchParams in Next.js 15
   const params = await searchParams;
   

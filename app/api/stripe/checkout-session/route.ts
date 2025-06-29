@@ -10,7 +10,11 @@ export async function POST(req: NextRequest) {
     const { sessionId } = await req.json();
     
     if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Session ID required',
+        user_activated: false 
+      }, { status: 400 });
     }
 
     // Get the session from Stripe - this is the source of truth
@@ -22,33 +26,45 @@ export async function POST(req: NextRequest) {
       const subscriptionId = session.subscription as string;
       
       if (userId && subscriptionId) {
-        // Get subscription details from Stripe
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        
-        // Update user in database immediately - no race condition
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            plan: 'active',
-            stripeSubscriptionId: subscriptionId,
-            stripeSubscriptionStatus: subscription.status,
-            stripePriceId: subscription.items.data[0]?.price.id,
-            subscriptionVerifiedAt: new Date()
-          },
-        });
-        
-        console.log(`✅ Payment verified via Stripe and user ${userId} activated immediately`);
+        try {
+          // Get subscription details from Stripe
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          
+          // Update user in database immediately - no race condition
+          await prisma.user.update({
+            where: { id: userId },
+            data: {
+              plan: 'active',
+              stripeSubscriptionId: subscriptionId,
+              stripeSubscriptionStatus: subscription.status,
+              stripePriceId: subscription.items.data[0]?.price.id,
+              subscriptionVerifiedAt: new Date()
+            },
+          });
+          
+          console.log(`✅ Payment verified via Stripe and user ${userId} activated immediately`);
+          
+          return NextResponse.json({
+            success: true,
+            status: session.status,
+            payment_status: session.payment_status,
+            user_activated: true
+          });
+        } catch (dbError) {
+          console.error('Database update error:', dbError);
+          // Still return success since Stripe payment is complete
+          return NextResponse.json({
+            success: true,
+            status: session.status,
+            payment_status: session.payment_status,
+            user_activated: false,
+            warning: 'Payment successful but database update failed'
+          });
+        }
       }
-      
-      return NextResponse.json({
-        success: true,
-        status: session.status,
-        payment_status: session.payment_status,
-        user_activated: true
-      });
     }
     
-    // Payment not complete yet in Stripe
+    // Payment not complete yet in Stripe or missing metadata
     return NextResponse.json({
       success: false,
       status: session.status,
@@ -58,6 +74,10 @@ export async function POST(req: NextRequest) {
     
   } catch (error) {
     console.error('Error checking Stripe session:', error);
-    return NextResponse.json({ error: 'Session check failed' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false,
+      error: 'Session check failed',
+      user_activated: false 
+    }, { status: 500 });
   }
 } 
