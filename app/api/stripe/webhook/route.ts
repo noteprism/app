@@ -19,15 +19,47 @@ export async function POST(req: NextRequest) {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId;
+      const customerId = session.customer as string;
       const subscriptionId = session.subscription as string;
       
-      if (!userId) return new NextResponse('Missing userId', { status: 400 });
+      console.log(`Checkout completed - userId: ${userId}, customerId: ${customerId}, subscriptionId: ${subscriptionId}`);
+      
+      // Find user by userId from metadata first, then by customerId, then by email
+      let user = null;
+      
+      if (userId) {
+        user = await prisma.user.findUnique({ where: { id: userId } });
+        console.log(`Found user by userId: ${user?.id}`);
+      }
+      
+      if (!user && customerId) {
+        user = await prisma.user.findUnique({ where: { stripeCustomerId: customerId } });
+        console.log(`Found user by customerId: ${user?.id}`);
+      }
+      
+      if (!user && session.customer_details?.email) {
+        user = await prisma.user.findUnique({ where: { email: session.customer_details.email } });
+        console.log(`Found user by email: ${user?.id}`);
+      }
+      
+      if (!user) {
+        console.error('No user found for checkout session');
+        return new NextResponse('User not found', { status: 400 });
+      }
+      
+      // Update user with customer ID if not set
+      if (customerId && !user.stripeCustomerId) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { stripeCustomerId: customerId }
+        });
+      }
       
       if (subscriptionId) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         
         await prisma.user.update({
-          where: { id: userId },
+          where: { id: user.id },
           data: { 
             plan: 'active',
             stripeSubscriptionId: subscriptionId,
@@ -37,7 +69,7 @@ export async function POST(req: NextRequest) {
           },
         });
         
-        console.log(`User ${userId} subscription created with status ${subscription.status}`);
+        console.log(`User ${user.id} subscription created with status ${subscription.status} - set to ACTIVE`);
       }
     }
     

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('noteprism_session')?.value;
@@ -32,6 +32,9 @@ export default async function DashboardPage({
   if (!session || session.expiresAt <= new Date()) {
     redirect('/');
   }
+
+  // Await searchParams in Next.js 15
+  const params = await searchParams;
   
   // Check if local development mode is enabled
   const isLocalDev = process.env.NEXT_PUBLIC_LOCAL_DEV_MODE === 'true';
@@ -41,12 +44,12 @@ export default async function DashboardPage({
   const hasActivePlan = userHasActivePlan(user);
   
   // More lenient checkout flow - allow any checkout success redirect
-  const fromCheckout = searchParams.checkout === 'success' || 
-                      searchParams.session_id || 
-                      searchParams.verified === 'true' ||
-                      searchParams.timeout === 'true' ||
-                      searchParams.error === 'true' ||
-                      searchParams.manual === 'true';
+  const fromCheckout = params.checkout === 'success' || 
+                      params.session_id || 
+                      params.verified === 'true' ||
+                      params.timeout === 'true' ||
+                      params.error === 'true' ||
+                      params.manual === 'true';
   
   // If user doesn't have an active plan and we're not in local dev mode, redirect to pricing
   // BUT be very lenient if they're coming from checkout (give webhook/verification time)

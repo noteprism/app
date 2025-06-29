@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeftIcon, LogIn } from "lucide-react"
+import { PlusCircle, Plus, Search, Settings, User, StickyNote, Folder, Pencil, PanelLeftIcon, LogIn, Loader2 } from "lucide-react"
 import Image from "next/image"
 import type { NoteGroup as NoteGroupType } from "@/types/notes"
 import React, { useState } from "react"
@@ -43,6 +43,7 @@ export default function PanelLeft({
 }: PanelLeftProps) {
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const { state, isMobile, openMobile, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -128,6 +129,11 @@ export default function PanelLeft({
       return;
     }
     onNewNote();
+  };
+
+  const handleLoginClick = () => {
+    setIsLoginLoading(true);
+    router.push("/connect");
   };
 
   // If on mobile and sidebar is not open, don't render the main panel
@@ -294,12 +300,24 @@ export default function PanelLeft({
       <div className="border-t">
         <div className="flex items-center p-4">
           {isPublic ? (
-            <Link href="/connect" className="w-full">
-              <Button className="w-full" variant="default">
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign Up / Login
-              </Button>
-            </Link>
+            <Button 
+              className="w-full" 
+              variant="default"
+              onClick={handleLoginClick}
+              disabled={isLoginLoading}
+            >
+              {isLoginLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign Up / Login
+                </>
+              )}
+            </Button>
           ) : (
           <UserProfile />
           )}
